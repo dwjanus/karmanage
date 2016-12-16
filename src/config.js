@@ -7,12 +7,11 @@ if (ENV === 'development') dotenv.load();
 const config = {
   ENV: process.env.NODE_ENV,
   PORT: process.env.PORT,
-  REDIS_URL: process.env.REDIS_URL,
+  MONGO_URI: process.env.MONGODB_URI,
   PROXY_URI: process.env.PROXY_URI,
-  ICON_EMOJI: ':mcfly:',
+  ICON_EMOJI: ':robot:',
   SLACK_CLIENT_ID: process.env.CLIENT_ID,
   SLACK_CLIENT_SECRET: process.env.CLIENT_SECRET,
-  SLACK_OAUTH_TOKEN: process.env.OAUTH_TOKEN,
   APIAI_TOKEN: process.env.APIAI_TOKEN,
 };
 

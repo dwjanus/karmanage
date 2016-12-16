@@ -40,16 +40,47 @@ controller.setupWebserver(port, (err, webserver) => {
   });
 
   webserver.get('/', (req, res) => {
-    res.send( 'NEED BUTTON' );
+    res.send( '<a href="https://slack.com/oauth/authorize' +
+      '?scope=incoming-webhook,commands,bot&client_id=64177576980.117306046992">' +
+      '<img alt="Add to Slack" height="40" width="139"' +
+      'src="https://platform.slack-edge.com/img/add_to_slack.png"' +
+      'srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, ' +
+      'https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>' );
   });
 
-  webserver.post('/success', (req, res) => {
+  webserver.get('/success', (req, res) => {
      res.send('Success! Karma bot has been added to your team');
   });
 });
 
 
 //*************************************************************************************************//
+
+// quick greeting/create convo on new bot creation
+controller.on('create_bot', (bot, config) => {
+  console.log('** bot is being created **\n');
+  if (_bots[bot.config.token]) { // do nothing
+  } else {
+    bot.startRTM(err => {
+      if (!err) {
+        if (_convos[bot.config.token]) {  // do nothing
+          trackBot(bot);
+        } else {
+          const convo = new ConversationHandler(controller, bot);
+          trackConvo(bot, convo);
+        }
+      }
+      bot.startPrivateConversation({user: config.createdBy}, (err, convo) => {
+        if (err) {
+          console.log(err);
+        } else {
+          convo.say('I am a bot that has just joined your team');
+          convo.say('You must now /invite me to a channel so that I can be of use!');
+        }
+      });
+    });
+  }  
+});
 
 // Handle events related to the websocket connection to Slack
 controller.on('rtm_open', bot => {

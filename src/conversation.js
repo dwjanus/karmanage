@@ -7,7 +7,7 @@ export default (controller, bot) => {
 
 	const msgDefaults = {
     as_user: true,
-    username: 'Marty',
+    username: 'Karma Bot',
     icon_emoji: config('ICON_EMOJI')
   };
 
