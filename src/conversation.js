@@ -23,12 +23,12 @@ export default (controller, bot) => {
         color: '#0067B3',
         text: 'Simply react to a message with :+1: or' +
         			'@mention :+1: someone to give that person a karma point. Direct message/mention ' +
-        			'Karmabot or use a slash command to view points.'
+        			'Karmabot or use a slash command to view points.',
         fields: [
           {
             title: "Example", // maybe make this a gif or jpg?
             value: 'Jamie: @samanage: how much karma do I have?\n' +
-                   'Karmabot: You have 15 karma!\n'
+                   'Karmabot: You have 15 karma!\n',
             short: false
           }
         ]
