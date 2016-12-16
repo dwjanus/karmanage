@@ -40,12 +40,11 @@ controller.setupWebserver(port, (err, webserver) => {
   });
 
   webserver.get('/', (req, res) => {
-    res.send( '<a href="https://slack.com/oauth/authorize' +
-      '?scope=incoming-webhook,commands,bot&client_id=64177576980.117306046992">' +
-      '<img alt="Add to Slack" height="40" width="139"' +
-      'src="https://platform.slack-edge.com/img/add_to_slack.png"' +
-      'srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, ' +
-      'https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>' );
+    res.send( '<a href="https://slack.com/oauth/authorize?scope=incoming-webhook,'
+      + 'commands,bot&client_id=64177576980.117306046992"><img alt="Add to Slack" '
+      + 'height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" '
+      + 'srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x,'
+      + 'https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>' );
   });
 
   webserver.get('/success', (req, res) => {
