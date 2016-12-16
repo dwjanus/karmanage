@@ -2,7 +2,7 @@
 import util from 'util';
 import _ from 'lodash';
 import Botkit from 'botkit';
-import mongo from 'botkit-storage-mongo',
+import mongo from 'botkit-storage-mongo';
 import config from './config.js';
 import ConversationHandler from './conversation.js';
 
