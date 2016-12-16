@@ -1,0 +1,22 @@
+{
+  "name": "Karmanage",
+  "description": "Karma bot custom slack integration",
+  "repository": "https://github.com/dwjanus/karmanage",
+  "logo": "https://s3-media2.fl.yelpcdn.com/bphoto/N4Xl3iEv5Xb0OUiqlEX9EQ/ls.jpg",
+  "success_url": "/",
+  "env": {
+    "HEROKU_APP_NAME": {
+      "required": true
+    },
+    "SLACK_TOKEN": {
+      "description": "Slack bot RTM API token",
+      "required": false
+    },
+    "WEBHOOK_URL": {
+      "description": "Slack webhook url",
+      "required": false
+    },
+    "NODE_ENV": "staging"
+  },
+  "image": "heroku/nodejs"
+}
