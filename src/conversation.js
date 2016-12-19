@@ -62,4 +62,10 @@ export default (controller, bot) => {
   controller.hears(':+1:', ['ambient'], (bot, message) => {
     bot.say('+1 Heard!')
   })
+
+  controller.on('reaction_added', ['ambient'], (bot, message) => {
+    if (message.reaction === '+1') {
+      bot.say(`I heard your +1! ${message.item_user} awarded a point!`)
+    }
+  })
 }
