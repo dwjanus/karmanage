@@ -58,12 +58,17 @@ export default (controller, bot) => {
   })
 
   controller.hears(':+1:', ['ambient'], (bot, message) => {
-    console.log('+1 was heard ambiently - waiting for bot response message')
+    console.log(':+1: was heard ambiently - waiting for bot response message', util.inspect(message))
     bot.reply(message, {text: '+1 Heard!'})
   })
 
-  controller.on('reaction_added', ['ambient'], (bot, message) => {
-    console.log('+1 reaction was heard ambiently - ', util.inspect(message))
+  controller.hears('+1', ['ambient'], (bot, message) => {
+    console.log('+1 was heard ambiently - waiting for bot response message', util.inspect(message))
+    bot.reply(message, {text: '+1 Heard!'})
+  })
+
+  controller.on('reaction_added', (bot, message) => {
+    console.log('reaction was heard - ', util.inspect(message))
     if (message.reaction === '+1') {
       bot.say(`I heard your +1! ${message.item_user} awarded a point!`)
     }
