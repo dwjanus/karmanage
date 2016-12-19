@@ -32,7 +32,8 @@ controller.setupWebserver(port, (err, webserver) => {
   controller.createWebhookEndpoints(controller.webserver)
   controller.createOauthEndpoints(controller.webserver, (err, req, res) => {
     if (err) res.status(500).send(`ERROR: ${err}`)
-    else res.redirect('https://karmanage.herokuapp.com/success')
+    // else res.redirect('https://karmanage.herokuapp.com/success')
+    else res.send('Success!')
   })
 
   webserver.get('/', (req, res) => {
