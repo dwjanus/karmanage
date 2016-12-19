@@ -7,7 +7,7 @@ import ConversationHandler from './conversation.js'
 
 /*************************************************************************************************/
 
-const mongoStorage = mongo({mongoUri: process.env.MONGO_URI})
+const mongoStorage = mongo({mongoUri: config('MONGODB_URI')})
 const port = process.env.PORT || process.env.port
 
 if (!config('SLACK_CLIENT_ID') || !config('SLACK_CLIENT_SECRET') || !config('PORT')) {
