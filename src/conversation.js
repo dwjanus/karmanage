@@ -17,9 +17,10 @@ export default (controller, bot) => {
       {
         title: 'Help',
         color: '#0067B3',
-        text: 'Simply react to a message with :+1: or' +
-              '@mention :+1: someone to give that person a karma point. Direct message/mention ' +
-              'Karmabot or use a slash command to view points.',
+        text: 'Simply react to a message with :+1: or ' +
+              '@mention someone :+1: to give that person a karma point. ' +
+              'Direct message/mention Karmabot or use a slash command to ' +
+              'view points.',
         fields: [
           {
             title: 'Example', // maybe make this a gif or jpg?
@@ -55,10 +56,10 @@ export default (controller, bot) => {
   })
 
   controller.hears('hello', ['direct_message', 'direct_mention'], (bot, message) => {
-    bot.reply(message, 'What it do')
+    bot.say('What it do')
   })
 
   controller.hears(':+1:', ['ambient'], (bot, message) => {
-    bot.reply(message, '+1 Heard!')
+    bot.say('+1 Heard!')
   })
 }
