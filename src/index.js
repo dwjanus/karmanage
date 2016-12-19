@@ -22,7 +22,7 @@ const controller = Botkit.slackbot({
   clientId: config('SLACK_CLIENT_ID'),
   clientSecret: config('SLACK_CLIENT_SECRET'),
   redirectUri: 'https://karmanage.herokuapp.com/oauth',
-  scopes: ['bot', 'incoming-webhook', 'commands', 'chat:write:user', 'chat:write:bot']
+  scopes: ['bot', 'incoming-webhook', 'commands']
 })
 
 /*************************************************************************************************/
