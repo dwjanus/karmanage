@@ -1,4 +1,5 @@
 
+import _ from 'lodash'
 import Botkit from 'botkit'
 import mongo from 'botkit-storage-mongo'
 import config from './config.js'
