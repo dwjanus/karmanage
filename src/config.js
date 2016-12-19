@@ -1,8 +1,8 @@
 
-import dotenv from 'dotenv';
-const ENV = process.env.NODE_ENV || 'development';
+import dotenv from 'dotenv'
+const ENV = process.env.NODE_ENV || 'development'
 
-if (ENV === 'development') dotenv.load();
+if (ENV === 'development') dotenv.load()
 
 const config = {
   ENV: process.env.NODE_ENV,
@@ -12,10 +12,10 @@ const config = {
   ICON_EMOJI: ':robot:',
   SLACK_CLIENT_ID: process.env.CLIENT_ID,
   SLACK_CLIENT_SECRET: process.env.CLIENT_SECRET,
-  APIAI_TOKEN: process.env.APIAI_TOKEN,
-};
+  APIAI_TOKEN: process.env.APIAI_TOKEN
+}
 
 export default (key) => {
-  if (!key) return config;
-  return config[key];
-};
+  if (!key) return config
+  return config[key]
+}

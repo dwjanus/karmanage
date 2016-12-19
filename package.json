@@ -1,7 +1,7 @@
 {
   "name": "karmanage",
   "version": "1.0.0",
-  "description": "Karma bot for Samanage internal",
+  "description": "Karma bot integration for Samanage internal channels",
   "repository": "https://github.com/dwjanus/karmanage",
   "main": "build/index.js",
   "scripts": {
@@ -31,6 +31,7 @@
   "dependencies": {
     "babel-cli": "6.18.0",
     "babel-core": "6.20.0",
+    "babel-eslint": "^7.0.0",
     "babel-plugins": "1.0.0",
     "babel-polyfill": "6.20.0",
     "babel-preset-es2015": "^6.16.0",
@@ -49,6 +50,7 @@
   "devDependencies": {
     "babel-cli": "^6.16.0",
     "babel-core": "^6.17.0",
+    "babel-eslint": "^7.0.0",
     "babel-polyfill": "^6.16.0",
     "babel-preset-es2015": "^6.16.0",
     "babel-preset-stage-3": "^6.16.0"
