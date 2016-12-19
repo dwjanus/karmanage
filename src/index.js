@@ -21,7 +21,7 @@ const controller = Botkit.slackbot({
 }).configureSlackApp({
   clientId: config('SLACK_CLIENT_ID'),
   clientSecret: config('SLACK_CLIENT_SECRET'),
-  redirectUri: 'https://karmanage.herokuapp.com/oauth',
+  redirectUri: 'https://karmanage.herokuapp.com/success',
   scopes: ['bot', 'incoming-webhook', 'commands']
 })
 
