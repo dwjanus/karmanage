@@ -1,15 +1,13 @@
 
 import util from 'util'
 import _ from 'lodash'
-import slack from 'slack'
 import config from './config.js'
 
 export default (controller, bot) => {
   const msgDefaults = {
     as_user: true,
     username: 'Karma Bot',
-    color: '#0067B3',
-    icon_emoji: config('ICON_EMOJI')
+    color: '#0067B3'
   }
 
   controller.hears(['(^help$)'], ['direct_message', 'direct_mention'], (bot, message) => {
@@ -51,19 +49,21 @@ export default (controller, bot) => {
   })
 
   controller.hears('^stop', 'direct_message', (bot, message) => {
-    bot.reply(message, 'Goodbye')
+    bot.reply(message, {text: 'Goodbye'})
     bot.rtm.close()
   })
 
   controller.hears('hello', ['direct_message', 'direct_mention'], (bot, message) => {
-    bot.say('What it do')
+    bot.reply(message, {text: 'What it do'})
   })
 
   controller.hears(':+1:', ['ambient'], (bot, message) => {
-    bot.say('+1 Heard!')
+    console.log('+1 was heard ambiently - waiting for bot response message')
+    bot.reply(message, {text: '+1 Heard!'})
   })
 
   controller.on('reaction_added', ['ambient'], (bot, message) => {
+    console.log('+1 reaction was heard ambiently - ', util.inspect(message))
     if (message.reaction === '+1') {
       bot.say(`I heard your +1! ${message.item_user} awarded a point!`)
     }

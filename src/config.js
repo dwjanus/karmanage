@@ -9,7 +9,6 @@ const config = {
   PORT: process.env.PORT,
   MONGODB_URI: process.env.MONGODB_URI,
   PROXY_URI: process.env.PROXY_URI,
-  ICON_EMOJI: ':robot:',
   SLACK_CLIENT_ID: process.env.SLACK_CLIENT_ID,
   SLACK_CLIENT_SECRET: process.env.SLACK_CLIENT_SECRET
 }
