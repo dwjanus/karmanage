@@ -1,7 +1,6 @@
 
 import util from 'util'
 import _ from 'lodash'
-import config from './config.js'
 
 export default (controller, bot) => {
   const msgDefaults = {
@@ -65,15 +64,15 @@ export default (controller, bot) => {
       let replyMessage = _.defaults({
         text: 'Karmatime! A point has been awarded to: '
       }, msgDefaults)
-      for (const rawId in rawIds) {
-        console.log('rawId: ', rawId)
-        let id = rawId.substring(2, 11)
+      _.each(rawIds, (value) => {
+        console.log('rawId: ', value)
+        let id = value.substring(2, 11)
         console.log('id: ', id)
         bot.api.users.info({user: id}, (err, res) => {
           if (err) console.log(err)
           else replyMessage.text += `${res.user.profile.real_name}\n`
         })
-      }
+      })
       bot.reply(message, replyMessage)
     }
   })
