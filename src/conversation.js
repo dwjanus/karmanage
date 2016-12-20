@@ -59,16 +59,14 @@ export default (controller, bot) => {
 
   controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
     console.log(':+1: was heard ambiently', util.inspect(message))
-    let rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm), _.trim)
+    let rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm).substring(2, 10))
     if (rawIds.length > 0) {
       console.log('first conditional passed: ', util.inspect(rawIds))
       let replyMessage = _.defaults({
         text: 'Karmatime! A point has been awarded to: '
       }, msgDefaults)
       for (const rawId in rawIds) {
-        let userId = _.trim(rawId, '<@>')
-        console.log(`got userId: ${userId}`)
-        bot.api.users.info({user: userId}, (err, res) => {
+        bot.api.users.info({user: rawId}, (err, res) => {
           if (err) console.log(err)
           else replyMessage.text += `${res.user.profile.real_name}\n`
         })
