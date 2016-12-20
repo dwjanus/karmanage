@@ -67,7 +67,7 @@ export default (controller, bot) => {
         text: 'Karmatime! A point has been awarded to: '
       }, msgDefaults)
       for (const rawId in rawIds) {
-        let userId = this.rawId.match(/([A-Z0-9])+/igm)
+        let userId = rawId.match(/([A-Z0-9])+/igm)
         console.log(`got userId: ${userId}`)
         bot.api.users.info({user: userId}, (err, res) => {
           if (err) console.log(err)
