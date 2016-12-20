@@ -14,7 +14,7 @@ async function populateUserArray (bot, rawIds) {
 }
 
 function processRawId (rawId) {
-  return _.toString(rawId).substring(2, 11)
+  return new Promise.resolve(rawId.substring(2, 11))
 }
 
 function mapIds (rawIds) {
@@ -24,9 +24,11 @@ function mapIds (rawIds) {
 }
 
 function getUserName (bot, userId) {
-  bot.api.users.info({user: userId}, (err, res) => {
-    if (err) console.log(err)
-    else return res.user.profile.real_name
+  return new Promise((resolve, reject) => {
+    bot.api.users.info({user: userId}, (err, res) => {
+      if (err) reject(err)
+      else resolve(res.user.profile.real_name)
+    })
   })
 }
 
