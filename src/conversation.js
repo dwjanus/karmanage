@@ -14,12 +14,13 @@ async function populateUserArray (bot, rawIds) {
 }
 
 function processRawId (rawId) {
-  return new Promise.resolve(_.toString(rawId).substring(2, 11))
+  return _.toString(rawId).substring(2, 11)
 }
 
 function mapIds (rawIds) {
   return new Promise((resolve, reject) => {
-    resolve(_.map(rawIds, processRawId(rawIds)))
+    let idArray = _.map(rawIds, processRawId(rawIds))
+    resolve(idArray)
   })
 }
 
@@ -27,7 +28,8 @@ function getUserName (bot, userId) {
   return new Promise((resolve, reject) => {
     bot.api.users.info({user: userId}, (err, res) => {
       if (err) reject(err)
-      else resolve(res.user.profile.real_name)
+      let name = res.user.profile.real_name
+      resolve(name)
     })
   })
 }
