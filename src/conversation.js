@@ -57,24 +57,20 @@ export default (controller, bot) => {
     bot.reply(message, {text: 'What it do'})
   })
 
-  controller.hears('\:\+1\:', ['ambient'], (bot, message) => {
+  controller.hears('(:+1:)', ['ambient'], (bot, message) => {
     console.log(':+1: was heard ambiently - waiting for bot response message', util.inspect(message))
     bot.reply(message, {text: '+1 Heard!'})
   })
 
-  controller.hears('\+1', ['ambient'], (bot, message) => {
+  controller.hears('(+1)', ['ambient'], (bot, message) => {
     console.log('+1 was heard ambiently - waiting for bot response message', util.inspect(message))
     bot.reply(message, {text: '+1 Heard!'})
-  })
-
-  controller.hears('1', ['ambient'], (bot, message) => {
-    console.log('1 was heard ambiently - waiting for bot response message\n', util.inspect(message))
-    bot.reply(message, {text: '1 Heard!'})
   })
 
   controller.on('reaction_added', (bot, message) => {
     console.log('reaction was heard!\n', util.inspect(message))
     if (message.reaction === '\+1') {
+      console.log('conditional passed!')
       bot.reply(message, {text: `I heard your +1! ${message.item_user} awarded a point!`})
     }
   })
