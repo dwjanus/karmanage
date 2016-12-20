@@ -17,15 +17,15 @@ function processRawId (rawId) {
 }
 
 function mapIds (rawIds) {
-  return new Promise.resolve(_.map(rawIds, processRawId(rawIds)))
+  return new Promise((resolve, reject) => {
+    resolve(_.map(rawIds, processRawId(rawIds)))
+  })
 }
 
 function getUserName (bot, userId) {
-  return new Promise((resolve, reject) => {
-    bot.api.users.info({user: userId}, (err, res) => {
-      if (err) reject(err)
-      resolve(res.user.profile.real_name)
-    })
+  bot.api.users.info({user: userId}, (err, res) => {
+    if (err) console.log(err)
+    else return res.user.profile.real_name
   })
 }
 
