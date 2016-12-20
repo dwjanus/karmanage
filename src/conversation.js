@@ -66,7 +66,8 @@ export default (controller, bot) => {
         text: 'Karmatime! A point has been awarded to: '
       }, msgDefaults)
       for (const rawId in rawIds) {
-        let id = rawId.substring(2, 10)
+        console.log('rawId: ', rawId)
+        let id = rawId.substring(2, 11)
         console.log('id: ', id)
         bot.api.users.info({user: id}, (err, res) => {
           if (err) console.log(err)
