@@ -84,7 +84,7 @@ export default (controller, bot) => {
         channel: message.item.channel
       }
       console.log('reply looks like: ', util.inspect(replyMessage))
-      bot.reply(message, replyMessage)
+      bot.say(replyMessage)
     }
   })
 }
