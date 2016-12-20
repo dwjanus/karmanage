@@ -60,7 +60,7 @@ export default (controller, bot) => {
   controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
     console.log(':+1: was heard ambiently', util.inspect(message))
     bot.say('+1 Heard!')
-    let userIds = _.includes(message.text.match(/<@([A-Z0-9])+>/igm))
+    let userIds = message.text.match(/<@([A-Z0-9])+>/igm)
     if (userIds.length > 0) {
       console.log('conditional passed, userIds: ', util.insepect(userIds))
       let replyMessage = _.defaults({
@@ -77,13 +77,10 @@ export default (controller, bot) => {
   })
 
   controller.on('reaction_added', (bot, message) => {
-    console.log('reaction was heard!\n', util.inspect(message))
     if (message.reaction === '\+1') {
-      console.log('conditional passed!')
-      bot.say(`I heard your +1 without new reply! ${message.item_user} awarded a point!`)
+      console.log('reaction was heard!\n', util.inspect(message))
       let replyMessage = _.defaults({
-        text: `I heard your +1! ${message.item_user} awarded a point!`,
-        channel: message.item.channel
+        text: `I heard your +1! User awarded a point!`
       }, msgDefaults)
       console.log('reply looks like: ', util.inspect(replyMessage))
       bot.reply(message, replyMessage)
