@@ -60,19 +60,22 @@ export default (controller, bot) => {
   controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
     console.log(':+1: was heard ambiently', util.inspect(message))
     bot.say('+1 Heard!')
-    let userIds = message.text.match(/<@([A-Z0-9])+>/igm)
-    if (userIds.length > 0) {
-      console.log('conditional passed, userIds: ', util.inspect(userIds))
-      let replyMessage = _.defaults({
-        text: 'Karmatime! A point has been awarded to:\n'
-      }, msgDefaults)
-      for (const userId in userIds) {
-        bot.api.users.info({user: userId}, (err, res) => {
-          if (err) console.log(err)
-          else replyMessage.text += `${res.user.profile.real_name}\n`
-        })
+    if (_.includes(message.text.match(/<@([A-Z0-9])+>/igm))) {
+      console.log('first conditional passed')
+      let userIds = message.text.match(/([A-Z0-9])>/igm)
+      if (userIds.length > 0) {
+        console.log('conditional passed, userIds: ', util.inspect(userIds))
+        let replyMessage = _.defaults({
+          text: 'Karmatime! A point has been awarded to: '
+        }, msgDefaults)
+        for (const userId in userIds) {
+          bot.api.users.info({user: userId}, (err, res) => {
+            if (err) console.log(err)
+            else replyMessage.text += `${res.user.profile.real_name}\n`
+          })
+        }
+        bot.reply(message, replyMessage)
       }
-      bot.reply(message, replyMessage)
     }
   })
 
