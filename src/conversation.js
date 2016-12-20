@@ -62,7 +62,7 @@ export default (controller, bot) => {
     bot.say('+1 Heard!')
     let userIds = message.text.match(/<@([A-Z0-9])+>/igm)
     if (userIds.length > 0) {
-      console.log('conditional passed, userIds: ', util.insepect(userIds))
+      console.log('conditional passed, userIds: ', util.inspect(userIds))
       let replyMessage = _.defaults({
         text: 'Karmatime! A point has been awarded to:\n'
       }, msgDefaults)
@@ -79,9 +79,10 @@ export default (controller, bot) => {
   controller.on('reaction_added', (bot, message) => {
     if (message.reaction === '\+1') {
       console.log('reaction was heard!\n', util.inspect(message))
-      let replyMessage = _.defaults({
-        text: `I heard your +1! User awarded a point!`
-      }, msgDefaults)
+      let replyMessage = {
+        text: `I heard your +1! ${message.item_user} awarded a point!`,
+        channel: message.item.channel
+      }
       console.log('reply looks like: ', util.inspect(replyMessage))
       bot.reply(message, replyMessage)
     }
