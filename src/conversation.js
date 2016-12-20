@@ -17,9 +17,7 @@ function processRawId (rawId) {
 }
 
 function mapIds (rawIds) {
-  return new Promise((resolve, reject) => {
-    resolve(_.map(rawIds, processRawId(rawIds)))
-  })
+  return _.map(rawIds, processRawId(rawIds))
 }
 
 function getUserName (bot, userId) {
