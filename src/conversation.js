@@ -104,7 +104,7 @@ export default (controller, bot) => {
     // 3. look up each id and save the returned name to an array
     if (rawIds.length > 0) {
       console.log('first conditional passed: ', util.inspect(rawIds))
-      let userNames = Promise.map(populateUserArray(bot, rawIds))
+      let userNames = populateUserArray(bot, rawIds)
       console.log('userNames: ', util.inspect(userNames))
       replyMessage.text += _.toString(userNames)
       bot.reply(message, replyMessage)
