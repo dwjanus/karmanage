@@ -18,18 +18,22 @@ function processRawId (rawId) {
 }
 
 function mapIds (rawIds) {
-  return Promise.map(rawIds, processRawId(rawIds))
+  return new Promise((resolve, reject) => {
+    resolve(_.map(rawIds, processRawId(rawIds)))
+  })
 }
 
 function getUserName (bot, userId) {
   bot.api.users.info({user: userId}, (err, res) => {
     if (err) console.log(err)
-    else return new Promise.resolve(res.user.profile.real_name)
+    else return res.user.profile.real_name
   })
 }
 
 function mapUsers (bot, userIds) {
-  return Promise.map(userIds, getUserName(bot, userIds))
+  return new Promise((resolve, reject) => {
+    resolve(_.map(userIds, getUserName(bot, userIds)))
+  })
 }
 
 export default (controller, bot) => {
