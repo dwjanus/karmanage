@@ -74,7 +74,7 @@ export default (controller, bot) => {
 
   controller.on('reaction_added', (bot, message) => {
     console.log('reaction was heard!\n', util.inspect(message))
-    if (message.reaction == '+1') {
+    if (message.reaction === '\+1') {
       bot.reply(message, {text: `I heard your +1! ${message.item_user} awarded a point!`})
     }
   })
