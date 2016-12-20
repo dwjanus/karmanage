@@ -5,6 +5,7 @@ import Promise from 'bluebird'
 
 async function populateUserArray (bot, rawIds) {
   try {
+    Promise.promisifyAll(bot)
     let ids = await mapIds(rawIds)
     let users = await mapUsers(bot, ids)
     return users
@@ -14,7 +15,7 @@ async function populateUserArray (bot, rawIds) {
 }
 
 function processRawId (rawId) {
-  return _.toString(rawId).substring(2, 11)
+  return Promise.resolve(_.toString(rawId).substring(2, 11))
 }
 
 function mapIds (rawIds) {
@@ -25,18 +26,16 @@ function mapIds (rawIds) {
 }
 
 function getUserName (bot, userId) {
-  return new Promise((resolve, reject) => {
-    bot.api.users.info({user: userId}, (err, res) => {
-      if (err) reject(err)
-      let name = res.user.profile.real_name
-      resolve(name)
-    })
+  bot.api.users.info({user: userId}, (err, res) => {
+    if (err) console.log(err)
+    else return res.user.profile.real_name
   })
 }
 
 function mapUsers (bot, userIds) {
   return new Promise((resolve, reject) => {
-    resolve(_.map(userIds, getUserName(bot, userIds)))
+    let names = _.map(userIds, getUserName(bot, userIds))
+    resolve(names)
   })
 }
 
