@@ -3,10 +3,9 @@ import util from 'util'
 import _ from 'lodash'
 import Promise from 'bluebird'
 
-async function populateUserArray (bot, rawIds) {
+function populateUserArray (bot, rawIds) {
   try {
-    let ids = await mapIds(rawIds)
-    return mapUsers(bot, ids)
+    return mapUsers(bot, mapIds(rawIds))
   } catch (err) {
     console.log(err)
   }
