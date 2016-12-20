@@ -5,8 +5,7 @@ import config from './config.js'
 
 export default (controller, bot) => {
   const msgDefaults = {
-    response_tyoe: 'in_channel',
-    as_user: true,
+    response_type: 'in_channel',
     username: 'Karma Bot',
     color: '#0067B3'
   }
@@ -58,9 +57,23 @@ export default (controller, bot) => {
     bot.reply(message, {text: 'What it do'})
   })
 
-  controller.hears([':\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
-    console.log(':+1: was heard ambiently - waiting for bot response message', util.inspect(message))
-    bot.reply(message, {text: '+1 Heard!'})
+  controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
+    console.log(':+1: was heard ambiently', util.inspect(message))
+    bot.say('+1 Heard!')
+    let userIds = _.includes(message.text.match(/<@([A-Z0-9])+>/igm))
+    if (userIds.length > 0) {
+      console.log('conditional passed, userIds: ', util.insepect(userIds))
+      let replyMessage = _.defaults({
+        text: 'Karmatime! A point has been awarded to:\n'
+      }, msgDefaults)
+      for (const userId in userIds) {
+        bot.api.users.info({user: userId}, (err, res) => {
+          if (err) console.log(err)
+          else replyMessage.text += `${res.user.profile.real_name}\n`
+        })
+      }
+      bot.reply(message, replyMessage)
+    }
   })
 
   controller.on('reaction_added', (bot, message) => {
@@ -72,7 +85,7 @@ export default (controller, bot) => {
         text: `I heard your +1! ${message.item_user} awarded a point!`,
         channel: message.item.channel
       }, msgDefaults)
-
+      console.log('reply looks like: ', util.inspect(replyMessage))
       bot.reply(message, replyMessage)
     }
   })
