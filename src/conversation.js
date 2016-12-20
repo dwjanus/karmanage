@@ -1,6 +1,40 @@
 
 import util from 'util'
 import _ from 'lodash'
+import Promise from 'bluebird'
+
+Promise.each(getUserName( ), (name))
+
+async function populateUserArray (bot, rawIds) {
+  try {
+    let ids = await mapIds(rawIds)
+    let names = await mapUsers(bot, ids)
+    return names
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+function processRawId (rawId) {
+  return new Promise.resolve(rawId.substring(2, 11))
+}
+
+function mapIds (rawIds) {
+  return new Promise.map(rawIds, processRawId(rawIds))
+}
+
+function getUserName (bot, userId) {
+  return new Promise((resolve, reject) => {
+    bot.api.users.info({user: userId}, (err, res) => {
+      if (err) reject(err) return;
+      else resolve(res.user.profile.real_name)
+    })
+  })
+}
+
+function mapUsers (bot, userIds) {
+  return new Promise.map(userIds, await getUserName(bot, userIds))
+}
 
 export default (controller, bot) => {
   const msgDefaults = {
@@ -58,21 +92,18 @@ export default (controller, bot) => {
 
   controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
     console.log(':+1: was heard ambiently', util.inspect(message))
+    let replyMessage = _.defaults({
+      text: 'Karmatime! A point has been awarded to: '
+    }, msgDefaults)
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
+    // 1. get Ids mentioned
+    // 2. remove unnecessary chars
+    // 3. look up each id and save the returned name to an array
     if (rawIds.length > 0) {
       console.log('first conditional passed: ', util.inspect(rawIds))
-      let replyMessage = _.defaults({
-        text: 'Karmatime! A point has been awarded to: '
-      }, msgDefaults)
-      _.each(rawIds, (value) => {
-        console.log('rawId: ', value)
-        let id = value.substring(2, 11)
-        console.log('id: ', id)
-        bot.api.users.info({user: id}, (err, res) => {
-          if (err) console.log(err)
-          else replyMessage.text += `${res.user.profile.real_name}\n`
-        })
-      })
+      let userNames = populateUserArray(bot, rawIds)
+      console.log('userNames: ', util.inspect(userNames))
+      replyMessage.text += _.toString(userNames)
       bot.reply(message, replyMessage)
     }
   })
