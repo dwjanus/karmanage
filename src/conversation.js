@@ -62,7 +62,7 @@ export default (controller, bot) => {
     bot.reply(message, {text: '+1 Heard!'})
   })
 
-  controller.hears('\+\+', ['ambient'], (bot, message) => {
+  controller.hears('++', ['ambient'], (bot, message) => {
     console.log('++ was heard ambiently - waiting for bot response message', util.inspect(message))
     bot.reply(message, {text: '+1 Heard!'})
   })
