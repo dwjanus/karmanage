@@ -5,6 +5,7 @@ import config from './config.js'
 
 export default (controller, bot) => {
   const msgDefaults = {
+    response_tyoe: 'in_channel',
     as_user: true,
     username: 'Karma Bot',
     color: '#0067B3'
@@ -57,13 +58,8 @@ export default (controller, bot) => {
     bot.reply(message, {text: 'What it do'})
   })
 
-  controller.hears(':\+1:', ['ambient'], (bot, message) => {
+  controller.hears([':\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
     console.log(':+1: was heard ambiently - waiting for bot response message', util.inspect(message))
-    bot.reply(message, {text: '+1 Heard!'})
-  })
-
-  controller.hears('++', ['ambient'], (bot, message) => {
-    console.log('++ was heard ambiently - waiting for bot response message', util.inspect(message))
     bot.reply(message, {text: '+1 Heard!'})
   })
 
@@ -71,7 +67,13 @@ export default (controller, bot) => {
     console.log('reaction was heard!\n', util.inspect(message))
     if (message.reaction === '\+1') {
       console.log('conditional passed!')
-      bot.reply(message, {text: `I heard your +1! ${message.item_user} awarded a point!`})
+      bot.say(`I heard your +1 without new reply! ${message.item_user} awarded a point!`)
+      let replyMessage = _.defaults({
+        text: `I heard your +1! ${message.item_user} awarded a point!`,
+        channel: message.item.channel
+      }, msgDefaults)
+
+      bot.reply(message, replyMessage)
     }
   })
 }
