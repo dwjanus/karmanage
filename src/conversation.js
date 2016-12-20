@@ -3,10 +3,11 @@ import util from 'util'
 import _ from 'lodash'
 import Promise from 'bluebird'
 
-function populateUserArray (bot, rawIds) {
+async function populateUserArray (bot, rawIds) {
   try {
-    let ids = mapIds(rawIds)
-    return mapUsers(bot, ids)
+    let ids = await mapIds(rawIds)
+    let users = await mapUsers(bot, ids)
+    return users
   } catch (err) {
     console.log(err)
   }
@@ -17,18 +18,18 @@ function processRawId (rawId) {
 }
 
 function mapIds (rawIds) {
-  return _.map(rawIds, processRawId(rawIds))
+  return Promise.map(rawIds, processRawId(rawIds))
 }
 
 function getUserName (bot, userId) {
   bot.api.users.info({user: userId}, (err, res) => {
     if (err) console.log(err)
-    else return res.user.profile.real_name
+    else return new Promise.resolve(res.user.profile.real_name)
   })
 }
 
 function mapUsers (bot, userIds) {
-  return _.map(userIds, getUserName(bot, userIds))
+  return Promise.map(userIds, getUserName(bot, userIds))
 }
 
 export default (controller, bot) => {
