@@ -6,19 +6,18 @@ import Promise from 'bluebird'
 async function populateUserArray (bot, rawIds) {
   try {
     let ids = await mapIds(rawIds)
-    let names = await mapUsers(bot, ids)
-    return names
+    return mapUsers(bot, ids)
   } catch (err) {
     console.log(err)
   }
 }
 
 function processRawId (rawId) {
-  return new Promise.resolve(_.toString(rawId).substring(2, 11))
+  return _.toString(rawId).substring(2, 11)
 }
 
 function mapIds (rawIds) {
-  return new Promise.map(rawIds, processRawId(rawIds))
+  return new Promise.resolve(_.map(rawIds, processRawId(rawIds)))
 }
 
 function getUserName (bot, userId) {
@@ -31,7 +30,7 @@ function getUserName (bot, userId) {
 }
 
 function mapUsers (bot, userIds) {
-  return new Promise.map(userIds, getUserName(bot, userIds))
+  return _.map(userIds, getUserName(bot, userIds))
 }
 
 export default (controller, bot) => {
