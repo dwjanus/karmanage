@@ -67,7 +67,7 @@ export default (controller, bot) => {
         text: 'Karmatime! A point has been awarded to: '
       }, msgDefaults)
       for (const rawId in rawIds) {
-        let userId = rawId.match(/([A-Z0-9])+>/igm)
+        let userId = this.rawId.match(/([A-Z0-9])+/igm)
         console.log(`got userId: ${userId}`)
         bot.api.users.info({user: userId}, (err, res) => {
           if (err) console.log(err)
@@ -81,12 +81,15 @@ export default (controller, bot) => {
   controller.on('reaction_added', (bot, message) => {
     if (message.reaction === '\+1') {
       console.log('reaction was heard!\n', util.inspect(message))
-      let replyMessage = {
-        text: `I heard your +1! ${message.item_user} awarded a point!`,
-        channel: message.item.channel
-      }
-      console.log('reply looks like: ', util.inspect(replyMessage))
-      bot.say(replyMessage)
+      bot.api.users.info({user: message.item_user}, (err, res) => {
+        if (err) console.log(err)
+        let name = res.user.profile.real_name
+        let replyMessage = {
+          text: `I heard your +1! ${name} has been awarded a point!`,
+          channel: message.item.channel
+        }
+        bot.say(replyMessage)
+      })
     }
   })
 }
