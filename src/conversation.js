@@ -5,7 +5,8 @@ import Promise from 'bluebird'
 
 function populateUserArray (bot, rawIds) {
   try {
-    return mapUsers(bot, mapIds(rawIds))
+    let ids = mapIds(rawIds)
+    return mapUsers(bot, ids)
   } catch (err) {
     console.log(err)
   }
