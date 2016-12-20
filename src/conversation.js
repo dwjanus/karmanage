@@ -14,7 +14,7 @@ async function populateUserArray (bot, rawIds) {
 }
 
 function processRawId (rawId) {
-  return new Promise.resolve(rawId.substring(2, 11))
+  return new Promise.resolve(_.toString(rawId).substring(2, 11))
 }
 
 function mapIds (rawIds) {
