@@ -3,8 +3,6 @@ import util from 'util'
 import _ from 'lodash'
 import Promise from 'bluebird'
 
-Promise.each(getUserName( ), (name))
-
 async function populateUserArray (bot, rawIds) {
   try {
     let ids = await mapIds(rawIds)
@@ -26,14 +24,14 @@ function mapIds (rawIds) {
 function getUserName (bot, userId) {
   return new Promise((resolve, reject) => {
     bot.api.users.info({user: userId}, (err, res) => {
-      if (err) reject(err) return;
-      else resolve(res.user.profile.real_name)
+      if (err) reject(err)
+      resolve(res.user.profile.real_name)
     })
   })
 }
 
 function mapUsers (bot, userIds) {
-  return new Promise.map(userIds, await getUserName(bot, userIds))
+  return new Promise.map(userIds, getUserName(bot, userIds))
 }
 
 export default (controller, bot) => {
