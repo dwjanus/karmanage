@@ -13,9 +13,7 @@ export default (controller, bot) => {
       // console.log(` -----> populateUserArray (post - mapUsers) ---- users: ${users}`)
       mapIds(rawIds).then((ids) => {
         console.log(` -----> populateUserArray (post - mapIds) ---- ids: ${ids}`)
-        let names = mapUsers(ids)
-        console.log(` -----> populateUserArray (post - mapUsers) ---- names: ${ids}`)
-        return names
+        return mapUsers(ids)
       })
     } catch (err) {
       console.log(err)
@@ -44,10 +42,8 @@ export default (controller, bot) => {
   }
 
   function mapUsers (userIds) {
-    return new Promise((resolve, reject) => {
-      console.log(`      -----> mapUsers ---- userIds: ${userIds}`)
-      resolve(_.map(userIds, getUserName))
-    })
+    console.log(`      -----> mapUsers ---- userIds: ${userIds}`)
+    return _.map(userIds, getUserName)
   }
 
   const msgDefaults = {
