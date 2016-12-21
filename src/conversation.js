@@ -5,9 +5,17 @@ import Promise from 'bluebird'
 
 export default (controller, bot) => {
 
+  function asyncCall (rawIds) {
+    console.log(` --> asyncCall ---- rawIds: ${rawIds}`)
+    return rawIds
+  }
+
   async function populateUserArray (rawIds) {
     try {
-      let [ids, names] = await Promise.all([mapIds(rawIds), mapUsers(ids)])
+      let ids = await mapIds(rawIds)
+      console.log(` --> done waiting for mapIds ---- ids: ${ids}`)
+      let names = await mapUsers(ids)
+      console.log(` --> done waiting for mapUsers ---- names: ${names}`)
       return names
     } catch (err) {
       console.log(err)
@@ -104,7 +112,7 @@ export default (controller, bot) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
       console.log('--> from controller, rawIds: ', util.inspect(rawIds))
-      let userNames = populateUserArray(rawIds)
+      let userNames = asyncCall(rawIds).then(populateUserArray(rawIds))
       userNames = _.toString(userNames)
       console.log('userNames: ', util.inspect(userNames))
       replyMessage.text += userNames
