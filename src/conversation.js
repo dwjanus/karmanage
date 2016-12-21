@@ -30,7 +30,7 @@ export default (controller, bot) => {
   function mapUsers (userIds) {
     console.log(` --> mapUsers ---- userIds: ${userIds}`)
     return new Promise((resolve, reject) => {
-      let names = _.map(userIds, getUserPromise)
+      let names = Promise.map(userIds, getUserPromise)
       resolve(names)
     })
   }
@@ -46,7 +46,7 @@ export default (controller, bot) => {
   }
 
   var getUserPromise = function (userId) {
-    return Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       getUserName(userId, resolve)
     })
   }
