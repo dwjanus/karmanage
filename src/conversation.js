@@ -9,9 +9,8 @@ export default (controller, bot) => {
     try {
       let ids = await mapIds(rawIds)
       console.log(` ------> done waiting for mapIds ---- ids: ${ids}`)
-      let names = await mapUsers(ids)
-      console.log(` ------> done waiting for mapUsers ---- names: ${names}`)
-      return names
+      return await mapUsers(ids)
+      // console.log(` ------> done waiting for mapUsers ---- names: ${names}`)
     } catch (err) {
       console.log(err)
     }
@@ -106,17 +105,12 @@ export default (controller, bot) => {
     }, msgDefaults)
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
-      // populateUserArray(rawIds).then(userNames => {
-      //   userNames = _.toString(userNames)
-      //   console.log('userNames: ', util.inspect(userNames))
-      //   replyMessage.text += userNames
-      //   bot.reply(message, replyMessage)
-      // })
-      let userNames = await populateUserArray(rawIds)
-      userNames = _.toString(userNames)
-      console.log('userNames: ', util.inspect(userNames))
-      replyMessage.text += userNames
-      bot.reply(message, replyMessage)
+      populateUserArray(rawIds).then(userNames => {
+        userNames = _.toString(userNames)
+        console.log('userNames: ', util.inspect(userNames))
+        replyMessage.text += userNames
+        bot.reply(message, replyMessage)
+      })
     }
   })
 
