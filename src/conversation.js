@@ -3,43 +3,54 @@ import util from 'util'
 import _ from 'lodash'
 import Promise from 'bluebird'
 
-async function populateUserArray (bot, rawIds) {
-  try {
-    Promise.promisifyAll(bot)
-    let ids = await mapIds(rawIds)
-    let users = await mapUsers(bot, ids)
-    return users
-  } catch (err) {
-    console.log(err)
-  }
-}
-
-function processRawId (rawId) {
-  return Promise.resolve(_.toString(rawId).substring(2, 11))
-}
-
-function mapIds (rawIds) {
-  return new Promise((resolve, reject) => {
-    let idArray = _.map(rawIds, processRawId(rawIds))
-    resolve(idArray)
-  })
-}
-
-function getUserName (bot, userId) {
-  bot.api.users.info({user: userId}, (err, res) => {
-    if (err) console.log(err)
-    else return res.user.profile.real_name
-  })
-}
-
-function mapUsers (bot, userIds) {
-  return new Promise((resolve, reject) => {
-    let names = _.map(userIds, getUserName(bot, userIds))
-    resolve(names)
-  })
-}
-
 export default (controller, bot) => {
+  
+  Promise.promisifyAll(bot)
+
+  async function populateUserArray (rawIds) {
+    try {
+      let ids = await mapIds(rawIds)
+      let users = await mapUsers(ids)
+      return users
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  function mapIds (rawIds) {
+    return new Promise((resolve, reject) => {
+      resolve(_.map(rawIds, processRawId))
+    })
+  }
+
+  function processRawId (rawId) {
+    return _.toString(rawId).substring(2, 11)
+  }
+
+  function getUserName (userId) {
+    bot.api.users.info({user: userId}, (err, res) => {
+      if (err) Promise.reject(err)
+      else return res.user.profile.real_name
+    })
+  }
+
+  function mapUsers (userIds) {
+    return new Promise((resolve, reject) => {
+      resolve(_.map(userIds, getUserName))
+    })
+  }
+
+  // function processUsers (bot, userIds) {
+  //   return new Promise((resolve, reject) => {
+  //     let names = _.map(userIds, function (bot, userIds) => {
+  //       bot.api.users.info({user: userId}, (err, res) => {
+  //         if (err) console.log(err)
+  //         else return res.user.profile.real_name
+  //       })
+  //     })
+  //   })
+  // }
+
   const msgDefaults = {
     response_type: 'in_channel',
     username: 'Karma Bot',
