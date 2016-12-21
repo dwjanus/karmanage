@@ -39,7 +39,7 @@ export default (controller, bot) => {
     bot.api.users.info({user: userId}, (err, res) => {
       console.log('     -----> fetching user from bot.api.users...')
       if (err) console.log(err)
-      else return res.user.profile.real_name
+      else return Promise.resolve(res.user.profile.real_name)
     })
   }
 
