@@ -5,16 +5,7 @@ import Promise from 'bluebird'
 
 export default (controller, bot) => {
   function populateUserArray (rawIds) {
-    try {
-      // console.log(` -----> populateUserArray (entry) ---- rawIds: ${rawIds}`)
-      // let ids = await mapIds(rawIds)
-      // console.log(` -----> populateUserArray (post - mapIds) ---- ids: ${ids}`)
-      // let users = await mapUsers(ids)
-      // console.log(` -----> populateUserArray (post - mapUsers) ---- users: ${users}`)
-      Promise.all(mapIds(rawIds).then(mapUsers))
-    } catch (err) {
-      console.log(err)
-    }
+    Promise.all(mapIds(rawIds).then(mapUsers)).catch()
   }
 
   function mapIds (rawIds) {
