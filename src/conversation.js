@@ -5,7 +5,10 @@ import Promise from 'bluebird'
 
 export default (controller, bot) => {
   function populateUserArray (rawIds) {
-    return Promise.all(mapIds(rawIds).then(mapUsers)).catch()
+    return new Promise((resolve, reject) => {
+      let out = mapIds(rawIds).then(mapUsers).catch()
+      resolve(out)
+    })
   }
 
   function mapIds (rawIds) {
