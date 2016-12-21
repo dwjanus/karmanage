@@ -4,16 +4,16 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 export default (controller, bot) => {
-
-  async function buildUserArray (rawIds) {
-    let out = await populateUserArray(rawIds)
-    return out
-  }
-
-  function populateUserArray (rawIds) {
-    return new Promise((resolve, reject) => {
-      let out = mapIds(rawIds).then(mapUsers).catch()
-      resolve(out)
+  async function populateUserArray (rawIds) {
+    mapIds(rawIds)
+    .then(ids => {
+      return mapUsers(ids)
+    })
+    .then(users => {
+      return users
+    })
+    .catch(err => {
+      console.log(err)
     })
   }
 
@@ -32,7 +32,7 @@ export default (controller, bot) => {
   function mapUsers (userIds) {
     return new Promise((resolve, reject) => {
       let names = _.map(userIds, getUserName)
-      console.log(`      -----> mapUsers ---- userIds: ${userIds} --- names: ${names}`)
+      console.log(`      -----> mapUsers - getUser passed---- userIds: ${userIds} --- names: ${names}`)
       resolve(names)
     })
   }
@@ -41,8 +41,8 @@ export default (controller, bot) => {
     console.log(`    -----> getUserName ---- userId: ${userId}`)
     bot.api.users.info({user: userId}, (err, res) => {
       console.log('     -----> fetching user from bot.api.users...')
-      if (err) Promise.reject(err)
-      else Promise.resolve(res.user.profile.real_name)
+      if (err) console.log(err)
+      else return res.user.profile.real_name
     })
   }
 
