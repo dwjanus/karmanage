@@ -6,9 +6,11 @@ import Promise from 'bluebird'
 export default (controller, bot) => {
   async function populateUserArray (rawIds) {
     try {
-      console.log(' -----> populateUserArray')
+      console.log(` -----> populateUserArray (entry) ---- rawIds: ${rawIds}`)
       let ids = await mapIds(rawIds)
+      console.log(` -----> populateUserArray (post - mapIds) ---- ids: ${ids}`)
       let users = await mapUsers(ids)
+      console.log(` -----> populateUserArray (post - mapUsers) ---- users: ${users}`)
       return users
     } catch (err) {
       console.log(err)
@@ -17,31 +19,30 @@ export default (controller, bot) => {
 
   function mapIds (rawIds) {
     return new Promise((resolve, reject) => {
-      console.log(' -----> mapIds')
-      resolve(_.map(rawIds, processRawId))
+      let ids = _.map(rawIds, processRawId)
+      console.log(`  -----> mapIds ---- rawIds: ${rawIds} --- ids: ${ids}`)
+      resolve(ids)
     })
   }
 
   function processRawId (rawId) {
     let id = _.toString(rawId).substring(2, 11)
-    console.log(` -----> processRawId ---- rawId: ${rawId} --- id: ${id}`)
+    console.log(`   -----> processRawId ---- rawId: ${rawId} --- id: ${id}`)
     return id
   }
 
   function getUserName (userId) {
-    return new Promise((resolve, reject) => {
-      console.log(` -----> getUserName ---- userId: ${userId}`)
-      bot.api.users.info({user: userId}, (err, res) => {
-        console.log(' -----> fetching user from bot.api.users...')
-        if (err) reject(err)
-        else resolve(res.user.profile.real_name)
-      })
+    console.log(`    -----> getUserName ---- userId: ${userId}`)
+    bot.api.users.info({user: userId}, (err, res) => {
+      console.log('     -----> fetching user from bot.api.users...')
+      if (err) reject(err)
+      else resolve(res.user.profile.real_name)
     })
   }
 
   function mapUsers (userIds) {
     return new Promise((resolve, reject) => {
-      console.log(' -----> mapUsers')
+      console.log(`      -----> mapUsers ---- userIds: ${userIds}`)
       resolve(_.map(userIds, getUserName))
     })
   }
@@ -120,8 +121,8 @@ export default (controller, bot) => {
     // 2. remove unnecessary chars
     // 3. look up each id and save the returned name to an array
     if (rawIds.length > 0) {
-      console.log('first conditional passed: ', util.inspect(rawIds))
-      let userNames = populateUserArray(bot, rawIds)
+      console.log(' --> from controller, rawIds: ', util.inspect(rawIds))
+      let userNames = populateUserArray(rawIds)
       console.log('userNames: ', util.inspect(userNames))
       replyMessage.text += _.toString(userNames)
       bot.reply(message, replyMessage)
