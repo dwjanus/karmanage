@@ -4,17 +4,15 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 export default (controller, bot) => {
+
   async function populateUserArray (rawIds) {
-    mapIds(rawIds)
-    .then(ids => {
-      return mapUsers(ids)
-    })
-    .then(users => {
-      return users
-    })
-    .catch(err => {
+    try {
+      const ids = mapIds(rawIds)
+      const names = await mapUsers(ids)
+      return names
+    } catch (err) {
       console.log(err)
-    })
+    }
   }
 
   function mapIds (rawIds) {
@@ -32,7 +30,7 @@ export default (controller, bot) => {
   function mapUsers (userIds) {
     return new Promise((resolve, reject) => {
       let names = _.map(userIds, getUserName)
-      console.log(`      -----> mapUsers - getUser passed---- userIds: ${userIds} --- names: ${names}`)
+      console.log(`      -----> mapUsers - getUser passed ---- userIds: ${userIds} --- names: ${names}`)
       resolve(names)
     })
   }
