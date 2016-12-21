@@ -29,7 +29,7 @@ export default (controller, bot) => {
   }
 
   function mapUsers (userIds) {
-    console.log(` ---> mapUsers ---- userIds: ${userIds}`)
+    console.log(` --> mapUsers ---- userIds: ${userIds}`)
     return new Promise((resolve, reject) => {
       let names = _.map(userIds, getUserName)
       resolve(names)
@@ -37,12 +37,14 @@ export default (controller, bot) => {
   }
 
   function getUserName (userId) {
-    console.log(` ----> getUserName ---- userId: ${userId}`)
-    bot.api.users.info({user: userId}, (err, res) => {
-      if (err) console.log(err)
-      let user = res.user.profile.real_name
-      console.log(` -----> user found: ${user}`)
-      return user
+    console.log(` ---> getUserName ---- userId: ${userId}`)
+    return new Promise((resolve, reject) => {
+      bot.api.users.info({user: userId}, (err, res) => {
+        if (err) reject(err)
+        let user = res.user.profile.real_name
+        console.log(` ----> user found: ${user}`)
+        resolve(user)
+      })
     })
   }
 
@@ -106,7 +108,6 @@ export default (controller, bot) => {
     }, msgDefaults)
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
-      console.log(' --> from controller, rawIds: ', util.inspect(rawIds))
       populateUserArray(rawIds).then(userNames => {
         userNames = _.toString(userNames)
         console.log('userNames: ', util.inspect(userNames))
