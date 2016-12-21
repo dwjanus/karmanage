@@ -47,17 +47,6 @@ export default (controller, bot) => {
     })
   }
 
-  // function processUsers (bot, userIds) {
-  //   return new Promise((resolve, reject) => {
-  //     let names = _.map(userIds, function (bot, userIds) => {
-  //       bot.api.users.info({user: userId}, (err, res) => {
-  //         if (err) console.log(err)
-  //         else return res.user.profile.real_name
-  //       })
-  //     })
-  //   })
-  // }
-
   const msgDefaults = {
     response_type: 'in_channel',
     username: 'Karma Bot',
@@ -117,14 +106,11 @@ export default (controller, bot) => {
       text: 'Karmatime! A point has been awarded to: '
     }, msgDefaults)
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
-    // 1. get Ids mentioned
-    // 2. remove unnecessary chars
-    // 3. look up each id and save the returned name to an array
     if (rawIds.length > 0) {
-      console.log(' --> from controller, rawIds: ', util.inspect(rawIds))
-      let userNames = populateUserArray(rawIds)
+      console.log('--> from controller, rawIds: ', util.inspect(rawIds))
+      let userNames = _.toString(populateUserArray(rawIds))
       console.log('userNames: ', util.inspect(userNames))
-      replyMessage.text += _.toString(userNames)
+      replyMessage.text += userNames
       bot.reply(message, replyMessage)
     }
   })
