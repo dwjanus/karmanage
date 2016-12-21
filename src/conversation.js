@@ -4,7 +4,6 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 export default (controller, bot) => {
-
   async function populateUserArray (rawIds) {
     try {
       let ids = await mapIds(rawIds)
@@ -47,7 +46,7 @@ export default (controller, bot) => {
   }
 
   var getUserPromise = function (userId) {
-    return new Promise((resolve, reject) => {
+    return Promise((resolve, reject) => {
       getUserName(userId, resolve)
     })
   }
