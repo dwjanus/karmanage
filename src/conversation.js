@@ -22,7 +22,7 @@ export default (controller, bot) => {
 
   function mapUsers (userIds) {
     console.log(`      -----> mapUsers ---- userIds: ${userIds}`)
-    return _.map(userIds, getUserName)
+    return Promise.map(userIds, getUserName)
   }
 
   function getUserName (userId) {
@@ -30,7 +30,7 @@ export default (controller, bot) => {
     bot.api.users.info({user: userId}, (err, res) => {
       console.log('     -----> fetching user from bot.api.users...')
       if (err) console.log(err)
-      else return Promise.resolve(res.user.profile.real_name)
+      else return res.user.profile.real_name
     })
   }
 
