@@ -105,7 +105,8 @@ export default (controller, bot) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
       console.log('--> from controller, rawIds: ', util.inspect(rawIds))
-      let userNames = _.toString(populateUserArray(rawIds))
+      let userNames = populateUserArray(rawIds)
+      userNames = _.toString(userNames)
       console.log('userNames: ', util.inspect(userNames))
       replyMessage.text += userNames
       bot.reply(message, replyMessage)
