@@ -38,13 +38,11 @@ export default (controller, bot) => {
 
   function getUserName (userId) {
     console.log(` ---> getUserName ---- userId: ${userId}`)
-    return new Promise((resolve, reject) => {
-      bot.api.users.info({user: userId}, (err, res) => {
-        if (err) reject(err)
-        let user = res.user.profile.real_name
-        console.log(` ----> user found: ${user}`)
-        resolve(user)
-      })
+    bot.api.users.info({user: userId}, (err, res) => {
+      if (err) console.log(err)
+      let user = res.user.profile.real_name
+      console.log(` ----> user found: ${user}`)
+      return user
     })
   }
 
@@ -108,12 +106,17 @@ export default (controller, bot) => {
     }, msgDefaults)
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
-      populateUserArray(rawIds).then(userNames => {
-        userNames = _.toString(userNames)
-        console.log('userNames: ', util.inspect(userNames))
-        replyMessage.text += userNames
-        bot.reply(message, replyMessage)
-      })
+      // populateUserArray(rawIds).then(userNames => {
+      //   userNames = _.toString(userNames)
+      //   console.log('userNames: ', util.inspect(userNames))
+      //   replyMessage.text += userNames
+      //   bot.reply(message, replyMessage)
+      // })
+      let userNames = await populateUserArray(rawIds)
+      userNames = _.toString(userNames)
+      console.log('userNames: ', util.inspect(userNames))
+      replyMessage.text += userNames
+      bot.reply(message, replyMessage)
     }
   })
 
