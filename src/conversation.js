@@ -31,7 +31,7 @@ export default (controller, bot) => {
   function mapUsers (userIds) {
     console.log(` --> mapUsers ---- userIds: ${userIds}`)
     return new Promise((resolve, reject) => {
-      _.map(userIds, getUserName).then(names => {
+      Promise.promisify(_.map(userIds, getUserName)).then(names => {
         resolve(names)
       })
     })
