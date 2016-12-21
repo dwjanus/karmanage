@@ -4,6 +4,12 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 export default (controller, bot) => {
+
+  async function buildUserArray (rawIds) {
+    let out = await populateUserArray(rawIds)
+    return out
+  }
+
   function populateUserArray (rawIds) {
     return new Promise((resolve, reject) => {
       let out = mapIds(rawIds).then(mapUsers).catch()
@@ -14,7 +20,7 @@ export default (controller, bot) => {
   function mapIds (rawIds) {
     return new Promise((resolve, reject) => {
       let ids = _.map(rawIds, processRawId)
-      console.log(`  -----> mapIds, processRaw passed ---- rawIds: ${rawIds} --- ids: ${ids}`)
+      console.log(`  -----> mapIds - processRaw passed ---- rawIds: ${rawIds} --- ids: ${ids}`)
       resolve(ids)
     })
   }
@@ -103,7 +109,7 @@ export default (controller, bot) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
       console.log('--> from controller, rawIds: ', util.inspect(rawIds))
-      let userNames = _.toString(populateUserArray(rawIds))
+      let userNames = _.toString(buildUserArray(rawIds))
       console.log('userNames: ', util.inspect(userNames))
       replyMessage.text += userNames
       bot.reply(message, replyMessage)
