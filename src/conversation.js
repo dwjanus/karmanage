@@ -31,20 +31,18 @@ export default (controller, bot) => {
   function mapUsers (userIds) {
     console.log(` --> mapUsers ---- userIds: ${userIds}`)
     return new Promise((resolve, reject) => {
-      let names = _.map(userIds, getUserName)
+      let names = Promise.map(userIds, getUserName)
       resolve(names)
     })
   }
 
   function getUserName (userId) {
-    return new Promise((resolve, reject) => {
-      console.log(` ---> getUserName ---- userId: ${userId}`)
-      bot.api.users.info({user: userId}, (err, res) => {
-        if (err) reject(err)
-        let user = res.user.profile.real_name
-        console.log(` ----> user found: ${user}`)
-        resolve(user)
-      })
+    console.log(` ---> getUserName ---- userId: ${userId}`)
+    bot.api.users.info({user: userId}, (err, res) => {
+      if (err) console.log(err)
+      let user = res.user.profile.real_name
+      console.log(` ----> user found: ${user}`)
+      return user
     })
   }
 
