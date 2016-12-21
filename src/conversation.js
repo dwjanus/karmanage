@@ -30,7 +30,7 @@ export default (controller, bot) => {
   function mapUsers (userIds) {
     console.log(` --> mapUsers ---- userIds: ${userIds}`)
     return new Promise((resolve, reject) => {
-      let names = Promise.each(_.map(userIds, getUserName))
+      let names = _.map(userIds, Promise.all(getUserName))
       resolve(names)
     })
   }
