@@ -8,9 +8,9 @@ export default (controller, bot) => {
   async function populateUserArray (rawIds) {
     try {
       let ids = await mapIds(rawIds)
-      console.log(` ----> done waiting for mapIds ---- ids: ${ids}`)
+      console.log(` ------> done waiting for mapIds ---- ids: ${ids}`)
       let names = await mapUsers(ids)
-      console.log(` ----> done waiting for mapUsers ---- names: ${names}`)
+      console.log(` ------> done waiting for mapUsers ---- names: ${names}`)
       return names
     } catch (err) {
       console.log(err)
@@ -37,10 +37,12 @@ export default (controller, bot) => {
   }
 
   function getUserName (userId) {
-    console.log(`   --> getUserName ---- userId: ${userId}`)
+    console.log(` ----> getUserName ---- userId: ${userId}`)
     bot.api.users.info({user: userId}, (err, res) => {
       if (err) console.log(err)
-      else return res.user.profile.real_name
+      let user = res.user.profile.real_name
+      console.log(` -----> user found: ${user}`)
+      return user
     })
   }
 
@@ -104,7 +106,7 @@ export default (controller, bot) => {
     }, msgDefaults)
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
-      console.log('--> from controller, rawIds: ', util.inspect(rawIds))
+      console.log(' --> from controller, rawIds: ', util.inspect(rawIds))
       populateUserArray(rawIds).then(userNames => {
         userNames = _.toString(userNames)
         console.log('userNames: ', util.inspect(userNames))
