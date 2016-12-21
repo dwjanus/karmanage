@@ -4,8 +4,6 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 export default (controller, bot) => {
-  
-  Promise.promisifyAll(bot)
 
   async function populateUserArray (rawIds) {
     try {
@@ -30,7 +28,7 @@ export default (controller, bot) => {
   function getUserName (userId) {
     bot.api.users.info({user: userId}, (err, res) => {
       if (err) Promise.reject(err)
-      else return res.user.profile.real_name
+      else return Promise.resolve(res.user.profile.real_name)
     })
   }
 
