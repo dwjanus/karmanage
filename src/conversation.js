@@ -26,9 +26,7 @@ export default (controller, bot) => {
   }
 
   function processRawId (rawId) {
-    let id = _.toString(rawId).substring(2, 11)
-    console.log(`  -----> processRawId ---- rawId: ${rawId} --- id: ${id}`)
-    return id
+    return _.toString(rawId).substring(2, 11)
   }
 
   function getUserName (userId) {
@@ -36,7 +34,7 @@ export default (controller, bot) => {
     bot.api.users.info({user: userId}, (err, res) => {
       console.log('     -----> fetching user from bot.api.users...')
       if (err) console.log(err)
-      else return Promise.resolve(res.user.profile.real_name)
+      else return res.user.profile.real_name
     })
   }
 
