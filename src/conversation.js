@@ -20,14 +20,14 @@ export default (controller, bot) => {
   function mapIds (rawIds) {
     return new Promise((resolve, reject) => {
       let ids = _.map(rawIds, processRawId)
-      console.log(`  -----> mapIds ---- rawIds: ${rawIds} --- ids: ${ids}`)
+      console.log(`  -----> mapIds, processRaw passed ---- rawIds: ${rawIds} --- ids: ${ids}`)
       resolve(ids)
     })
   }
 
   function processRawId (rawId) {
     let id = _.toString(rawId).substring(2, 11)
-    console.log(`   -----> processRawId ---- rawId: ${rawId} --- id: ${id}`)
+    console.log(`  -----> processRawId ---- rawId: ${rawId} --- id: ${id}`)
     return id
   }
 
@@ -36,7 +36,7 @@ export default (controller, bot) => {
     bot.api.users.info({user: userId}, (err, res) => {
       console.log('     -----> fetching user from bot.api.users...')
       if (err) console.log(err)
-      else return res.user.profile.real_name
+      else return Promise.resolve(res.user.profile.real_name)
     })
   }
 
