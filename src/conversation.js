@@ -8,9 +8,9 @@ export default (controller, bot) => {
     try {
       let ids = await mapIds(rawIds)
       console.log(` ------> done waiting for mapIds ---- ids: ${ids}`)
-      return await mapUsers(ids)
-      // console.log(` ------> done waiting for mapUsers ---- names: ${names}`)
-      // return names
+      let names = await mapUsers(ids)
+      console.log(` ------> done waiting for mapUsers ---- names: ${names}`)
+      return names
     } catch (err) {
       console.log(err)
     }
