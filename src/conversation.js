@@ -4,9 +4,9 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 export default (controller, bot) => {
-
   async function populateUserArray (rawIds) {
     try {
+      console.log(' -----> populateUserArray')
       let ids = await mapIds(rawIds)
       let users = await mapUsers(ids)
       return users
@@ -17,23 +17,31 @@ export default (controller, bot) => {
 
   function mapIds (rawIds) {
     return new Promise((resolve, reject) => {
+      console.log(' -----> mapIds')
       resolve(_.map(rawIds, processRawId))
     })
   }
 
   function processRawId (rawId) {
-    return _.toString(rawId).substring(2, 11)
+    let id = _.toString(rawId).substring(2, 11)
+    console.log(` -----> processRawId ---- rawId: ${rawId} --- id: ${id}`)
+    return id
   }
 
   function getUserName (userId) {
-    bot.api.users.info({user: userId}, (err, res) => {
-      if (err) Promise.reject(err)
-      else return Promise.resolve(res.user.profile.real_name)
+    return new Promise((resolve, reject) => {
+      console.log(` -----> getUserName ---- userId: ${userId}`)
+      bot.api.users.info({user: userId}, (err, res) => {
+        console.log(' -----> fetching user from bot.api.users...')
+        if (err) reject(err)
+        else resolve(res.user.profile.real_name)
+      })
     })
   }
 
   function mapUsers (userIds) {
     return new Promise((resolve, reject) => {
+      console.log(' -----> mapUsers')
       resolve(_.map(userIds, getUserName))
     })
   }
