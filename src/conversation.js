@@ -7,10 +7,8 @@ export default (controller, bot) => {
 
   async function populateUserArray (rawIds) {
     try {
-      const idPromise = mapIds(rawIds)
-      const namePromise = mapUsers(idPromise)
-      let out = await namePromise
-      return out
+      let [ids, names] = await Promise.all([mapIds(rawIds), mapUsers(ids)])
+      return names
     } catch (err) {
       console.log(err)
     }
