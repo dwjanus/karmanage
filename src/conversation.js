@@ -4,17 +4,14 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 export default (controller, bot) => {
-  async function populateUserArray (rawIds) {
+  function populateUserArray (rawIds) {
     try {
       // console.log(` -----> populateUserArray (entry) ---- rawIds: ${rawIds}`)
       // let ids = await mapIds(rawIds)
       // console.log(` -----> populateUserArray (post - mapIds) ---- ids: ${ids}`)
       // let users = await mapUsers(ids)
       // console.log(` -----> populateUserArray (post - mapUsers) ---- users: ${users}`)
-      mapIds(rawIds).then((ids) => {
-        console.log(` -----> populateUserArray (post - mapIds) ---- ids: ${ids}`)
-        return mapUsers(ids)
-      })
+      Promise.all(mapIds(rawIds).then(mapUsers))
     } catch (err) {
       console.log(err)
     }
@@ -32,6 +29,11 @@ export default (controller, bot) => {
     return _.toString(rawId).substring(2, 11)
   }
 
+  function mapUsers (userIds) {
+    console.log(`      -----> mapUsers ---- userIds: ${userIds}`)
+    return _.map(userIds, getUserName)
+  }
+
   function getUserName (userId) {
     console.log(`    -----> getUserName ---- userId: ${userId}`)
     bot.api.users.info({user: userId}, (err, res) => {
@@ -39,11 +41,6 @@ export default (controller, bot) => {
       if (err) console.log(err)
       else return res.user.profile.real_name
     })
-  }
-
-  function mapUsers (userIds) {
-    console.log(`      -----> mapUsers ---- userIds: ${userIds}`)
-    return _.map(userIds, getUserName)
   }
 
   const msgDefaults = {
