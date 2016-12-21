@@ -5,7 +5,7 @@ import Promise from 'bluebird'
 
 export default (controller, bot) => {
   function populateUserArray (rawIds) {
-    Promise.all(mapIds(rawIds).then(mapUsers)).catch()
+    return Promise.all(mapIds(rawIds).then(mapUsers)).catch()
   }
 
   function mapIds (rawIds) {
@@ -21,8 +21,11 @@ export default (controller, bot) => {
   }
 
   function mapUsers (userIds) {
-    console.log(`      -----> mapUsers ---- userIds: ${userIds}`)
-    return Promise.map(userIds, getUserName)
+    return new Promise((resolve, reject) => {
+      let names = _.map(userIds, getUserName)
+      console.log(`      -----> mapUsers ---- userIds: ${userIds} --- names: ${names}`)
+      resolve(names)
+    })
   }
 
   function getUserName (userId) {
