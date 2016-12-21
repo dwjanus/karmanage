@@ -8,9 +8,9 @@ export default (controller, bot) => {
   async function populateUserArray (rawIds) {
     try {
       let ids = await mapIds(rawIds)
-      console.log(` --> done waiting for mapIds ---- ids: ${ids}`)
+      console.log(` ----> done waiting for mapIds ---- ids: ${ids}`)
       let names = await mapUsers(ids)
-      console.log(` --> done waiting for mapUsers ---- names: ${names}`)
+      console.log(` ----> done waiting for mapUsers ---- names: ${names}`)
       return names
     } catch (err) {
       console.log(err)
@@ -20,7 +20,6 @@ export default (controller, bot) => {
   function mapIds (rawIds) {
     return new Promise((resolve, reject) => {
       let ids = _.map(rawIds, processRawId)
-      console.log(`  -----> mapIds - processRaw passed ---- rawIds: ${rawIds} --- ids: ${ids}`)
       resolve(ids)
     })
   }
@@ -30,17 +29,16 @@ export default (controller, bot) => {
   }
 
   function mapUsers (userIds) {
+    console.log(` ---> mapUsers ---- userIds: ${userIds}`)
     return new Promise((resolve, reject) => {
       let names = _.map(userIds, getUserName)
-      console.log(`      -----> mapUsers - getUser passed ---- userIds: ${userIds} --- names: ${names}`)
       resolve(names)
     })
   }
 
   function getUserName (userId) {
-    console.log(`    -----> getUserName ---- userId: ${userId}`)
+    console.log(`   --> getUserName ---- userId: ${userId}`)
     bot.api.users.info({user: userId}, (err, res) => {
-      console.log('     -----> fetching user from bot.api.users...')
       if (err) console.log(err)
       else return res.user.profile.real_name
     })
