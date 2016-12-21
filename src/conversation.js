@@ -41,7 +41,7 @@ export default (controller, bot) => {
       if (err) console.log(err)
       let user = res.user.profile.real_name
       console.log(` ----> user found: ${user}`)
-      cb(null, user)
+      return cb(null, user)
     })
   }
 
