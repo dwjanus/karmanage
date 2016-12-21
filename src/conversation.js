@@ -6,12 +6,17 @@ import Promise from 'bluebird'
 export default (controller, bot) => {
   async function populateUserArray (rawIds) {
     try {
-      console.log(` -----> populateUserArray (entry) ---- rawIds: ${rawIds}`)
-      let ids = await mapIds(rawIds)
-      console.log(` -----> populateUserArray (post - mapIds) ---- ids: ${ids}`)
-      let users = await mapUsers(ids)
-      console.log(` -----> populateUserArray (post - mapUsers) ---- users: ${users}`)
-      return users
+      // console.log(` -----> populateUserArray (entry) ---- rawIds: ${rawIds}`)
+      // let ids = await mapIds(rawIds)
+      // console.log(` -----> populateUserArray (post - mapIds) ---- ids: ${ids}`)
+      // let users = await mapUsers(ids)
+      // console.log(` -----> populateUserArray (post - mapUsers) ---- users: ${users}`)
+      mapIds(rawIds).then((ids) => {
+        console.log(` -----> populateUserArray (post - mapIds) ---- ids: ${ids}`)
+        let names = mapUsers(ids)
+        console.log(` -----> populateUserArray (post - mapUsers) ---- names: ${ids}`)
+        return names
+      })
     } catch (err) {
       console.log(err)
     }
