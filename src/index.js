@@ -1,4 +1,5 @@
 
+import util from 'util'
 import _ from 'lodash'
 import Botkit from 'botkit'
 import mongo from 'botkit-storage-mongo'
@@ -98,6 +99,11 @@ function trackConvo (bot, convo) {
   trackBot(bot)
 }
 
+controller.storage.users.all((err, users) => {
+  if (err) console.log(err)
+  else console.log(`USERS:\n${util.inspect(users)}`)
+})
+
 controller.storage.teams.all((err, teams) => {
   console.log('** connecting teams **\n')
   if (err) {
@@ -105,6 +111,7 @@ controller.storage.teams.all((err, teams) => {
   }
   for (const t in teams) {
     if (teams[t].bot) {
+      console.log(`TEAM: ${util.inspect(teams[t])}`)
       const bot = controller.spawn(teams[t]).startRTM(err => {
         if (err) {
           console.log('Error connecting bot to Slack:', err)

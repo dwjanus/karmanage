@@ -104,6 +104,11 @@ export default (controller, bot) => {
     bot.reply(message, {text: 'What it do'})
   })
 
+  // temporary command to test what users we have
+  controller.hears('show users', ['direct_message', 'direct_mention'], (bot, message) => {
+
+  })
+
   controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
     console.log(':+1: was heard ambiently', util.inspect(message))
     let replyMessage = _.defaults({
