@@ -99,11 +99,6 @@ function trackConvo (bot, convo) {
   trackBot(bot)
 }
 
-controller.storage.users.all((err, users) => {
-  if (err) console.log(err)
-  else console.log(`USERS:\n${util.inspect(users)}`)
-})
-
 controller.storage.teams.all((err, teams) => {
   console.log('** connecting teams **\n')
   if (err) {

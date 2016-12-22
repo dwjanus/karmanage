@@ -51,6 +51,38 @@ export default (controller, bot) => {
     })
   }
 
+  // // async mongodb retrieval
+  // async function retrieveUsersMongo () {
+  //   try {
+  //     let users = await mongoUsers()
+  //     return users
+  //   } catch (err) {
+  //     console.log(err)
+  //   }
+  // }
+
+  // function mongoUsers (cb) {
+  //   controller.storage.users.all((err, users) => {
+  //     if (err) console.log(err)
+  //     else {
+  //       console.log(`USERS:\n${util.inspect(users)}`)
+  //       return cb(users)
+  //     }
+  //   })
+  // }
+
+  // function getMongoPromise () {
+  //   return new Promise((resolve, reject) => {
+  //     mongoUsers(resolve)
+  //   })
+  // }
+
+  // function mapMongo () {
+  //   return new Promise((resolve, reject) => {
+  //     let mongoUsers = Promise.map(mongoUsers)
+  //   })
+  // }
+
   const msgDefaults = {
     response_type: 'in_channel',
     username: 'Karma Bot',
@@ -106,7 +138,16 @@ export default (controller, bot) => {
 
   // temporary command to test what users we have
   controller.hears('show users', ['direct_message', 'direct_mention'], (bot, message) => {
-
+    // retrieveUsersMongo().then(users => {
+    //   let replyMessage = _.defaults({
+    //     text: `${_.toString(users)}`
+    //   }, msgDefaults)
+    //   bot.reply(message, users)
+    // })
+    controller.storage.users.all((err, users) => {
+      if (err) console.log(err)
+      else console.log(`${util.inspect(users)}`)
+    })
   })
 
   controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
