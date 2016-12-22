@@ -138,15 +138,28 @@ export default (controller, bot) => {
 
   // temporary command to test what users we have
   controller.hears('show users', ['direct_message', 'direct_mention'], (bot, message) => {
-    // retrieveUsersMongo().then(users => {
-    //   let replyMessage = _.defaults({
-    //     text: `${_.toString(users)}`
-    //   }, msgDefaults)
-    //   bot.reply(message, users)
-    // })
     controller.storage.users.all((err, users) => {
       if (err) console.log(err)
-      else console.log(`${util.inspect(users)}`)
+      let mongo = _.map(users)
+      console.log(`${util.inspect(mongo)}`)
+    })
+  })
+
+  // temporary command to test what teams we have
+  controller.hears('show users', ['direct_message', 'direct_mention'], (bot, message) => {
+    controller.storage.teams.all((err, teams) => {
+      if (err) console.log(err)
+      let mongo = _.map(teams)
+      console.log(`${util.inspect(mongo)}`)
+    })
+  })
+
+  // temporary command to test what channels we have
+  controller.hears('show users', ['direct_message', 'direct_mention'], (bot, message) => {
+    controller.storage.channels.all((err, chans) => {
+      if (err) console.log(err)
+      let mongo = _.map(chans)
+      console.log(`${util.inspect(mongo)}`)
     })
   })
 
