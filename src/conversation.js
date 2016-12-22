@@ -146,7 +146,7 @@ export default (controller, bot) => {
   })
 
   // temporary command to test what teams we have
-  controller.hears('show users', ['direct_message', 'direct_mention'], (bot, message) => {
+  controller.hears('show teams', ['direct_message', 'direct_mention'], (bot, message) => {
     controller.storage.teams.all((err, teams) => {
       if (err) console.log(err)
       let mongo = _.map(teams)
@@ -155,7 +155,7 @@ export default (controller, bot) => {
   })
 
   // temporary command to test what channels we have
-  controller.hears('show users', ['direct_message', 'direct_mention'], (bot, message) => {
+  controller.hears('show chans', ['direct_message', 'direct_mention'], (bot, message) => {
     controller.storage.channels.all((err, chans) => {
       if (err) console.log(err)
       let mongo = _.map(chans)
