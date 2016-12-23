@@ -51,38 +51,6 @@ export default (controller, bot) => {
     })
   }
 
-  // // async mongodb retrieval
-  // async function retrieveUsersMongo () {
-  //   try {
-  //     let users = await mongoUsers()
-  //     return users
-  //   } catch (err) {
-  //     console.log(err)
-  //   }
-  // }
-
-  // function mongoUsers (cb) {
-  //   controller.storage.users.all((err, users) => {
-  //     if (err) console.log(err)
-  //     else {
-  //       console.log(`USERS:\n${util.inspect(users)}`)
-  //       return cb(users)
-  //     }
-  //   })
-  // }
-
-  // function getMongoPromise () {
-  //   return new Promise((resolve, reject) => {
-  //     mongoUsers(resolve)
-  //   })
-  // }
-
-  // function mapMongo () {
-  //   return new Promise((resolve, reject) => {
-  //     let mongoUsers = Promise.map(mongoUsers)
-  //   })
-  // }
-
   const msgDefaults = {
     response_type: 'in_channel',
     username: 'Karma Bot',
@@ -137,30 +105,13 @@ export default (controller, bot) => {
   })
 
   // temporary command to test what users we have
-  controller.hears('show users', ['direct_message', 'direct_mention'], (bot, message) => {
-    controller.storage.users.all((err, users) => {
-      if (err) console.log(err)
-      let mongo = _.map(users)
-      console.log(`${util.inspect(mongo)}`)
-    })
-  })
-
-  // temporary command to test what teams we have
-  controller.hears('show teams', ['direct_message', 'direct_mention'], (bot, message) => {
-    controller.storage.teams.all((err, teams) => {
-      if (err) console.log(err)
-      let mongo = _.map(teams)
-      console.log(`${util.inspect(mongo)}`)
-    })
-  })
-
-  // temporary command to test what channels we have
-  controller.hears('show chans', ['direct_message', 'direct_mention'], (bot, message) => {
-    controller.storage.channels.all((err, chans) => {
-      if (err) console.log(err)
-      let mongo = _.map(chans)
-      console.log(`${util.inspect(mongo)}`)
-    })
+  controller.hears('show my points', ['direct_message', 'direct_mention'], (bot, message) => {
+    var user = controller.storage.users.get(message.user)
+    let replyMessage = _.defaults({
+      text: 'Karmatime! A point has been awarded to: '
+    }, msgDefaults)
+    replyMessage.text += user.karma
+    bot.reply(message, replyMessage)
   })
 
   controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
