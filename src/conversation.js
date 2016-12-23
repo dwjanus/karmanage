@@ -45,10 +45,25 @@ export default (controller, bot) => {
     })
   }
 
-  var getUserPromise = function (userId) {
+  function getUserPromise (userId) {
     return new Promise((resolve, reject) => {
       getUserName(userId, resolve)
     })
+  }
+
+  async function asyncMongoUser (id) {
+    let user = await mongoPromise(id)
+    return user
+  }
+
+  function mongoPromise (id) {
+    return new Promise((resolve, reject) => {
+      getMongoUser(id)
+    })
+  }
+
+  function getMongoUser (id) {
+    return controller.storage.users(id)
   }
 
   const msgDefaults = {
@@ -107,8 +122,8 @@ export default (controller, bot) => {
   // temporary command to test what users we have
   controller.hears('show my points', ['direct_message', 'direct_mention'], (bot, message) => {
     console.log(util.inspect(message))
-    controller.storage.users.get(message.user, (res) => {
-      let user = res
+    // let user = controller.storage.users.get(message.user)
+    asyncMongoUser(message.user).then(user => {
       console.log(util.inspect(user))
       let replyMessage = _.defaults({
         text: 'Your karma: '
