@@ -52,8 +52,12 @@ export default (controller, bot) => {
   }
 
   async function asyncMongoUser (id) {
-    let user = await mongoPromise(id)
-    return user
+    try {
+      let user = await mongoPromise(id)
+      return user
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   function mongoPromise (id) {
