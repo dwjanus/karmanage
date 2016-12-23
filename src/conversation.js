@@ -70,7 +70,7 @@ export default (controller, bot) => {
 
   function getMongoUser (id) {
     console.log(` ----> getMongoUser --- id: ${id}`)
-    controller.storage.users.get(id, (user) => {
+    controller.storage.users.get(_.toString(id), (user) => {
       let ret = user
       console.log(` ----> getMongoUser --- ret: ${ret}`)
       return ret
