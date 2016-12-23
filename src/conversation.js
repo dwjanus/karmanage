@@ -70,9 +70,11 @@ export default (controller, bot) => {
 
   function getMongoUser (id) {
     console.log(` ----> getMongoUser --- id: ${id}`)
-    let ret = controller.storage.users.get(id)
-    console.log(` ----> getMongoUser --- ret: ${ret}`)
-    return ret
+    controller.storage.users.get(id, (user) => {
+      let ret = user
+      console.log(` ----> getMongoUser --- ret: ${ret}`)
+      return ret
+    })
   }
 
   const msgDefaults = {
