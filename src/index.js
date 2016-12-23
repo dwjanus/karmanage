@@ -106,7 +106,6 @@ controller.storage.teams.all((err, teams) => {
   }
   for (const t in teams) {
     if (teams[t].bot) {
-      console.log(`TEAM: ${util.inspect(teams[t])}`)
       const bot = controller.spawn(teams[t]).startRTM(err => {
         if (err) {
           console.log('Error connecting bot to Slack:', err)

@@ -53,6 +53,7 @@ export default (controller, bot) => {
 
   async function asyncMongoUser (id) {
     try {
+      console.log(` ----> asyncMongoUser --- id: ${id}`)
       let user = await mongoPromise(id)
       return user
     } catch (err) {
@@ -61,12 +62,14 @@ export default (controller, bot) => {
   }
 
   function mongoPromise (id) {
+    console.log(` ----> mongoPromise --- id: ${id}`)
     return new Promise((resolve, reject) => {
       getMongoUser(id)
     })
   }
 
   function getMongoUser (id) {
+    console.log(` ----> getMongoUser --- id: ${id}`)
     return controller.storage.users.get(id)
   }
 
@@ -127,7 +130,7 @@ export default (controller, bot) => {
   controller.hears('show my points', ['direct_message', 'direct_mention'], (bot, message) => {
     console.log(util.inspect(message))
     // let user = controller.storage.users.get(message.user)
-    asyncMongoUser(message.user).then(user => {
+    asyncMongoUser(_.toString(message.user)).then(user => {
       console.log(util.inspect(user))
       let replyMessage = _.defaults({
         text: 'Your karma: '
