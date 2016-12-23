@@ -64,16 +64,16 @@ export default (controller, bot) => {
   function mongoPromise (id) {
     console.log(` ----> mongoPromise --- id: ${id}`)
     return new Promise((resolve, reject) => {
-      getMongoUser(id)
+      getMongoUser(id, resolve)
     })
   }
 
-  function getMongoUser (id) {
+  function getMongoUser (id, cb) {
     console.log(` ----> getMongoUser --- id: ${id}`)
     controller.storage.users.get(_.toString(id), (user) => {
       let ret = user
       console.log(` ----> getMongoUser --- ret: ${ret}`)
-      return ret
+      return cb(ret)
     })
   }
 
