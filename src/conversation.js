@@ -107,13 +107,15 @@ export default (controller, bot) => {
   // temporary command to test what users we have
   controller.hears('show my points', ['direct_message', 'direct_mention'], (bot, message) => {
     console.log(util.inspect(message))
-    var user = controller.storage.users.get(message.user)
-    console.log(util.inspect(user))
-    let replyMessage = _.defaults({
-      text: 'Your karma: '
-    }, msgDefaults)
-    replyMessage.text += user.karma
-    bot.reply(message, replyMessage)
+    controller.storage.users.get(message.user, (res) => {
+      let user = res
+      console.log(util.inspect(user))
+      let replyMessage = _.defaults({
+        text: 'Your karma: '
+      }, msgDefaults)
+      replyMessage.text += user.karma
+      bot.reply(message, replyMessage)
+    })
   })
 
   controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
