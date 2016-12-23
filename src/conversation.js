@@ -107,7 +107,7 @@ export default (controller, bot) => {
   // temporary command to test what users we have
   controller.hears('show my points', ['direct_message', 'direct_mention'], (bot, message) => {
     console.log(util.inspect(message))
-    var user = controller.storage.users.get(message.user)
+    var user = controller.storage.users.get('devin.janus')
     console.log(util.inspect(user))
     let replyMessage = _.defaults({
       text: 'Karmatime! A point has been awarded to: '
