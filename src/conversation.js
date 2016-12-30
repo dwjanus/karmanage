@@ -133,14 +133,22 @@ export default (controller, bot) => {
 
   // temporary command to test what users we have
   controller.hears('my karma', ['direct_message', 'direct_mention'], (bot, message) => {
-    asyncMongoUser(_.toString(message.user)).then(user => {
-      console.log(util.inspect(user))
+    controller.storage.users.get(_.toString(message.user), (err, user) => {
+      if (err) console.log(err)
       let replyMessage = _.defaults({
-        text: 'Your karma: '
+        text: `Your karma is: ${user.karma}`
       }, msgDefaults)
-      replyMessage.text += user.karma
       bot.reply(message, replyMessage)
     })
+
+    // asyncMongoUser(_.toString(message.user)).then(user => {
+    //   console.log(util.inspect(user))
+    //   let replyMessage = _.defaults({
+    //     text: 'Your karma: '
+    //   }, msgDefaults)
+    //   replyMessage.text += user.karma
+    //   bot.reply(message, replyMessage)
+    // })
   })
 
   controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
