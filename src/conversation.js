@@ -70,7 +70,8 @@ export default (controller, bot) => {
 
   function getMongoUser (id, cb) {
     console.log(` ----> getMongoUser --- id: ${id}`)
-    controller.storage.users.get(_.toString(id), (user) => {
+    controller.storage.users.get(_.toString(id), (err, user) => {
+      if (err) return Promise.reject(err)
       let ret = user
       console.log(` ----> getMongoUser --- ret: ${ret}`)
       return cb(ret)
@@ -132,8 +133,6 @@ export default (controller, bot) => {
 
   // temporary command to test what users we have
   controller.hears('my karma', ['direct_message', 'direct_mention'], (bot, message) => {
-    console.log(util.inspect(message))
-    // let user = controller.storage.users.get(message.user)
     asyncMongoUser(_.toString(message.user)).then(user => {
       console.log(util.inspect(user))
       let replyMessage = _.defaults({
