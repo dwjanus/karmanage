@@ -137,7 +137,7 @@ export default (controller, bot) => {
       controller.storage.users.get(_.toString(message.item_user), (err, user) => {
         if (err) console.log(err)
         console.log('current karma: ', user.karma)
-        user.karma = user.karma++
+        user.karma = user.karma + 1
         console.log('now karma: ', user.karma)
         controller.storage.users.save(user)
       })
