@@ -51,33 +51,6 @@ export default (controller, bot) => {
     })
   }
 
-  async function asyncMongoUser (id) {
-    try {
-      console.log(` ----> asyncMongoUser --- id: ${id}`)
-      let user = await mongoPromise(id)
-      return user
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
-  function mongoPromise (id) {
-    console.log(` ----> mongoPromise --- id: ${id}`)
-    return new Promise((resolve, reject) => {
-      getMongoUser(id, resolve)
-    })
-  }
-
-  function getMongoUser (id, cb) {
-    console.log(` ----> getMongoUser --- id: ${id}`)
-    controller.storage.users.get(_.toString(id), (err, user) => {
-      if (err) return Promise.reject(err)
-      let ret = user
-      console.log(` ----> getMongoUser --- ret: ${ret}`)
-      return cb(ret)
-    })
-  }
-
   const msgDefaults = {
     response_type: 'in_channel',
     username: 'Karma Bot',
@@ -140,19 +113,10 @@ export default (controller, bot) => {
       }, msgDefaults)
       bot.reply(message, replyMessage)
     })
-
-    // asyncMongoUser(_.toString(message.user)).then(user => {
-    //   console.log(util.inspect(user))
-    //   let replyMessage = _.defaults({
-    //     text: 'Your karma: '
-    //   }, msgDefaults)
-    //   replyMessage.text += user.karma
-    //   bot.reply(message, replyMessage)
-    // })
   })
 
   controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
-    console.log(':+1: was heard ambiently', util.inspect(message))
+    console.log(':+1: was heard ambiently\n', util.inspect(message))
     let replyMessage = _.defaults({
       text: 'Karmatime! A point has been awarded to: '
     }, msgDefaults)
@@ -168,8 +132,16 @@ export default (controller, bot) => {
   })
 
   controller.on('reaction_added', (bot, message) => {
-    if (message.reaction === '\+1') {
+    if (message.reaction === '\+1') { //  && (message.user !== message.item_user)
       console.log('reaction was heard!\n', util.inspect(message))
+      controller.storage.users.get(_.toString(message.item_user), (err, user) => {
+        if (err) console.log(err)
+        console.log('current karma: ', user.karma)
+        user.karma = user.karma++
+        console.log('now karma: ', user.karma)
+        controller.storage.users.save(user)
+      })
+
       bot.api.users.info({user: message.item_user}, (err, res) => {
         if (err) console.log(err)
         let name = res.user.profile.real_name
