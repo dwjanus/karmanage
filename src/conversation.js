@@ -131,7 +131,7 @@ export default (controller, bot) => {
   })
 
   // temporary command to test what users we have
-  controller.hears('show my points', ['direct_message', 'direct_mention'], (bot, message) => {
+  controller.hears('my karma', ['direct_message', 'direct_mention'], (bot, message) => {
     console.log(util.inspect(message))
     // let user = controller.storage.users.get(message.user)
     asyncMongoUser(_.toString(message.user)).then(user => {
