@@ -49,8 +49,9 @@ export default (controller, bot) => {
 
   async function scoreboard () {
     try {
-      let scores = await buildResponse()
-      return scores
+      buildResponse().then(scores => {
+        return scores
+      })
     } catch (err) {
       console.log(err)
     }
@@ -63,7 +64,7 @@ export default (controller, bot) => {
     _.forEach(scoreboard, (value) => {
       output.text += `${value.name}: ${value.score}\n`
     })
-    return Promise.resolve(output)
+    return output
   }
 
   async function populateUserArray (rawIds) {
