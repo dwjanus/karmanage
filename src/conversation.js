@@ -57,15 +57,13 @@ export default (controller, bot) => {
   }
 
   function buildResponse () {
-    return new Promise((resolve, reject) => {
-      let team = controller.storage.teams.get(bot.team_id)
-      let scoreboard = team.scoreboard.karma
-      let output = {text: ''}
-      _.forEach(scoreboard, (value) => {
-        output.text += `${value.name}: ${value.score}\n`
-      })
-      resolve(output)
+    let team = controller.storage.teams.get(bot.team_id)
+    let scoreboard = team.scoreboard.karma
+    let output = {text: ''}
+    _.forEach(scoreboard, (value) => {
+      output.text += `${value.name}: ${value.score}\n`
     })
+    return Promise.resolve(output)
   }
 
   async function populateUserArray (rawIds) {
