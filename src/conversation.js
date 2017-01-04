@@ -188,7 +188,7 @@ export default (controller, bot) => {
         userNames = _.toString(userNames)
         console.log('userNames: ', util.inspect(userNames))
         for (const user in userNames) {
-          addKarma(user)
+          addKarma(userNames[user])
           console.log(` ----> karma assigned to ${user}`)
         }
       })
