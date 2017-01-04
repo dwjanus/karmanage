@@ -1,5 +1,5 @@
 
-import _ from 'lodash'
+import http from 'http'
 import Botkit from 'botkit'
 import mongo from 'botkit-storage-mongo'
 import config from './config.js'
@@ -7,7 +7,7 @@ import ConversationHandler from './conversation.js'
 
 /*************************************************************************************************/
 
-const mongoStorage = mongo({mongoUri: process.env.MONGO_URI})
+const mongoStorage = mongo({mongoUri: config('MONGODB_URI')})
 const port = process.env.PORT || process.env.port
 
 if (!config('SLACK_CLIENT_ID') || !config('SLACK_CLIENT_SECRET') || !config('PORT')) {
@@ -21,8 +21,7 @@ const controller = Botkit.slackbot({
 }).configureSlackApp({
   clientId: config('SLACK_CLIENT_ID'),
   clientSecret: config('SLACK_CLIENT_SECRET'),
-  redirectUri: 'https://karmanage.herokuapp.com/oauth',
-  scopes: ['bot', 'incoming-webhook', 'commands', 'chat:write:user', 'chat:write:bot']
+  scopes: ['bot', 'incoming-webhook', 'commands']
 })
 
 /*************************************************************************************************/
@@ -118,3 +117,7 @@ controller.storage.teams.all((err, teams) => {
   }
 })
 
+// Simple hack to ping server every 5min and keep app running
+setInterval(() => {
+  http.get('http://karmanage.herokuapp.com')
+}, 300000)

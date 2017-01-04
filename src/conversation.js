@@ -1,15 +1,68 @@
 
 import util from 'util'
 import _ from 'lodash'
-import slack from 'slack'
-import config from './config.js'
+import Promise from 'bluebird'
 
 export default (controller, bot) => {
+  function addKarma (user) {
+    controller.storage.users.get(user, (err, user) => {
+      if (err) console.log(err)
+      user.karma = _.toInteger(user.karma) + 1
+      controller.storage.users.save(user)
+    })
+  }
+
+  async function populateUserArray (rawIds) {
+    try {
+      let ids = await mapIds(rawIds)
+      console.log(` ------> done waiting for mapIds ---- ids: ${ids}`)
+      let names = await mapUsers(ids)
+      console.log(` ------> done waiting for mapUsers ---- names: ${names}`)
+      return names
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  function mapIds (rawIds) {
+    return new Promise((resolve, reject) => {
+      let ids = _.map(rawIds, processRawId)
+      resolve(ids)
+    })
+  }
+
+  function processRawId (rawId) {
+    return _.toString(rawId).substring(2, 11)
+  }
+
+  function mapUsers (userIds) {
+    console.log(` --> mapUsers ---- userIds: ${userIds}`)
+    return new Promise((resolve, reject) => {
+      let names = Promise.map(userIds, getUserPromise)
+      resolve(names)
+    })
+  }
+
+  function getUserName (userId, cb) {
+    console.log(` ---> getUserName ---- userId: ${userId}`)
+    bot.api.users.info({user: userId}, (err, res) => {
+      if (err) console.log(err)
+      let user = res.user.profile.real_name
+      console.log(` ----> user found: ${user}`)
+      return cb(user)
+    })
+  }
+
+  function getUserPromise (userId) {
+    return new Promise((resolve, reject) => {
+      getUserName(userId, resolve)
+    })
+  }
+
   const msgDefaults = {
-    as_user: true,
+    response_type: 'in_channel',
     username: 'Karma Bot',
-    color: '#0067B3',
-    icon_emoji: config('ICON_EMOJI')
+    color: '#0067B3'
   }
 
   controller.hears(['(^help$)'], ['direct_message', 'direct_mention'], (bot, message) => {
@@ -17,9 +70,10 @@ export default (controller, bot) => {
       {
         title: 'Help',
         color: '#0067B3',
-        text: 'Simply react to a message with :+1: or' +
-              '@mention :+1: someone to give that person a karma point. Direct message/mention ' +
-              'Karmabot or use a slash command to view points.',
+        text: 'Simply react to a message with :+1: or ' +
+              '@mention someone :+1: to give that person a karma point. ' +
+              'Direct message/mention Karmabot or use a slash command to ' +
+              'view points.',
         fields: [
           {
             title: 'Example', // maybe make this a gif or jpg?
@@ -50,15 +104,53 @@ export default (controller, bot) => {
   })
 
   controller.hears('^stop', 'direct_message', (bot, message) => {
-    bot.reply(message, 'Goodbye')
+    bot.reply(message, {text: 'Goodbye'})
     bot.rtm.close()
   })
 
   controller.hears('hello', ['direct_message', 'direct_mention'], (bot, message) => {
-    bot.reply(message, 'What it do')
+    bot.reply(message, {text: 'What it do'})
   })
 
-  controller.hears(':+1:', ['ambient'], (bot, message) => {
-    bot.reply(message, '+1 Heard!')
+  // temporary command to test what users we have
+  controller.hears('my karma', ['direct_message', 'direct_mention'], (bot, message) => {
+    controller.storage.users.get(_.toString(message.user), (err, user) => {
+      if (err) console.log(err)
+      let replyMessage = _.defaults({
+        text: `Your karma is: ${user.karma}`
+      }, msgDefaults)
+      bot.reply(message, replyMessage)
+    })
+  })
+
+  controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
+    let replyMessage = _.defaults({
+      text: 'Karmatime! A point has been awarded to: '
+    }, msgDefaults)
+    const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
+    if (rawIds.length > 0) {
+      populateUserArray(rawIds).then(userNames => {
+        userNames = _.toString(userNames)
+        console.log('userNames: ', util.inspect(userNames))
+        replyMessage.text += userNames
+        bot.reply(message, replyMessage)
+      })
+    }
+  })
+
+  controller.on('reaction_added', (bot, message) => {
+    if (message.reaction === '\+1' && message.user !== message.item_user) {
+      console.log('reaction was heard!\n', util.inspect(message))
+      addKarma(_.toString(message.item_user))
+      bot.api.users.info({user: message.item_user}, (err, res) => {
+        if (err) console.log(err)
+        let name = res.user.profile.real_name
+        let replyMessage = {
+          text: `I heard your +1! ${name} has been awarded a point!`,
+          channel: message.item.channel
+        }
+        bot.say(replyMessage)
+      })
+    }
   })
 }
