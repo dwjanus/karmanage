@@ -5,14 +5,14 @@ import Promise from 'bluebird'
 
 export default (controller, bot) => {
   function updateScoreboard (user) {
-    let scoreboardObj = controller.storage.teams.get('scoreboard')
-    // let team = controller.storage.teams.get(bot.team_id)
-    let scoreboard = scoreboardObj.karma
+    // let scoreboardObj = controller.storage.teams.get('scoreboard')
+    let team = controller.storage.teams.get(bot.team_id)
+    let scoreboard = team.scoreboard.karma
     let checkScore = _.find(scoreboard, (o) => { return o.name == user.name })
     if (checkScore == -1) scoreboard.push(user)
     else scoreboard[checkScore].score = user.karma
-    scoreboardObj.karma = scoreboard
-    controller.storage.teams.save(scoreboardObj)
+    team.scoreboard = scoreboard
+    controller.storage.teams.save(team)
   }
 
   function addKarma (user) {
@@ -54,6 +54,18 @@ export default (controller, bot) => {
     } catch (err) {
       console.log(err)
     }
+  }
+
+  function buildResponse () {
+    return new Promise((resolve, reject) => {
+      let team = controller.storage.teams.get(bot.team_id)
+      let scoreboard = team.scoreboard.karma
+      let output = {text: ''}
+      _.forEach(scoreboard, (value) => {
+        output.text += `${value.name}: ${value.score}\n`
+      })
+      resolve(output)
+    })
   }
 
   async function populateUserArray (rawIds) {
@@ -100,19 +112,6 @@ export default (controller, bot) => {
   function getUserPromise (userId) {
     return new Promise((resolve, reject) => {
       getUserName(userId, resolve)
-    })
-  }
-
-  function buildResponse () {
-    return new Promise((resolve, reject) => {
-      // let team = controller.storage.teams.get(bot.team_id)
-      let scoreboardObj = controller.storage.teams.get('scoreboard')
-      let scoreboard = scoreboardObj.karma
-      let output = {text: ''}
-      _.forEach(scoreboard, (value) => {
-        output.text += `${value.name}: ${value.score}\n`
-      })
-      resolve(output)
     })
   }
 
