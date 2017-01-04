@@ -12,6 +12,14 @@ export default (controller, bot) => {
     })
   }
 
+  function subtractKarma (user) {
+    controller.storage.users.get(user, (err, user) => {
+      if (err) console.log(err)
+      user.karma = _.toInteger(user.karma) - 1
+      controller.storage.users.save(user)
+    })
+  }
+
   async function populateUserArray (rawIds) {
     try {
       let ids = await mapIds(rawIds)
@@ -49,6 +57,8 @@ export default (controller, bot) => {
       if (err) console.log(err)
       let user = res.user.profile.real_name
       console.log(` ----> user found: ${user}`)
+      addKarma(user)
+      console.log(` ----> karma assigned to ${user}`)
       return cb(user)
     })
   }
@@ -86,7 +96,7 @@ export default (controller, bot) => {
       {
         title: 'Slash Command Reference',
         color: '#009999',
-        text: '/mypoints - for your individual score\n' +
+        text: '/mykarma - for your individual score\n' +
               '/scoreboard - to view karma ranking for entire team\n',
         footer: 'Karmabot - v. 1.0',
         mrkdown_in: ['text', 'pretext']
@@ -119,21 +129,28 @@ export default (controller, bot) => {
       let replyMessage = _.defaults({
         text: `Your karma is: ${user.karma}`
       }, msgDefaults)
-      bot.reply(message, replyMessage)
+      bot.replyPrivate(message, replyMessage)
     })
   })
 
+  // Handles adding karma via @mention
   controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
-    let replyMessage = _.defaults({
-      text: 'Karmatime! A point has been awarded to: '
-    }, msgDefaults)
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
       populateUserArray(rawIds).then(userNames => {
         userNames = _.toString(userNames)
         console.log('userNames: ', util.inspect(userNames))
-        replyMessage.text += userNames
-        bot.reply(message, replyMessage)
+      })
+    }
+  })
+
+  // Handles subtracting karma via @mention
+  controller.hears([':\\-1:', '\\-\\-'], ['ambient'], (bot, message) => {
+    const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
+    if (rawIds.length > 0) {
+      populateUserArray(rawIds).then(userNames => {
+        userNames = _.toString(userNames)
+        console.log('userNames: ', util.inspect(userNames))
       })
     }
   })
