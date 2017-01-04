@@ -20,6 +20,38 @@ export default (controller, bot) => {
     })
   }
 
+  function scoreboardPromise () {
+    return new Promise((resolve, reject) => {
+      controller.storage.users.all((err, users) => {
+        if (err) reject(err)
+        let replyMessage = {
+          text: ''
+        }
+        for (const u in users) {
+          console.log(util.inspect(u))
+          if (u.karma > 0) {
+            let karma = u.karma
+            bot.api.users.info(u.id, (err, res) => {
+              if (err) console.log(err)
+              replyMessage.text += `${res.user.profile.real_name}: ${karma}\n`
+            })
+          }
+        }
+        resolve(replyMessage)
+      })
+    })
+  }
+
+  async function scoreboard () {
+    try {
+      let scores = await scoreboardPromise()
+      console.log(` ------> done waiting for scores \n${scores}`)
+      return scores
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   async function populateUserArray (rawIds) {
     try {
       let ids = await mapIds(rawIds)
@@ -57,8 +89,6 @@ export default (controller, bot) => {
       if (err) console.log(err)
       let user = res.user.profile.real_name
       console.log(` ----> user found: ${user}`)
-      addKarma(user)
-      console.log(` ----> karma assigned to ${user}`)
       return cb(user)
     })
   }
@@ -133,24 +163,37 @@ export default (controller, bot) => {
     })
   })
 
+  // temporary command to test what users we have
+  controller.hears('scoreboard', ['direct_message', 'direct_mention'], (bot, message) => {
+    bot.reply(message, scoreboard())
+  })
+
   // Handles adding karma via @mention
-  controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
+  controller.hears([':\\+1:', '\\+\\+', '\\+1'], ['ambient'], (bot, message) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
       populateUserArray(rawIds).then(userNames => {
         userNames = _.toString(userNames)
         console.log('userNames: ', util.inspect(userNames))
+        for (const user in userNames) {
+          addKarma(user)
+          console.log(` ----> karma assigned to ${user}`)
+        }
       })
     }
   })
 
   // Handles subtracting karma via @mention
-  controller.hears([':\\-1:', '\\-\\-'], ['ambient'], (bot, message) => {
+  controller.hears([':\\-1:', '\\-\\-', '\\-1'], ['ambient'], (bot, message) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
       populateUserArray(rawIds).then(userNames => {
         userNames = _.toString(userNames)
         console.log('userNames: ', util.inspect(userNames))
+        for (const user in userNames) {
+          subtractKarma(user)
+          console.log(` ----> karma assigned to ${user}`)
+        }
       })
     }
   })
@@ -159,15 +202,31 @@ export default (controller, bot) => {
     if (message.reaction === '\+1' && message.user !== message.item_user) {
       console.log('reaction was heard!\n', util.inspect(message))
       addKarma(_.toString(message.item_user))
-      bot.api.users.info({user: message.item_user}, (err, res) => {
-        if (err) console.log(err)
-        let name = res.user.profile.real_name
-        let replyMessage = {
-          text: `I heard your +1! ${name} has been awarded a point!`,
-          channel: message.item.channel
-        }
-        bot.say(replyMessage)
-      })
+      // use this for logging later
+      // bot.api.users.info({user: message.item_user}, (err, res) => {
+      //   if (err) console.log(err)
+      //   let name = res.user.profile.real_name
+      //   let replyMessage = {
+      //     text: `I heard your +1! ${name} has been awarded a point!`,
+      //     channel: message.item.channel
+      //   }
+      //   bot.say(replyMessage)
+      // })
+    }
+
+    if (message.reaction === '\-1' && message.user !== message.item_user) {
+      console.log('reaction was heard!\n', util.inspect(message))
+      subtractKarma(_.toString(message.item_user))
+      // Use this for logging later
+      // bot.api.users.info({user: message.item_user}, (err, res) => {
+      //   if (err) console.log(err)
+      //   let name = res.user.profile.real_name
+      //   let replyMessage = {
+      //     text: `I heard your +1! ${name} has been awarded a point!`,
+      //     channel: message.item.channel
+      //   }
+      //   bot.say(replyMessage)
+      // })
     }
   })
 }
