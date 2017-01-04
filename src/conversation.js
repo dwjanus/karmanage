@@ -19,15 +19,14 @@ export default (controller, bot) => {
     bot.api.users.info({user: user}, (err, res) => {
       if (err) console.log(err)
       let slackName = res.user.profile.real_name
-      controller.storage.users.get(user, (err, user) => {
-        if (err) console.log(err)
-        if (!user.name || user.name !== slackName) {
-          user.name = slackName
-        }
-        user.karma = _.toInteger(user.karma) + 1
-        controller.storage.users.save(user)
-        updateScoreboard({name: user.name, score: user.karma})
-      })
+      let storedUser = controller.storage.users.get(user)
+      if (err) console.log(err)
+      if (!storedUser.name || storedUser.name !== slackName) {
+        storedUser.name = slackName
+      }
+      storedUser.karma = _.toInteger(storedUser.karma) + 1
+      controller.storage.users.save(storedUser)
+      updateScoreboard({name: storedUser.name, score: storedUser.karma})
     })
   }
 
@@ -35,15 +34,14 @@ export default (controller, bot) => {
     bot.api.users.info({user: user}, (err, res) => {
       if (err) console.log(err)
       let slackName = res.user.profile.real_name
-      controller.storage.users.get(user, (err, user) => {
-        if (err) console.log(err)
-        if (!user.name || user.name !== slackName) {
-          user.name = slackName
-        }
-        user.karma = _.toInteger(user.karma) - 1
-        controller.storage.users.save(user)
-        updateScoreboard({name: user.name, score: user.karma})
-      })
+      let storedUser = controller.storage.users.get(user)
+      if (err) console.log(err)
+      if (!storedUser.name || storedUser.name !== slackName) {
+        storedUser.name = slackName
+      }
+      storedUser.karma = _.toInteger(storedUser.karma) - 1
+      controller.storage.users.save(storedUser)
+      updateScoreboard({name: storedUser.name, score: storedUser.karma})
     })
   }
 
