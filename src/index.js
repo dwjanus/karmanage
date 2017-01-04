@@ -59,7 +59,7 @@ controller.on('create_bot', (bot, config) => {
         if (_convos[bot.config.token]) {  // do nothing
           trackBot(bot)
         } else {
-          const convo = new ConversationHandler(controller, bot)
+          const convo = ConversationHandler(controller, bot)
           trackConvo(bot, convo)
         }
       }
@@ -109,7 +109,12 @@ controller.storage.teams.all((err, teams) => {
         if (err) {
           console.log('Error connecting bot to Slack:', err)
         } else {
-          const convo = new ConversationHandler(controller, bot)
+          if (!teams[t].scoreboard) {
+            const scoreboard = {id: 'scoreboard', karma: [{name: '', score: ''}]}
+            console.log('** No scoreboard found for team --> added new one')
+            controller.teams[t].save(scoreboard)
+          }
+          const convo = ConversationHandler(controller, bot)
           trackConvo(bot, convo)
         }
       })

@@ -4,45 +4,52 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 export default (controller, bot) => {
+  function updateScoreboard (user) {
+    // let scoreboard = controller.storage.teams.get('scoreboard')
+    let team = controller.storage.teams.get(bot.team_id)
+    let scoreboard = team.scoreboard.karma
+    let checkScore = _.find(scoreboard, (o) => { return o.name == user.name })
+    if (checkScore == -1) scoreboard.push(user)
+    else scoreboard[checkScore].score = user.karma
+    team.scoreboard = scoreboard
+    controller.storage.teams.save(team)
+  }
+
   function addKarma (user) {
-    controller.storage.users.get(user, (err, user) => {
+    bot.api.users.info({user: user}, (err, res) => {
       if (err) console.log(err)
-      user.karma = _.toInteger(user.karma) + 1
-      controller.storage.users.save(user)
+      let slackName = res.user.profile.real_name
+      controller.storage.users.get(user, (err, user) => {
+        if (err) console.log(err)
+        if (!user.name || user.name !== slackName) {
+          user.name = slackName
+        }
+        user.karma = _.toInteger(user.karma) + 1
+        controller.storage.users.save(user)
+        updateScoreboard({name: user.name, score: user.karma})
+      })
     })
   }
 
   function subtractKarma (user) {
-    controller.storage.users.get(user, (err, user) => {
+    bot.api.users.info({user: user}, (err, res) => {
       if (err) console.log(err)
-      user.karma = _.toInteger(user.karma) - 1
-      controller.storage.users.save(user)
-    })
-  }
-
-  function scoreboardPromise () {
-    return new Promise((resolve, reject) => {
-      controller.storage.users.all((err, users) => {
-        if (err) reject(err)
-        let replyMessage = {text: ''}
-        for (const u in users) {
-          if (_.toInteger(users[u].karma) > 0) {
-            let karma = users[u].karma
-            bot.api.users.info({user: users[u].id}, (err, res) => {
-              if (err) console.log(err)
-              replyMessage.text += `${res.user.profile.real_name}: ${karma}\n`
-            })
-          }
+      let slackName = res.user.profile.real_name
+      controller.storage.users.get(user, (err, user) => {
+        if (err) console.log(err)
+        if (!user.name || user.name !== slackName) {
+          user.name = slackName
         }
-        resolve(replyMessage)
+        user.karma = _.toInteger(user.karma) - 1
+        controller.storage.users.save(user)
+        updateScoreboard({name: user.name, score: user.karma})
       })
     })
   }
 
   async function scoreboard () {
     try {
-      let scores = await scoreboardPromise()
-      console.log(` ------> done waiting for scores \n${scores}`)
+      let scores = await buildResponse()
       return scores
     } catch (err) {
       console.log(err)
@@ -93,6 +100,18 @@ export default (controller, bot) => {
   function getUserPromise (userId) {
     return new Promise((resolve, reject) => {
       getUserName(userId, resolve)
+    })
+  }
+
+  function buildResponse () {
+    return new Promise((resolve, reject) => {
+      let team = controller.storage.teams.get(bot.team_id)
+      let scoreboard = team.scoreboard.karma
+      let output = {text: ''}
+      _.forEach(scoreboard, (value) => {
+        output.text += `${value.name}: ${value.score}\n`
+      })
+      resolve(output)
     })
   }
 
@@ -159,8 +178,9 @@ export default (controller, bot) => {
 
   // temporary command to test what users we have
   controller.hears('scoreboard', ['direct_message', 'direct_mention'], (bot, message) => {
-    let replyMessage = scoreboard()
-    bot.reply(message, replyMessage)
+    scoreboard().then(replyMessage => {
+      bot.reply(message, replyMessage)
+    })
   })
 
   // Handles adding karma via @mention
