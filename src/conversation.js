@@ -24,12 +24,9 @@ export default (controller, bot) => {
     return new Promise((resolve, reject) => {
       controller.storage.users.all((err, users) => {
         if (err) reject(err)
-        let replyMessage = {
-          text: ''
-        }
+        let replyMessage = {text: ''}
         for (const u in users) {
-          console.log(util.inspect(u))
-          if (u.karma > 0) {
+          if (_.toInteger(u.karma) > 0) {
             let karma = u.karma
             bot.api.users.info(u.id, (err, res) => {
               if (err) console.log(err)
@@ -156,16 +153,14 @@ export default (controller, bot) => {
   controller.hears('my karma', ['direct_message', 'direct_mention'], (bot, message) => {
     controller.storage.users.get(_.toString(message.user), (err, user) => {
       if (err) console.log(err)
-      let replyMessage = _.defaults({
-        text: `Your karma is: ${user.karma}`
-      }, msgDefaults)
-      bot.replyPrivate(message, replyMessage)
+      bot.replyPrivate(message, {text: `Your karma is: ${user.karma}`})
     })
   })
 
   // temporary command to test what users we have
   controller.hears('scoreboard', ['direct_message', 'direct_mention'], (bot, message) => {
-    bot.reply(message, scoreboard())
+    let replyMessage = scoreboard()
+    bot.reply(message, replyMessage)
   })
 
   // Handles adding karma via @mention
