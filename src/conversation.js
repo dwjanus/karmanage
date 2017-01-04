@@ -150,10 +150,10 @@ export default (controller, bot) => {
   })
 
   // temporary command to test what users we have
-  controller.hears('my karma', ['direct_message', 'direct_mention'], (bot, message) => {
+  controller.hears('my karma', ['direct_message'], (bot, message) => {
     controller.storage.users.get(_.toString(message.user), (err, user) => {
       if (err) console.log(err)
-      bot.replyPrivate(message, {text: `Your karma is: ${user.karma}`})
+      bot.reply(message, {text: `Your karma is: ${user.karma}`})
     })
   })
 
