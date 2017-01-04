@@ -112,7 +112,7 @@ controller.storage.teams.all((err, teams) => {
           if (!teams[t].scoreboard) {
             const scoreboard = {id: 'scoreboard', karma: [{name: '', score: ''}]}
             console.log('** No scoreboard found for team --> added new one')
-            controller.teams[t].save(scoreboard)
+            controller.storage.teams[t].save(scoreboard)
           }
           const convo = ConversationHandler(controller, bot)
           trackConvo(bot, convo)
