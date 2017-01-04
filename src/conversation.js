@@ -4,6 +4,14 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 export default (controller, bot) => {
+  function addKarma (user) {
+    controller.storage.users.get(user, (err, user) => {
+      if (err) console.log(err)
+      user.karma = _.toInteger(user.karma) + 1
+      controller.storage.users.save(user)
+    })
+  }
+
   async function populateUserArray (rawIds) {
     try {
       let ids = await mapIds(rawIds)
@@ -116,7 +124,6 @@ export default (controller, bot) => {
   })
 
   controller.hears([':\\+1:', '\\+\\+'], ['ambient'], (bot, message) => {
-    console.log(':+1: was heard ambiently\n', util.inspect(message))
     let replyMessage = _.defaults({
       text: 'Karmatime! A point has been awarded to: '
     }, msgDefaults)
@@ -132,16 +139,9 @@ export default (controller, bot) => {
   })
 
   controller.on('reaction_added', (bot, message) => {
-    if (message.reaction === '\+1') { //  && (message.user !== message.item_user)
+    if (message.reaction === '\+1' && message.user !== message.item_user) {
       console.log('reaction was heard!\n', util.inspect(message))
-      controller.storage.users.get(_.toString(message.item_user), (err, user) => {
-        if (err) console.log(err)
-        console.log('current karma: ', user.karma)
-        user.karma = _.toInteger(user.karma) + 1
-        console.log('now karma: ', user.karma)
-        controller.storage.users.save(user)
-      })
-
+      addKarma(_.toString(message.item_user))
       bot.api.users.info({user: message.item_user}, (err, res) => {
         if (err) console.log(err)
         let name = res.user.profile.real_name

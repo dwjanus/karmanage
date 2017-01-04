@@ -1,6 +1,5 @@
 
-import util from 'util'
-import _ from 'lodash'
+import http from 'http'
 import Botkit from 'botkit'
 import mongo from 'botkit-storage-mongo'
 import config from './config.js'
@@ -118,3 +117,7 @@ controller.storage.teams.all((err, teams) => {
   }
 })
 
+// Simple hack to ping server every 5min and keep app running
+setInterval(() => {
+  http.get('http://karmanage.herokuapp.com')
+}, 300000)
