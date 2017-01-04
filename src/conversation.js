@@ -26,9 +26,9 @@ export default (controller, bot) => {
         if (err) reject(err)
         let replyMessage = {text: ''}
         for (const u in users) {
-          if (_.toInteger(u.karma) > 0) {
-            let karma = u.karma
-            bot.api.users.info(u.id, (err, res) => {
+          if (_.toInteger(users[u].karma) > 0) {
+            let karma = users[u].karma
+            bot.api.users.info(users[u].id, (err, res) => {
               if (err) console.log(err)
               replyMessage.text += `${res.user.profile.real_name}: ${karma}\n`
             })
