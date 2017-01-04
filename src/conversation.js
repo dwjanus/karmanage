@@ -28,7 +28,7 @@ export default (controller, bot) => {
         for (const u in users) {
           if (_.toInteger(users[u].karma) > 0) {
             let karma = users[u].karma
-            bot.api.users.info(users[u].id, (err, res) => {
+            bot.api.users.info({user: users[u].id}, (err, res) => {
               if (err) console.log(err)
               replyMessage.text += `${res.user.profile.real_name}: ${karma}\n`
             })
