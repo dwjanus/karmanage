@@ -5,14 +5,14 @@ import Promise from 'bluebird'
 
 export default (controller, bot) => {
   function updateScoreboard (user) {
-    // let scoreboardObj = controller.storage.teams.get('scoreboard')
-    let team = controller.storage.teams.get(bot.team_id)
-    let scoreboard = team.scoreboard.karma
+    let scoreboardObj = controller.storage.teams.get('scoreboard')
+    // let team = controller.storage.teams.get(bot.team_id)
+    let scoreboard = scoreboardObj.karma
     let checkScore = _.find(scoreboard, (o) => { return o.name == user.name })
     if (checkScore == -1) scoreboard.push(user)
     else scoreboard[checkScore].score = user.karma
-    team.scoreboard = scoreboard
-    controller.storage.teams.save(team)
+    scoreboardObj.karma = scoreboard
+    controller.storage.teams.save(scoreboardObj)
   }
 
   function addKarma (user) {
