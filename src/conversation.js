@@ -61,9 +61,8 @@ export default (controller, bot) => {
 
   async function scoreboard (teamKarma) {
     try {
-      buildResponse(teamKarma).then(scoreboard => {
-        return scoreboard
-      })
+      let scoreboard = await buildResponse(teamKarma)
+      return scoreboard
     } catch (err) {
       console.log(err)
     }
@@ -71,9 +70,9 @@ export default (controller, bot) => {
 
   function buildResponse (teamKarma) {
     return new Promise((resolve, reject) => {
+      if (!teamKarma) reject(teamKarma)
       let output = {text: ''}
-      _.forEach(teamKarma, (err, value) => {
-        if (err) reject(err)
+      _.forEach(teamKarma, (value) => {
         output.text += `${value.name}: ${value.score}\n`
       })
       resolve(output)

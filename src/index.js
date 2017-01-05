@@ -110,7 +110,7 @@ controller.storage.teams.all((err, teams) => {
           console.log('Error connecting bot to Slack:', err)
         } else {
           if (!teams[t].scoreboard) {
-            const scoreboard = {id: 'scoreboard', karma: [{name: '', score: ''}]}
+            const scoreboard = {id: 'scoreboard', karma: []}
             console.log('** No scoreboard found for team --> added new one')
             teams[t].scoreboard = scoreboard
             controller.storage.teams.save(teams[t])
@@ -123,7 +123,7 @@ controller.storage.teams.all((err, teams) => {
   }
 })
 
-// insert function to preload users into mongodb - ?
+// maybe insert function to preload users into mongodb - ?
 
 // Simple hack to ping server every 5min and keep app running
 setInterval(() => {
