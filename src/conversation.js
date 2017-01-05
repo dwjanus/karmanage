@@ -59,21 +59,19 @@ export default (controller, bot) => {
     })
   }
 
-  async function scoreboard () {
+  async function scoreboard (teamKarma) {
     try {
-      buildResponse().then(scores => {
-        return scores
+      buildResponse(teamKarma).then(scoreboard => {
+        return scoreboard
       })
     } catch (err) {
       console.log(err)
     }
   }
 
-  function buildResponse () {
-    let team = controller.storage.teams.get(bot.team_id)
-    let scoreboard = team.scoreboard.karma
+  function buildResponse (teamKarma) {
     let output = {text: ''}
-    _.forEach(scoreboard, (value) => {
+    _.forEach(teamKarma, (value) => {
       output.text += `${value.name}: ${value.score}\n`
     })
     return output
@@ -183,13 +181,13 @@ export default (controller, bot) => {
   // temporary command to test what users we have
   // Eventually we want the scoreboard to be an array of value maps so it auto updates
   controller.hears('scoreboard', ['direct_message', 'direct_mention'], (bot, message) => {
-    // scoreboard().then(replyMessage => {
-    //   bot.reply(message, replyMessage)
-    // })
     console.log(util.inspect(message))
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
       console.log('Scoreboard:\n' + util.inspect(team.scoreboard))
+      scoreboard(team.scoreboard.karma).then(replyMessage => {
+        bot.reply(message, replyMessage)
+      })
     })
   })
 
