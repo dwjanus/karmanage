@@ -184,13 +184,17 @@ export default (controller, bot) => {
       if (err) console.log(err)
       console.log('Scoreboard:\n' + util.inspect(team.scoreboard))
       scoreboard(team.scoreboard.karma).then(replyMessage => {
-        bot.reply(message, {
-          title: `${team.name}: The Scorey So Far...`,
-          attachments: [{
-            text: replyMessage,
-            color: '#0067B3'
-          }]
-        })
+        let slack = {
+          pretext: `${team.name}: The Scorey So Far...`,
+          attachments: [
+            {
+              text: replyMessage,
+              color: '#0067B3'
+            }
+          ],
+          mrkdown_in: ['text', 'pretext']
+        }
+        bot.reply(message, slack)
       })
     })
   })
