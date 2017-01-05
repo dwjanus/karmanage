@@ -24,12 +24,12 @@ export default (controller, bot) => {
         mapUserToDB(user, (newUser) => {
           newUser.karma = _.toInteger(newUser.karma) + 1
           controller.storage.users.save(newUser)
-          updateScoreboard({name: newUser.name, score: newUser.karma})
+          // updateScoreboard({name: newUser.name, score: newUser.karma})
         })
       } else {
         res.karma = _.toInteger(res.karma) + 1
         controller.storage.users.save(res)
-        updateScoreboard({name: res.name, score: res.karma})
+        // updateScoreboard({name: res.name, score: res.karma})
       }
     })
   }
