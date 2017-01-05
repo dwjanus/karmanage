@@ -180,7 +180,8 @@ export default (controller, bot) => {
     // scoreboard().then(replyMessage => {
     //   bot.reply(message, replyMessage)
     // })
-    controller.storage.teams.get(bot.team_id, (err, team) => {
+    console.log(util.inspect(message))
+    controller.storage.teams.get(message.team_id, (err, team) => {
       if (err) console.log(err)
       console.log('Scoreboard:\n' + util.inspect(team.scoreboard))
     })
