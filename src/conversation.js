@@ -5,7 +5,7 @@ import Promise from 'bluebird'
 
 export default (controller, bot) => {
   function updateScoreboard (user) {
-    controller.storage.teams.get(bot.team, (err, team) => {
+    controller.storage.teams.get(user.team_id, (err, team) => {
       if (err) console.log(err)
       let scoreboard = team.scoreboard.karma
       let checkScore = _.find(scoreboard, (o) => { return o.name === user.name })
@@ -25,12 +25,12 @@ export default (controller, bot) => {
         mapUserToDB(user, (newUser) => {
           newUser.karma = _.toInteger(newUser.karma) + 1
           controller.storage.users.save(newUser)
-          updateScoreboard({name: newUser.name, score: newUser.karma})
+          updateScoreboard(newUser)
         })
       } else {
         res.karma = _.toInteger(res.karma) + 1
         controller.storage.users.save(res)
-        updateScoreboard({name: res.name, score: res.karma})
+        updateScoreboard(res)
       }
     })
   }
@@ -176,6 +176,7 @@ export default (controller, bot) => {
   })
 
   // temporary command to test what users we have
+  // Eventually we want the scoreboard to be an array of value maps so it auto updates
   controller.hears('scoreboard', ['direct_message', 'direct_mention'], (bot, message) => {
     // scoreboard().then(replyMessage => {
     //   bot.reply(message, replyMessage)
