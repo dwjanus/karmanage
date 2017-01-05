@@ -123,6 +123,8 @@ controller.storage.teams.all((err, teams) => {
   }
 })
 
+// insert function to preload users into mongodb - ?
+
 // Simple hack to ping server every 5min and keep app running
 setInterval(() => {
   http.get('http://karmanage.herokuapp.com')

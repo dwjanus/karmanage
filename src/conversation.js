@@ -16,6 +16,7 @@ export default (controller, bot) => {
   }
 
   function addKarma (user) {
+    // currently passing in user as a Name -- needs to be the id!!
     bot.api.users.info({user: user}, (err, res) => {
       if (err) console.log(err)
       let slackName = res.user.profile.real_name
@@ -65,13 +66,14 @@ export default (controller, bot) => {
     return output
   }
 
-  async function populateUserArray (rawIds) {
+  async function processUsers (rawIds) {
     try {
       let ids = await mapIds(rawIds)
       console.log(` ------> done waiting for mapIds ---- ids: ${ids}`)
       let names = await mapUsers(ids)
       console.log(` ------> done waiting for mapUsers ---- names: ${names}`)
-      return names
+      mapUserNamesToDB(ids, names)
+      return {names: names, ids: ids}
     } catch (err) {
       console.log(err)
     }
@@ -109,6 +111,19 @@ export default (controller, bot) => {
   function getUserPromise (userId) {
     return new Promise((resolve, reject) => {
       getUserName(userId, resolve)
+    })
+  }
+
+  function mapUserNamesToDB (ids) {
+    _.forEach(ids, (id) => {
+      let mongoUser = controller.storage.users.get(id)
+      if (!mongoUser.name) {
+        console.log('No name field found for user')
+        bot.api.users.info({user: id}, (err, res) => {
+          if (err) console.log(err)
+          mongoUser.name = res.user.profile.real_name
+        })
+      }
     })
   }
 
@@ -184,12 +199,16 @@ export default (controller, bot) => {
   controller.hears([':\\+1:', '\\+\\+', '\\+1'], ['ambient'], (bot, message) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
-      populateUserArray(rawIds).then(userNames => {
-        userNames = _.toString(userNames)
-        console.log('userNames: ', util.inspect(userNames))
-        for (const user in userNames) {
-          addKarma(userNames[user])
-          console.log(` ----> karma assigned to ${user}`)
+      processUsers(rawIds).then(users => {
+        console.log('Users:\n', util.inspect(users))
+        // let userNames = _.map(_.toString(users.names)) // maybe we will do stuff  
+        // console.log('user names: ', util.inspect(usersNames)) // with names later ?
+        let userIds = _.map(_.toString(users.ids))
+        console.log('user ids: ', util.inspect(userIds))
+        for (const i in userIds) {
+          console.log('userId #' + i + ': ' + userIds[i])
+          addKarma(userIds[i])
+          console.log(` ----> karma assigned to ${userIds[i]}`)
         }
       })
     }
@@ -199,7 +218,7 @@ export default (controller, bot) => {
   controller.hears([':\\-1:', '\\-\\-', '\\-1'], ['ambient'], (bot, message) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
-      populateUserArray(rawIds).then(userNames => {
+      processUsers(rawIds).then(userNames => {
         userNames = _.toString(userNames)
         console.log('userNames: ', util.inspect(userNames))
         for (const user in userNames) {
