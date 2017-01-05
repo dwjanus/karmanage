@@ -117,6 +117,7 @@ export default (controller, bot) => {
   function mapUserNamesToDB (ids) {
     _.forEach(ids, (id) => {
       let mongoUser = controller.storage.users.get(id)
+      console.log('Mongo User:\n' + util.inspect(mongoUser))
       if (!mongoUser.name) {
         console.log('No name field found for user')
         bot.api.users.info({user: id}, (err, res) => {
@@ -227,6 +228,13 @@ export default (controller, bot) => {
         }
       })
     }
+  })
+
+  controller.hears('me', ['direct_message'], (bot, message) => {
+    bot.api.users.info({user: message.user}, (err, res) => {
+      if (err) console.log(err)
+      console.log(res)
+    })
   })
 
   controller.on('reaction_added', (bot, message) => {
