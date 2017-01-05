@@ -16,15 +16,22 @@ export default (controller, bot) => {
   }
 
   function addKarma (user) {
-    let storedUser = controller.storage.users.get(user)
-    console.log('Stored User: ' + util.inspect(storedUser))
-    if (storedUser == 'undefined') {
-      console.log('storedUser undefied')
-      storedUser = mapUserToDB(user)
-    }
-    storedUser.karma = _.toInteger(storedUser.karma) + 1
-    controller.storage.users.save(storedUser)
-    updateScoreboard({name: storedUser.name, score: storedUser.karma})
+    controller.storage.users.get(user, (err, res) => {
+      if (err) console.log(err)
+      console.log('Stored User: ' + util.inspect(res))
+      if (res === undefined) {
+        console.log('~ User undefined ~')
+        mapUserToDB(user, (newUser) => {
+          newUser.karma = _.toInteger(newUser.karma) + 1
+          controller.storage.users.save(newUser)
+          updateScoreboard({name: newUser.name, score: newUser.karma})
+        })
+      } else {
+        res.karma = _.toInteger(res.karma) + 1
+        controller.storage.users.save(res)
+        updateScoreboard({name: res.name, score: res.karma})
+      }
+    })
   }
 
   function subtractKarma (user) {
@@ -86,7 +93,7 @@ export default (controller, bot) => {
     return _.toString(rawId).substring(2, 11)
   }
 
-  function mapUserToDB (id) {
+  function mapUserToDB (id, cb) {
     console.log('mapping user to mongo: ' + util.inspect(id))
     if (controller.storage.users.get(id) == 'undefined') {
       console.log('~ mongoUser undefined ~')
@@ -97,7 +104,7 @@ export default (controller, bot) => {
         newUser.name = res.user.profile.real_name
         controller.storage.users.save(newUser)
         console.log(`New User:\n${util.inspect(newUser)}\n--> saved to db`)
-        return newUser
+        cb(newUser)
       })
     } else {
       console.log('User exists!')
