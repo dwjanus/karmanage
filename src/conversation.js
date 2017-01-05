@@ -91,8 +91,7 @@ export default (controller, bot) => {
   function mapUserNamesToDB (ids) {
     console.log('mapping users to mongo: ' + util.inspect(ids))
     _.forEach(ids, (id) => {
-      let mongoUser = controller.storage.users.get(_.toString(id))
-      console.log('Mongo User:\n' + util.inspect(mongoUser))
+      let mongoUser = controller.storage.users.get(id)
       if (!mongoUser) {
         console.log('~ mongoUser undefined ~')
         let newUser = {id: id, team_id: '', name: '', karma: '0'}
@@ -101,8 +100,10 @@ export default (controller, bot) => {
           newUser.team_id = res.user.team_id
           newUser.name = res.user.profile.real_name
           controller.storage.users.save(newUser)
-          console.log(`New User:\n${util.inspect(newUser)} --> saved to db`)
+          console.log(`New User:\n${util.inspect(newUser)}\n--> saved to db`)
         })
+      } else {
+        console.log('User exists!' + util.inspect(mongoUser))
       }
     })
   }
