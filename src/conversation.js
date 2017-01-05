@@ -5,7 +5,7 @@ import Promise from 'bluebird'
 
 export default (controller, bot) => {
   function updateScoreboard (user) {
-    controller.storage.teams.get(bot.team_id, (err, team) => {
+    controller.storage.teams.get(bot.team, (err, team) => {
       if (err) console.log(err)
       let scoreboard = team.scoreboard.karma
       let checkScore = _.find(scoreboard, (o) => { return o.name === user.name })
@@ -181,7 +181,7 @@ export default (controller, bot) => {
     //   bot.reply(message, replyMessage)
     // })
     console.log(util.inspect(message))
-    controller.storage.teams.get(message.team_id, (err, team) => {
+    controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
       console.log('Scoreboard:\n' + util.inspect(team.scoreboard))
     })
