@@ -16,19 +16,13 @@ export default (controller, bot) => {
   }
 
   function addKarma (user) {
-    // currently passing in user as a Name -- needs to be the id!!
-    bot.api.users.info({user: user}, (err, res) => {
-      if (err) console.log(err)
-      let slackName = res.user.profile.real_name
-      let storedUser = controller.storage.users.get(user)
-      if (err) console.log(err)
-      if (!storedUser.name || storedUser.name !== slackName) {
-        storedUser.name = slackName
-      }
-      storedUser.karma = _.toInteger(storedUser.karma) + 1
-      controller.storage.users.save(storedUser)
-      updateScoreboard({name: storedUser.name, score: storedUser.karma})
-    })
+    if (!controller.storage.users.get(user)) {
+      mapUserToDB(user)
+    }
+    let storedUser = controller.storage.users.get(user)
+    storedUser.karma = _.toInteger(storedUser.karma) + 1
+    controller.storage.users.save(storedUser)
+    updateScoreboard({name: storedUser.name, score: storedUser.karma})
   }
 
   function subtractKarma (user) {
@@ -70,7 +64,9 @@ export default (controller, bot) => {
     try {
       let ids = await mapIds(rawIds)
       console.log(` ------> done waiting for mapIds ---- ids: ${ids}`)
-      mapUserNamesToDB(ids)
+      for (const i in ids) {
+        mapUserToDB(ids[i])
+      }
       return ids
     } catch (err) {
       console.log(err)
@@ -88,24 +84,22 @@ export default (controller, bot) => {
     return _.toString(rawId).substring(2, 11)
   }
 
-  function mapUserNamesToDB (ids) {
-    console.log('mapping users to mongo: ' + util.inspect(ids))
-    _.forEach(ids, (id) => {
-      let mongoUser = controller.storage.users.get(id)
-      if (!mongoUser) {
-        console.log('~ mongoUser undefined ~')
-        let newUser = {id: id, team_id: '', name: '', karma: '0'}
-        bot.api.users.info({user: id}, (err, res) => {
-          if (err) console.log(err)
-          newUser.team_id = res.user.team_id
-          newUser.name = res.user.profile.real_name
-          controller.storage.users.save(newUser)
-          console.log(`New User:\n${util.inspect(newUser)}\n--> saved to db`)
-        })
-      } else {
-        console.log('User exists!' + util.inspect(mongoUser))
-      }
-    })
+  function mapUserToDB (id) {
+    console.log('mapping user to mongo: ' + util.inspect(id))
+    let mongoUser = controller.storage.users.get(id)
+    if (!mongoUser) {
+      console.log('~ mongoUser undefined ~')
+      let newUser = {id: id, team_id: '', name: '', karma: '0'}
+      bot.api.users.info({user: id}, (err, res) => {
+        if (err) console.log(err)
+        newUser.team_id = res.user.team_id
+        newUser.name = res.user.profile.real_name
+        controller.storage.users.save(newUser)
+        console.log(`New User:\n${util.inspect(newUser)}\n--> saved to db`)
+      })
+    } else {
+      console.log('User exists!' + util.inspect(mongoUser))
+    }
   }
 
   const msgDefaults = {
@@ -215,8 +209,7 @@ export default (controller, bot) => {
 
   controller.on('reaction_added', (bot, message) => {
     if (message.reaction === '\+1') { // && message.user !== message.item_user) {
-      console.log('reaction was heard!\n', util.inspect(message))
-      addKarma(_.toString(message.item_user))
+      addKarma(message.item_user)
     }
 
     if (message.reaction === '\-1' && message.user !== message.item_user) {
