@@ -7,11 +7,16 @@ export default (controller, bot) => {
   function updateScoreboard (user) {
     controller.storage.teams.get(user.team_id, (err, team) => {
       if (err) console.log(err)
-      let scoreboard = team.scoreboard.karma
-      let checkScore = _.find(scoreboard, (o) => { return o.name === user.name })
-      if (checkScore == -1) scoreboard.push(user)
-      else scoreboard[checkScore].score = user.karma
-      team.scoreboard = scoreboard
+      let teamKarma = team.scoreboard.karma
+      console.log('Updating Scoreboard - teamKarma:\n' + util.inspect(teamKarma))
+      let checkScore = _.find(teamKarma, (o) => { return o.name === user.name })
+      console.log('checkScore: ' + checkScore)
+      if (checkScore == -1) {
+        teamKarma.push(user)
+      } else {
+        teamKarma[checkScore].score = user.karma
+      }
+      team.scoreboard.karma = teamKarma
       controller.storage.teams.save(team)
     })
   }
