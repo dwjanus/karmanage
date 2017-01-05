@@ -185,7 +185,7 @@ export default (controller, bot) => {
       console.log('Scoreboard:\n' + util.inspect(team.scoreboard))
       scoreboard(team.scoreboard.karma).then(replyMessage => {
         let slack = {
-          title: `${team.name}: The Scorey So Far...`,
+          text: `${team.name}: The Scorey So Far...`,
           attachments: [
             {
               text: replyMessage.text,
