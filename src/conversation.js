@@ -72,7 +72,8 @@ export default (controller, bot) => {
   function buildResponse (teamKarma) {
     return new Promise((resolve, reject) => {
       let output = {text: ''}
-      _.forEach(teamKarma, (value) => {
+      _.forEach(teamKarma, (err, value) => {
+        if (err) reject(err)
         output.text += `${value.name}: ${value.score}\n`
       })
       resolve(output)
@@ -149,12 +150,12 @@ export default (controller, bot) => {
       }
     ]
 
-    let replyWithAttachments = _.defaults({
+    let replyWithAttachments = {
       pretext: 'Karmabot help',
       text: 'Karmabot keeps track of your karma!',
       attachments,
       mrkdown_in: ['text', 'pretext']
-    }, msgDefaults)
+    }
 
     bot.reply(message, replyWithAttachments)
   })
@@ -172,7 +173,7 @@ export default (controller, bot) => {
   controller.hears(['my karma', 'my score'], ['direct_message', 'direct_mention'], (bot, message) => {
     controller.storage.users.get(message.user, (err, user) => {
       if (err) console.log(err)
-      bot.reply(message, {channel: message.user, text: `Your karma is: ${user.karma}`})
+      bot.reply(message, {text: `Your karma is: ${user.karma}`})
     })
   })
 
