@@ -70,11 +70,13 @@ export default (controller, bot) => {
   }
 
   function buildResponse (teamKarma) {
-    let output = {text: ''}
-    _.forEach(teamKarma, (value) => {
-      output.text += `${value.name}: ${value.score}\n`
+    return new Promise((resolve, reject) => {
+      let output = {text: ''}
+      _.forEach(teamKarma, (value) => {
+        output.text += `${value.name}: ${value.score}\n`
+      })
+      resolve(output)
     })
-    return output
   }
 
   async function processUsers (rawIds) {
@@ -117,12 +119,6 @@ export default (controller, bot) => {
     } else {
       console.log('User exists!')
     }
-  }
-
-  const msgDefaults = {
-    response_type: 'in_channel',
-    username: 'Karma Bot',
-    color: '#0067B3'
   }
 
   controller.hears(['(^help$)'], ['direct_message', 'direct_mention'], (bot, message) => {
