@@ -12,7 +12,7 @@ export default (controller, bot) => {
       let checkScore = _.findIndex(teamKarma, (o) => { return o.name == user.name })
       console.log('checkScore: ' + checkScore)
       if (checkScore == -1) {
-        teamKarma.push(user)
+        teamKarma.push({name: user.name, score: user.karma})
       } else {
         teamKarma[checkScore].score = user.karma
       }
