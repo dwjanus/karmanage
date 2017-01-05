@@ -70,10 +70,8 @@ export default (controller, bot) => {
     try {
       let ids = await mapIds(rawIds)
       console.log(` ------> done waiting for mapIds ---- ids: ${ids}`)
-      let names = await mapUsers(ids)
-      console.log(` ------> done waiting for mapUsers ---- names: ${names}`)
-      mapUserNamesToDB(ids, names)
-      return {names: names, ids: ids}
+      mapUserNamesToDB(ids)
+      return ids
     } catch (err) {
       console.log(err)
     }
@@ -90,39 +88,20 @@ export default (controller, bot) => {
     return _.toString(rawId).substring(2, 11)
   }
 
-  function mapUsers (userIds) {
-    console.log(` --> mapUsers ---- userIds: ${userIds}`)
-    return new Promise((resolve, reject) => {
-      let names = Promise.map(userIds, getUserPromise)
-      resolve(names)
-    })
-  }
-
-  function getUserName (userId, cb) {
-    console.log(` ---> getUserName ---- userId: ${userId}`)
-    bot.api.users.info({user: userId}, (err, res) => {
-      if (err) console.log(err)
-      let user = res.user.profile.real_name
-      console.log(` ----> user found: ${user}`)
-      return cb(user)
-    })
-  }
-
-  function getUserPromise (userId) {
-    return new Promise((resolve, reject) => {
-      getUserName(userId, resolve)
-    })
-  }
-
   function mapUserNamesToDB (ids) {
+    console.log('mapping users to mongo: ' + util.inspect(ids))
     _.forEach(ids, (id) => {
-      let mongoUser = controller.storage.users.get(id)
+      let mongoUser = controller.storage.users.get(_.toString(id))
       console.log('Mongo User:\n' + util.inspect(mongoUser))
-      if (!mongoUser.name) {
-        console.log('No name field found for user')
+      if (!mongoUser) {
+        console.log('~ mongoUser undefined ~')
+        let newUser = {id: id, team_id: '', name: '', karma: '0'}
         bot.api.users.info({user: id}, (err, res) => {
           if (err) console.log(err)
-          mongoUser.name = res.user.profile.real_name
+          newUser.team_id = res.user.team_id
+          newUser.name = res.user.profile.real_name
+          controller.storage.users.save(newUser)
+          console.log(`New User:\n${util.inspect(newUser)} --> saved to db`)
         })
       }
     })
@@ -183,10 +162,8 @@ export default (controller, bot) => {
 
   // temporary command to test what users we have
   controller.hears('my karma', ['direct_message'], (bot, message) => {
-    controller.storage.users.get(_.toString(message.user), (err, user) => {
-      if (err) console.log(err)
-      bot.reply(message, {text: `Your karma is: ${user.karma}`})
-    })
+    let user = controller.storage.users.get(_.toString(message.user))
+    bot.reply(message, {text: `Your karma is: ${user.karma}`})
   })
 
   // temporary command to test what users we have
@@ -201,9 +178,6 @@ export default (controller, bot) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
       processUsers(rawIds).then(users => {
-        console.log('Users:\n', util.inspect(users))
-        // let userNames = _.map(_.toString(users.names)) // maybe we will do stuff  
-        // console.log('user names: ', util.inspect(usersNames)) // with names later ?
         let userIds = _.map(_.toString(users.ids))
         console.log('user ids: ', util.inspect(userIds))
         for (const i in userIds) {
@@ -243,31 +217,11 @@ export default (controller, bot) => {
     if (message.reaction === '\+1' && message.user !== message.item_user) {
       console.log('reaction was heard!\n', util.inspect(message))
       addKarma(_.toString(message.item_user))
-      // use this for logging later
-      // bot.api.users.info({user: message.item_user}, (err, res) => {
-      //   if (err) console.log(err)
-      //   let name = res.user.profile.real_name
-      //   let replyMessage = {
-      //     text: `I heard your +1! ${name} has been awarded a point!`,
-      //     channel: message.item.channel
-      //   }
-      //   bot.say(replyMessage)
-      // })
     }
 
     if (message.reaction === '\-1' && message.user !== message.item_user) {
       console.log('reaction was heard!\n', util.inspect(message))
       subtractKarma(_.toString(message.item_user))
-      // Use this for logging later
-      // bot.api.users.info({user: message.item_user}, (err, res) => {
-      //   if (err) console.log(err)
-      //   let name = res.user.profile.real_name
-      //   let replyMessage = {
-      //     text: `I heard your +1! ${name} has been awarded a point!`,
-      //     channel: message.item.channel
-      //   }
-      //   bot.say(replyMessage)
-      // })
     }
   })
 }
