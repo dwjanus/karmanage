@@ -188,7 +188,7 @@ export default (controller, bot) => {
           pretext: `${team.name}: The Scorey So Far...`,
           attachments: [
             {
-              text: replyMessage,
+              text: replyMessage.text,
               color: '#0067B3'
             }
           ],
