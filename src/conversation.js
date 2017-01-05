@@ -231,9 +231,11 @@ export default (controller, bot) => {
   })
 
   controller.hears('me', ['direct_message'], (bot, message) => {
+    let mongo = controller.storage.users.get(message.user)
+    console.log('Mongo: ' + util.inspect(mongo))
     bot.api.users.info({user: message.user}, (err, res) => {
       if (err) console.log(err)
-      console.log(res)
+      console.log('Slack: ' + util.inspect(res))
     })
   })
 
