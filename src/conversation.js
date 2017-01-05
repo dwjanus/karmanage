@@ -173,9 +173,9 @@ export default (controller, bot) => {
   })
 
   // temporary command to test what users we have
-  controller.hears('my karma', ['direct_message'], (bot, message) => {
+  controller.hears(['my karma', 'my score'], ['direct_message', 'direct_mention'], (bot, message) => {
     let user = controller.storage.users.get(_.toString(message.user))
-    bot.reply(message, {text: `Your karma is: ${user.karma}`})
+    bot.reply(message, {channel: message.user, text: `Your karma is: ${user.karma}`})
   })
 
   // temporary command to test what users we have
