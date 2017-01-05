@@ -177,13 +177,12 @@ export default (controller, bot) => {
   controller.hears([':\\+1:', '\\+\\+', '\\+1'], ['ambient'], (bot, message) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
-      processUsers(rawIds).then(users => {
-        let userIds = _.map(_.toString(users.ids))
-        console.log('user ids: ', util.inspect(userIds))
-        for (const i in userIds) {
-          console.log('userId #' + i + ': ' + userIds[i])
-          addKarma(userIds[i])
-          console.log(` ----> karma assigned to ${userIds[i]}`)
+      processUsers(rawIds).then(ids => {
+        console.log('user ids: ', util.inspect(ids))
+        for (const i in ids) {
+          console.log('userId #' + i + ': ' + ids[i])
+          addKarma(ids[i])
+          console.log(` ----> karma assigned to ${ids[i]}`)
         }
       })
     }
@@ -214,7 +213,7 @@ export default (controller, bot) => {
   })
 
   controller.on('reaction_added', (bot, message) => {
-    if (message.reaction === '\+1' && message.user !== message.item_user) {
+    if (message.reaction === '\+1') { // && message.user !== message.item_user) {
       console.log('reaction was heard!\n', util.inspect(message))
       addKarma(_.toString(message.item_user))
     }
