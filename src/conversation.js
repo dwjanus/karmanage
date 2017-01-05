@@ -17,7 +17,9 @@ export default (controller, bot) => {
 
   function addKarma (user) {
     let storedUser = controller.storage.users.get(user)
-    if (storedUser === undefined) {
+    console.log('Stored User: ' + util.inspect(storedUser))
+    if (storedUser == 'undefined') {
+      console.log('storedUser undefied')
       storedUser = mapUserToDB(user)
     }
     storedUser.karma = _.toInteger(storedUser.karma) + 1
@@ -86,7 +88,7 @@ export default (controller, bot) => {
 
   function mapUserToDB (id) {
     console.log('mapping user to mongo: ' + util.inspect(id))
-    if (controller.storage.users.get(id) === undefined) {
+    if (controller.storage.users.get(id) == 'undefined') {
       console.log('~ mongoUser undefined ~')
       let newUser = {id: id, team_id: '', name: '', karma: '0'}
       bot.api.users.info({user: id}, (err, res) => {
