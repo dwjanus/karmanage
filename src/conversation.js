@@ -9,7 +9,7 @@ export default (controller, bot) => {
       if (err) console.log(err)
       let teamKarma = team.scoreboard.karma
       console.log('Updating Scoreboard - teamKarma:\n' + util.inspect(teamKarma))
-      let checkScore = _.find(teamKarma, (o) => { return o.name === user.name })
+      let checkScore = _.findIndex(teamKarma, (o) => { return o.name == user.name })
       console.log('checkScore: ' + checkScore)
       if (checkScore == -1) {
         teamKarma.push(user)
