@@ -83,9 +83,6 @@ export default (controller, bot) => {
     try {
       let ids = await mapIds(rawIds)
       console.log(` ------> done waiting for mapIds ---- ids: ${ids}`)
-      for (const i in ids) {
-        mapUserToDB(ids[i])
-      }
       return ids
     } catch (err) {
       console.log(err)
@@ -104,21 +101,16 @@ export default (controller, bot) => {
   }
 
   function mapUserToDB (id, cb) {
-    console.log('mapping user to mongo: ' + util.inspect(id))
-    if (controller.storage.users.get(id) === undefined) {
-      console.log('~ mongoUser undefined ~')
-      let newUser = {id: id, team_id: '', name: '', karma: '0'}
-      bot.api.users.info({user: id}, (err, res) => {
-        if (err) console.log(err)
-        newUser.team_id = res.user.team_id
-        newUser.name = res.user.profile.real_name
-        controller.storage.users.save(newUser)
-        console.log(`New User:\n${util.inspect(newUser)}\n--> saved to db`)
-        cb(newUser)
-      })
-    } else {
-      console.log('User exists!')
-    }
+    console.log(`mapping user: ${id} to mongo`)
+    let newUser = {id: id, team_id: '', name: '', karma: '0'}
+    bot.api.users.info({user: id}, (err, res) => {
+      if (err) console.log(err)
+      newUser.team_id = res.user.team_id
+      newUser.name = res.user.profile.real_name
+      controller.storage.users.save(newUser)
+      console.log(`New User:\n${util.inspect(newUser)}\n--> saved to db`)
+      cb(newUser)
+    })
   }
 
   controller.hears(['(^help$)'], ['direct_message', 'direct_mention'], (bot, message) => {
@@ -227,15 +219,6 @@ export default (controller, bot) => {
         }
       })
     }
-  })
-
-  controller.hears('me', ['direct_message'], (bot, message) => {
-    let mongo = controller.storage.users.get(message.user)
-    console.log('Mongo: ' + util.inspect(mongo))
-    bot.api.users.info({user: message.user}, (err, res) => {
-      if (err) console.log(err)
-      console.log('Slack: ' + util.inspect(res))
-    })
   })
 
   controller.on('reaction_added', (bot, message) => {
