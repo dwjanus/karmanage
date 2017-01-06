@@ -49,12 +49,12 @@ export default (controller, bot) => {
         mapUserToDB(user, (newUser) => {
           newUser.karma = _.toInteger(newUser.karma) - 1
           controller.storage.users.save(newUser)
-          updateScoreboard({name: newUser.name, score: newUser.karma})
+          updateScoreboard(newUser)
         })
       } else {
         res.karma = _.toInteger(res.karma) - 1
         controller.storage.users.save(res)
-        updateScoreboard({name: res.name, score: res.karma})
+        updateScoreboard(res)
       }
     })
   }
@@ -183,8 +183,7 @@ export default (controller, bot) => {
               text: replyMessage.text,
               color: '#0067B3'
             }
-          ],
-          mrkdown_in: ['text', 'pretext']
+          ]
         }
         bot.reply(message, slack)
       })
@@ -200,7 +199,7 @@ export default (controller, bot) => {
         for (const i in ids) {
           console.log('userId #' + i + ': ' + ids[i])
           addKarma(ids[i])
-          console.log(` ----> karma assigned to ${ids[i]}`)
+          console.log(` ----> + karma assigned to ${ids[i]}`)
         }
       })
     }
@@ -210,12 +209,12 @@ export default (controller, bot) => {
   controller.hears([':\\-1:', '\\-\\-', '\\-1'], ['ambient'], (bot, message) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
-      processUsers(rawIds).then(userNames => {
-        userNames = _.toString(userNames)
-        console.log('userNames: ', util.inspect(userNames))
-        for (const user in userNames) {
-          subtractKarma(user)
-          console.log(` ----> karma assigned to ${user}`)
+      processUsers(rawIds).then(ids => {
+        console.log('user ids: ', util.inspect(ids))
+        for (const i in ids) {
+          console.log('userId #' + i + ': ' + ids[i])
+          subtractKarma(ids[i])
+          console.log(` ----> - karma assigned to ${ids[i]}`)
         }
       })
     }
@@ -227,8 +226,7 @@ export default (controller, bot) => {
     }
 
     if (message.reaction === '\-1' && message.user !== message.item_user) {
-      console.log('reaction was heard!\n', util.inspect(message))
-      subtractKarma(_.toString(message.item_user))
+      subtractKarma(message.item_user)
     }
   })
 }
