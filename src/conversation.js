@@ -4,6 +4,33 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 export default (controller, bot) => {
+  async function scoreboard (teamKarma, option) {
+    try {
+      let scoreboard
+      if (option === 'scores') {
+        scoreboard = await buildScoreboard(teamKarma)
+      } else if (option === 'leaders') {
+        scoreboard = await buildLeaderboard(teamKarma)
+      } else {
+        console.log('Error: no option specified')
+        return
+      }
+      return scoreboard
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  async function processUsers (rawIds) {
+    try {
+      let ids = await mapIds(rawIds)
+      console.log(` ------> done waiting for mapIds ---- ids: ${ids}`)
+      return ids
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   function updateScoreboard (user) {
     controller.storage.teams.get(user.team_id, (err, team) => {
       if (err) console.log(err)
@@ -16,7 +43,8 @@ export default (controller, bot) => {
       } else {
         teamKarma[checkScore].score = user.karma
       }
-      team.scoreboard.karma = teamKarma
+      team.scoreboard.karma = _.sortBy(teamKarma, [(o) => { return o.score }])
+      console.log('Scoreboard Sorted by score:\n' + util.inspect(team.scoreboard.karma))
       controller.storage.teams.save(team)
     })
   }
@@ -59,16 +87,27 @@ export default (controller, bot) => {
     })
   }
 
-  async function scoreboard (teamKarma) {
-    try {
-      let scoreboard = await buildResponse(teamKarma)
-      return scoreboard
-    } catch (err) {
-      console.log(err)
-    }
+  function buildLeaderboard (teamKarma) {
+    const colors = [
+      '#E5E4E2',
+      '#D4AF37',
+      '#C0C0C0',
+      '#CD7F32',
+      '#CF5300'
+    ]
+    return new Promise((resolve, reject) => {
+      if (!teamKarma) reject(teamKarma)
+      let output = { attachments: [] }
+      let i = 0
+      _.forEach(teamKarma, (value) => {
+        output.attachments.push({text: `${i + 1}: ${value.name} - ${value.score}`, color: colors[i]})
+        i++
+      })
+      resolve(output)
+    })
   }
 
-  function buildResponse (teamKarma) {
+  function buildScoreboard (teamKarma) {
     return new Promise((resolve, reject) => {
       if (!teamKarma) reject(teamKarma)
       let output = {text: ''}
@@ -77,16 +116,6 @@ export default (controller, bot) => {
       })
       resolve(output)
     })
-  }
-
-  async function processUsers (rawIds) {
-    try {
-      let ids = await mapIds(rawIds)
-      console.log(` ------> done waiting for mapIds ---- ids: ${ids}`)
-      return ids
-    } catch (err) {
-      console.log(err)
-    }
   }
 
   function mapIds (rawIds) {
@@ -112,6 +141,8 @@ export default (controller, bot) => {
       cb(newUser)
     })
   }
+
+  /*************************************************************************************************/
 
   controller.hears(['(^help$)'], ['direct_message', 'direct_mention'], (bot, message) => {
     let attachments = [
@@ -164,18 +195,18 @@ export default (controller, bot) => {
   controller.hears(['my karma', 'my score'], ['direct_message', 'direct_mention'], (bot, message) => {
     controller.storage.users.get(message.user, (err, user) => {
       if (err) console.log(err)
-      bot.reply(message, {text: `Your karma is: ${user.karma}`})
+      bot.replyPrivate(message, {text: `Your karma is: ${user.karma}`})
     })
   })
 
   // temporary command to test what users we have
   // Eventually we want the scoreboard to be an array of value maps so it auto updates
-  controller.hears('scoreboard', ['direct_message', 'direct_mention'], (bot, message) => {
+  controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
     console.log(util.inspect(message))
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
       console.log('Scoreboard:\n' + util.inspect(team.scoreboard))
-      scoreboard(team.scoreboard.karma).then(replyMessage => {
+      scoreboard(team.scoreboard.karma, 'scores').then(replyMessage => {
         let slack = {
           text: `${team.name}: The Scorey So Far...`,
           attachments: [
@@ -190,6 +221,21 @@ export default (controller, bot) => {
     })
   })
 
+  controller.hears(['leaderboard', 'leaders'], ['direct_message', 'direct_mention'], (bot, message) => {
+    controller.storage.teams.get(message.team, (err, team) => {
+      if (err) console.log(err)
+      let teamKarma = _.slice(team.scoreboard.karma, 0, 4)
+      console.log('Leaderboard:\n' + util.inspect(teamKarma))
+      scoreboard(teamKarma, 'leaders').then(replyMessage => {
+        let slack = {
+          text: `${team.name}: The Leaders So Far...`,
+          attachments: replyMessage
+        }
+        bot.reply(message, slack)
+      })
+    })
+  })
+
   // Handles adding karma via @mention
   controller.hears([':\\+1:', '\\+\\+', '\\+1'], ['ambient'], (bot, message) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
@@ -198,7 +244,7 @@ export default (controller, bot) => {
         console.log('user ids: ', util.inspect(ids))
         for (const i in ids) {
           console.log('userId #' + i + ': ' + ids[i])
-          addKarma(ids[i])
+          if (ids[i] !== message.user) addKarma(ids[i])
           console.log(` ----> + karma assigned to ${ids[i]}`)
         }
       })
@@ -213,20 +259,26 @@ export default (controller, bot) => {
         console.log('user ids: ', util.inspect(ids))
         for (const i in ids) {
           console.log('userId #' + i + ': ' + ids[i])
-          subtractKarma(ids[i])
+          if (ids[i] !== message.user) subtractKarma(ids[i])
           console.log(` ----> - karma assigned to ${ids[i]}`)
         }
       })
     }
   })
 
+  /*************************************************************************************************/
+
   controller.on('reaction_added', (bot, message) => {
-    if (message.reaction === '\+1') { // && message.user !== message.item_user) {
+    if (message.reaction === '\+1' && message.user !== message.item_user) {
       addKarma(message.item_user)
     }
 
     if (message.reaction === '\-1' && message.user !== message.item_user) {
       subtractKarma(message.item_user)
     }
+  })
+
+  controller.on('slash_command', (bot, message) => {
+    console.log('Slash command heard!\n' + util.inspect(message))
   })
 }
