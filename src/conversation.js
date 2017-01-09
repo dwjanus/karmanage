@@ -254,7 +254,7 @@ export default (controller, bot) => {
     if (message.command === '/mykarma') {
       controller.storage.users.get(message.user_id, (err, user) => {
         if (err) console.log(err)
-        bot.replyPrivate(message, {as_user: true, text: `Your karma is: ${user.karma}`})
+        bot.replyPrivate(message, {text: `Your karma is: ${user.karma}`})
       })
     }
     if (message.command === '/scoreboard') {
@@ -264,7 +264,6 @@ export default (controller, bot) => {
         let teamKarma = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
         scoreboard(leaders, teamKarma).then(replyMessage => {
           let slack = {
-            as_user: true,
             text: `${team.name}: The Scorey So Far...`,
             attachments: replyMessage.attachments
           }
