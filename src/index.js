@@ -115,7 +115,7 @@ controller.storage.teams.all((err, teams) => {
             teams[t].scoreboard = scoreboard
             controller.storage.teams.save(teams[t])
           }
-          const convo = new ConversationHandler(controller, bot)
+          const convo = ConversationHandler(controller, bot)
           trackConvo(bot, convo)
         }
       })

@@ -18,7 +18,6 @@ export default (controller, bot) => {
   async function processUsers (rawIds) {
     try {
       let ids = await mapIds(rawIds)
-      console.log(` ------> done waiting for mapIds ---- ids: ${ids}`)
       return ids
     } catch (err) {
       console.log(err)
@@ -188,7 +187,7 @@ export default (controller, bot) => {
   controller.hears(['my karma', 'my score'], ['direct_message', 'direct_mention'], (bot, message) => {
     controller.storage.users.get(message.user, (err, user) => {
       if (err) console.log(err)
-      bot.reply(message, {as_user: true, text: `Your karma is: ${user.karma}`})
+      bot.reply(message, {text: `Your karma is: ${user.karma}`})
     })
   })
 
