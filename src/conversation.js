@@ -167,7 +167,6 @@ export default (controller, bot) => {
     ]
 
     let replyWithAttachments = {
-      as_user: true,
       pretext: 'Karmabot help',
       text: 'Karmabot keeps track of your karma!',
       attachments,
@@ -259,7 +258,6 @@ export default (controller, bot) => {
       })
     }
     if (message.command === '/scoreboard') {
-      console.log(util.inspect(message))
       controller.storage.teams.get(message.team, (err, team) => {
         if (err) console.log(err)
         let leaders = _.slice(team.scoreboard.karma, 0, 4)
