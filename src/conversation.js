@@ -215,7 +215,6 @@ export default (controller, bot) => {
   // })
 
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
-    console.log(util.inspect(message))
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
       let leaders = _.slice(team.scoreboard.karma, 0, 4)
@@ -223,11 +222,7 @@ export default (controller, bot) => {
       scoreboard(leaders, teamKarma).then(replyMessage => {
         let slack = {
           text: `${team.name}: The Scorey So Far...`,
-          attachments: [
-            {
-              text: replyMessage.attachments
-            }
-          ]
+          attachments: replyMessage.attachments
         }
         bot.reply(message, slack)
       })
