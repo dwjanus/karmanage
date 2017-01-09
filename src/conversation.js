@@ -4,18 +4,12 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 
 export default (controller, bot) => {
-  async function scoreboard (teamKarma, option) {
+  async function scoreboard (leaderKarma, teamKarma) {
     try {
-      let scoreboard
-      if (option === 'scores') {
-        scoreboard = await buildScoreboard(teamKarma)
-      } else if (option === 'leaders') {
-        scoreboard = await buildLeaderboard(teamKarma)
-      } else {
-        console.log('Error: no option specified')
-        return
-      }
-      return scoreboard
+      let leaderboard = await buildLeaderboard(leaderKarma)
+      let scoreboard = await buildScoreboard(teamKarma)
+      leaderboard.attachments.push(scoreboard)
+      return leaderboard
     } catch (err) {
       console.log(err)
     }
@@ -110,7 +104,7 @@ export default (controller, bot) => {
   function buildScoreboard (teamKarma) {
     return new Promise((resolve, reject) => {
       if (!teamKarma) reject(teamKarma)
-      let output = {text: ''}
+      let output = {text: '', color: '#0067B3'}
       _.forEach(teamKarma, (value) => {
         output.text += `${value.name}: ${value.score}\n`
       })
@@ -195,24 +189,43 @@ export default (controller, bot) => {
   controller.hears(['my karma', 'my score'], ['direct_message', 'direct_mention'], (bot, message) => {
     controller.storage.users.get(message.user, (err, user) => {
       if (err) console.log(err)
-      bot.reply(message, {response_type: 'ephemeral', text: `Your karma is: ${user.karma}`})
+      bot.reply(message, `Your karma is: ${user.karma}`)
     })
   })
 
   // temporary command to test what users we have
   // Eventually we want the scoreboard to be an array of value maps so it auto updates
+  // controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
+  //   console.log(util.inspect(message))
+  //   controller.storage.teams.get(message.team, (err, team) => {
+  //     if (err) console.log(err)
+  //     console.log('Scoreboard:\n' + util.inspect(team.scoreboard))
+  //     scoreboard(team.scoreboard.karma, 'scores').then(replyMessage => {
+  //       let slack = {
+  //         text: `${team.name}: The Scorey So Far...`,
+  //         attachments: [
+  //           {
+  //             text: replyMessage.text
+  //           }
+  //         ]
+  //       }
+  //       bot.reply(message, slack)
+  //     })
+  //   })
+  // })
+
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
     console.log(util.inspect(message))
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
-      console.log('Scoreboard:\n' + util.inspect(team.scoreboard))
-      scoreboard(team.scoreboard.karma, 'scores').then(replyMessage => {
+      let leaders = _.slice(team.scoreboard.karma, 0, 4)
+      let teamKarma = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
+      scoreboard(leaders, teamKarma).then(replyMessage => {
         let slack = {
           text: `${team.name}: The Scorey So Far...`,
           attachments: [
             {
-              text: replyMessage.text,
-              color: '#0067B3'
+              text: replyMessage.attachments
             }
           ]
         }
@@ -272,7 +285,6 @@ export default (controller, bot) => {
     if (message.reaction === '\+1' && message.user !== message.item_user) {
       addKarma(message.item_user)
     }
-
     if (message.reaction === '\-1' && message.user !== message.item_user) {
       subtractKarma(message.item_user)
     }
@@ -280,6 +292,30 @@ export default (controller, bot) => {
 
   controller.on('slash_command', (bot, message) => {
     console.log('Slash command heard!\n' + util.inspect(message))
-    bot.replyPrivate(message, 'I heard your slash command')
+    if (message.command === '/mykarma') {
+      controller.storage.users.get(message.user, (err, user) => {
+        if (err) console.log(err)
+        bot.replyPrivate(message, `Your karma is: ${user.karma}`)
+      })
+    }
+    if (message.command === '/scoreboard') {
+      console.log(util.inspect(message))
+      controller.storage.teams.get(message.team, (err, team) => {
+        if (err) console.log(err)
+        let leaders = _.slice(team.scoreboard.karma, 0, 4)
+        let teamKarma = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
+        scoreboard(leaders, teamKarma).then(replyMessage => {
+          let slack = {
+            text: `${team.name}: The Scorey So Far...`,
+            attachments: [
+              {
+                text: replyMessage.attachments
+              }
+            ]
+          }
+          bot.reply(message, slack)
+        })
+      })
+    }
   })
 }
