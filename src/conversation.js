@@ -195,7 +195,7 @@ export default (controller, bot) => {
   controller.hears(['my karma', 'my score'], ['direct_message', 'direct_mention'], (bot, message) => {
     controller.storage.users.get(message.user, (err, user) => {
       if (err) console.log(err)
-      bot.reply(message, {text: `Your karma is: ${user.karma}`})
+      bot.reply(message, {response_type: 'ephemeral', text: `Your karma is: ${user.karma}`})
     })
   })
 
