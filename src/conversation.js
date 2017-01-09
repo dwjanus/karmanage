@@ -195,7 +195,7 @@ export default (controller, bot) => {
   controller.hears(['my karma', 'my score'], ['direct_message', 'direct_mention'], (bot, message) => {
     controller.storage.users.get(message.user, (err, user) => {
       if (err) console.log(err)
-      bot.replyPrivate(message, {text: `Your karma is: ${user.karma}`})
+      bot.reply(message, {text: `Your karma is: ${user.karma}`})
     })
   })
 
@@ -229,7 +229,7 @@ export default (controller, bot) => {
       scoreboard(teamKarma, 'leaders').then(replyMessage => {
         let slack = {
           text: `${team.name}: The Leaders So Far...`,
-          attachments: replyMessage
+          attachments: replyMessage.attachments
         }
         bot.reply(message, slack)
       })
@@ -280,5 +280,6 @@ export default (controller, bot) => {
 
   controller.on('slash_command', (bot, message) => {
     console.log('Slash command heard!\n' + util.inspect(message))
+    bot.replyPrivate(message, 'I heard your slash command')
   })
 }
