@@ -59,7 +59,7 @@ controller.on('create_bot', (bot, config) => {
         if (_convos[bot.config.token]) {  // do nothing
           trackBot(bot)
         } else {
-          const convo = ConversationHandler(controller, bot)
+          const convo = new ConversationHandler(controller, bot)
           trackConvo(bot, convo)
         }
       }
@@ -115,7 +115,7 @@ controller.storage.teams.all((err, teams) => {
             teams[t].scoreboard = scoreboard
             controller.storage.teams.save(teams[t])
           }
-          const convo = ConversationHandler(controller, bot)
+          const convo = new ConversationHandler(controller, bot)
           trackConvo(bot, convo)
         }
       })
