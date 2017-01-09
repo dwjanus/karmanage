@@ -167,6 +167,7 @@ export default (controller, bot) => {
     ]
 
     let replyWithAttachments = {
+      as_user: true,
       pretext: 'Karmabot help',
       text: 'Karmabot keeps track of your karma!',
       attachments,
@@ -185,34 +186,12 @@ export default (controller, bot) => {
     bot.reply(message, {text: 'What it do'})
   })
 
-  // temporary command to test what users we have
   controller.hears(['my karma', 'my score'], ['direct_message', 'direct_mention'], (bot, message) => {
     controller.storage.users.get(message.user, (err, user) => {
       if (err) console.log(err)
-      bot.reply(message, `Your karma is: ${user.karma}`)
+      bot.reply(message, {as_user: true, text: `Your karma is: ${user.karma}`})
     })
   })
-
-  // temporary command to test what users we have
-  // Eventually we want the scoreboard to be an array of value maps so it auto updates
-  // controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
-  //   console.log(util.inspect(message))
-  //   controller.storage.teams.get(message.team, (err, team) => {
-  //     if (err) console.log(err)
-  //     console.log('Scoreboard:\n' + util.inspect(team.scoreboard))
-  //     scoreboard(team.scoreboard.karma, 'scores').then(replyMessage => {
-  //       let slack = {
-  //         text: `${team.name}: The Scorey So Far...`,
-  //         attachments: [
-  //           {
-  //             text: replyMessage.text
-  //           }
-  //         ]
-  //       }
-  //       bot.reply(message, slack)
-  //     })
-  //   })
-  // })
 
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
     controller.storage.teams.get(message.team, (err, team) => {
@@ -221,22 +200,8 @@ export default (controller, bot) => {
       let teamKarma = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
       scoreboard(leaders, teamKarma).then(replyMessage => {
         let slack = {
+          as_user: true,
           text: `${team.name}: The Scorey So Far...`,
-          attachments: replyMessage.attachments
-        }
-        bot.reply(message, slack)
-      })
-    })
-  })
-
-  controller.hears(['leaderboard', 'leaders'], ['direct_message', 'direct_mention'], (bot, message) => {
-    controller.storage.teams.get(message.team, (err, team) => {
-      if (err) console.log(err)
-      let teamKarma = _.slice(team.scoreboard.karma, 0, 4)
-      console.log('Leaderboard:\n' + util.inspect(teamKarma))
-      scoreboard(teamKarma, 'leaders').then(replyMessage => {
-        let slack = {
-          text: `${team.name}: The Leaders So Far...`,
           attachments: replyMessage.attachments
         }
         bot.reply(message, slack)
@@ -290,7 +255,7 @@ export default (controller, bot) => {
     if (message.command === '/mykarma') {
       controller.storage.users.get(message.user, (err, user) => {
         if (err) console.log(err)
-        bot.replyPrivate(message, `Your karma is: ${user.karma}`)
+        bot.replyPrivate(message, {as_user: true, text: `Your karma is: ${user.karma}`})
       })
     }
     if (message.command === '/scoreboard') {
@@ -301,12 +266,9 @@ export default (controller, bot) => {
         let teamKarma = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
         scoreboard(leaders, teamKarma).then(replyMessage => {
           let slack = {
+            as_user: true,
             text: `${team.name}: The Scorey So Far...`,
-            attachments: [
-              {
-                text: replyMessage.attachments
-              }
-            ]
+            attachments: replyMessage.attachments
           }
           bot.reply(message, slack)
         })
