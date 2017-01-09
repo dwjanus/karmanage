@@ -37,7 +37,7 @@ export default (controller, bot) => {
       } else {
         teamKarma[checkScore].score = user.karma
       }
-      team.scoreboard.karma = _.sortBy(teamKarma, [(o) => { return o.score }])
+      team.scoreboard.karma = _.reverse(_.sortBy(teamKarma, [(o) => { return o.score }]))
       console.log('Scoreboard Sorted by score:\n' + util.inspect(team.scoreboard.karma))
       controller.storage.teams.save(team)
     })
