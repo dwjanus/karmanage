@@ -252,13 +252,13 @@ export default (controller, bot) => {
   controller.on('slash_command', (bot, message) => {
     console.log('Slash command heard!\n' + util.inspect(message))
     if (message.command === '/mykarma') {
-      controller.storage.users.get(message.user, (err, user) => {
+      controller.storage.users.get(message.user_id, (err, user) => {
         if (err) console.log(err)
         bot.replyPrivate(message, {as_user: true, text: `Your karma is: ${user.karma}`})
       })
     }
     if (message.command === '/scoreboard') {
-      controller.storage.teams.get(message.team, (err, team) => {
+      controller.storage.teams.get(message.team_id, (err, team) => {
         if (err) console.log(err)
         let leaders = _.slice(team.scoreboard.karma, 0, 4)
         let teamKarma = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
