@@ -7,6 +7,7 @@ const scoreboard = scoreHandler.scoreboard
 const addKarma = scoreHandler.addKarma
 const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
+const updateScoreboard = scoreHandler.updateScoreboard
 
 export default (controller, bot) => {
   const fullTeamList = []
