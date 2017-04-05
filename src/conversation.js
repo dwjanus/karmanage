@@ -21,9 +21,9 @@ export default (controller, bot) => {
           const member = response.members[i]
           const newMember = {
             id: member.id,
-            team_id: member.team_id
-            name: member.name
-            fullName: member.real_name
+            team_id: member.team_id,
+            name: member.name,
+            fullName: member.real_name,
             email: member.profile.email,
             karma: 0
           }
