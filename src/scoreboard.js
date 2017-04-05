@@ -23,7 +23,7 @@ function updateScoreboard (user) {
   storage.teams.get(user.team_id, (err, team) => {
     if (err) console.log(err)
     let teamKarma = team.scoreboard.karma
-    console.log('Updating Scoreboard - teamKarma:\n' + util.inspect(teamKarma))
+    console.log('Updating Scoreboard')
     let checkScore = _.findIndex(teamKarma, (o) => { return o.name == user.name })
     console.log('checkScore: ' + checkScore)
     if (checkScore == -1) {
