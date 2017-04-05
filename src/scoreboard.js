@@ -1,6 +1,10 @@
 import util from 'util'
 import _ from 'lodash'
 import Promise from 'bluebird'
+import mongo from 'botkit-storage-mongo'
+import config from './config.js'
+
+const storage = mongo({ mongoUri: config('MONGODB_URI') })
 
 async function scoreboard (leaderKarma, teamKarma) {
   try {
@@ -16,7 +20,7 @@ async function scoreboard (leaderKarma, teamKarma) {
 }
 
 function updateScoreboard (user) {
-  controller.storage.teams.get(user.team_id, (err, team) => {
+  storage.teams.get(user.team_id, (err, team) => {
     if (err) console.log(err)
     let teamKarma = team.scoreboard.karma
     console.log('Updating Scoreboard - teamKarma:\n' + util.inspect(teamKarma))
@@ -29,26 +33,26 @@ function updateScoreboard (user) {
     }
     team.scoreboard.karma = _.reverse(_.sortBy(teamKarma, [(o) => { return o.score }]))
     console.log('Scoreboard Sorted by score:\n' + util.inspect(team.scoreboard.karma))
-    controller.storage.teams.save(team)
+    storage.teams.save(team)
   })
 }
 
 function addKarma (user) {
-  controller.storage.users.get(user, (err, res) => {
+  storage.users.get(user, (err, res) => {
     if (err) console.log(err)
     console.log('Stored User: ' + util.inspect(res))
     res.karma = _.toInteger(res.karma) + 1
-    controller.storage.users.save(res)
+    storage.users.save(res)
     updateScoreboard(res)
   })
 }
 
 function subtractKarma (user) {
-  controller.storage.users.get(user, (err, res) => {
+  storage.users.get(user, (err, res) => {
     if (err) console.log(err)
     console.log('Stored User: ' + util.inspect(res))
     res.karma = _.toInteger(res.karma) - 1
-    controller.storage.users.save(res)
+    storage.users.save(res)
     updateScoreboard(res)
   })
 }
