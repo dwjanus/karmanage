@@ -187,5 +187,5 @@ export default (controller, bot) => {
     }
   })
 
-  return getUserEmailArray
+  return { getUserEmailArray }
 }
