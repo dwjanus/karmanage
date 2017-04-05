@@ -3,7 +3,7 @@ import http from 'http'
 import Botkit from 'botkit'
 import mongo from 'botkit-storage-mongo'
 import config from './config.js'
-import ConversationHandler from './conversation.js'
+import Conversation from './conversation.js'
 
 /*************************************************************************************************/
 
@@ -50,31 +50,6 @@ controller.setupWebserver(port, (err, webserver) => {
 /*************************************************************************************************/
 
 // quick greeting/create convo on new bot creation
-controller.on('create_bot', (bot, config) => {
-  console.log('** bot is being created **\n')
-  if (_bots[bot.config.token]) { // do nothing
-  } else {
-    bot.startRTM(err => {
-      if (!err) {
-        if (_convos[bot.config.token]) {  // do nothing
-          trackBot(bot)
-        } else {
-          const convo = new ConversationHandler(controller, bot)
-          trackConvo(bot, convo)
-        }
-      }
-      bot.startPrivateConversation({user: config.createdBy}, (err, convo) => {
-        if (err) {
-          console.log(err)
-        } else {
-          convo.say('I am a bot that has just joined your team')
-          convo.say('You must now /invite me to a channel so that I can be of use!')
-        }
-      })
-    })
-  }
-})
-
 const _bots = {}
 const _convos = {}
 function trackConvo (bot, convo) {
