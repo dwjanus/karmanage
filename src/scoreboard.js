@@ -27,14 +27,12 @@ function updateScoreboard (user) {
     let checkScore = _.findIndex(teamKarma, (o) => { return o.name == user.name })
     console.log('checkScore: ' + checkScore)
     if (checkScore == -1) teamKarma.push({name: user.name, score: user.karma})
-    else {
-      if (teamKarma[checkScore]) {
-        checkScore = _.findLastIndex(teamKarma, (o) => { o.name !== null || undefined })
-        checkScore++
-        console.log('new checkScore: ' + checkScore)
-      }
-      teamKarma[checkScore].score = user.karma
-    }
+    // if (teamKarma[checkScore]) {
+    //   checkScore = _.findLastIndex(teamKarma, (o) => { o.name !== null || undefined })
+    //   checkScore = checkScore + 1
+    //   console.log('new checkScore: ' + checkScore)
+    // }
+    else teamKarma[checkScore].score = user.karma
     team.scoreboard.karma = _.reverse(_.sortBy(teamKarma, [(o) => { return o.score }]))
     console.log('Scoreboard Sorted by score:\n' + util.inspect(team.scoreboard.karma))
     storage.teams.save(team)
