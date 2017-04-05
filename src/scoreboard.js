@@ -28,7 +28,7 @@ function updateScoreboard (user) {
     console.log('checkScore: ' + checkScore)
     if (checkScore == -1) teamKarma.push({name: user.name, score: user.karma})
     else {
-      if (teamKarma[checkScore]) checkScore = _.findLastIndex(teamKarma, (o) => { o.karma !=== null || undefined }) + 1
+      if (teamKarma[checkScore]) checkScore = _.findLastIndex(teamKarma, (o) => { o.karma !== null || undefined }) + 1
       console.log('new checkScore: ' + checkScore)
       teamKarma[checkScore].score = user.karma
     }
