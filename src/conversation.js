@@ -1,141 +1,52 @@
 
 import util from 'util'
 import _ from 'lodash'
-import Promise from 'bluebird'
+import scoreHandler from './scoreboard.js'
+
+const scoreboard = scoreHandler.scoreboard
+const addKarma = scoreHandler.addKarma
+const subtractKarma = scoreHandler.subtractKarma
+const processUsers = scoreHandler.processUsers
 
 export default (controller, bot) => {
-  async function scoreboard (leaderKarma, teamKarma) {
-    try {
-      let leaderboard = await buildLeaderboard(leaderKarma)
-      let scoreboard = await buildScoreboard(teamKarma)
-      leaderboard.attachments.push(scoreboard)
-      return leaderboard
-    } catch (err) {
-      console.log(err)
-    }
-  }
+  const fullTeamList = []
+  const fullChannelList = []
 
-  async function processUsers (rawIds) {
-    try {
-      let ids = await mapIds(rawIds)
-      return ids
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
-  function updateScoreboard (user) {
-    controller.storage.teams.get(user.team_id, (err, team) => {
+  const getUserEmailArray = (bot) => {
+    bot.api.users.list({}, (err, response) => {
       if (err) console.log(err)
-      let teamKarma = team.scoreboard.karma
-      console.log('Updating Scoreboard - teamKarma:\n' + util.inspect(teamKarma))
-      let checkScore = _.findIndex(teamKarma, (o) => { return o.name == user.name })
-      console.log('checkScore: ' + checkScore)
-      if (checkScore == -1) {
-        teamKarma.push({name: user.name, score: user.karma})
-      } else {
-        teamKarma[checkScore].score = user.karma
+      if (response.hasOwnProperty('members') && response.ok) {
+        const total = response.members.length
+        for (let i = 0; i < total; i++) {
+          const member = response.members[i]
+          const newMember = {
+            id: member.id,
+            team_id: member.team_id
+            name: member.name
+            fullName: member.real_name
+            email: member.profile.email,
+            karma: 0
+          }
+          fullTeamList.push(newMember)
+          controller.storage.users.get(member.id, (error, user) => {
+            if (err) console.log(error)
+            if (!user) controller.storage.users.save(newMember) // adds new team member who do not have sf auth yet
+          })
+        }
       }
-      team.scoreboard.karma = _.reverse(_.sortBy(teamKarma, [(o) => { return o.score }]))
-      console.log('Scoreboard Sorted by score:\n' + util.inspect(team.scoreboard.karma))
-      controller.storage.teams.save(team)
     })
-  }
 
-  function addKarma (user) {
-    controller.storage.users.get(user, (err, res) => {
+    bot.api.channels.list({}, (err, response) => {
       if (err) console.log(err)
-      console.log('Stored User: ' + util.inspect(res))
-      if (res === undefined) {
-        console.log('~ User undefined ~')
-        mapUserToDB(user, (newUser) => {
-          newUser.karma = _.toInteger(newUser.karma) + 1
-          controller.storage.users.save(newUser)
-          updateScoreboard(newUser)
-        })
-      } else {
-        res.karma = _.toInteger(res.karma) + 1
-        controller.storage.users.save(res)
-        updateScoreboard(res)
+      if (response.hasOwnProperty('channels') && response.ok) {
+        const total = response.channels.length
+        for (let i = 0; i < total; i++) {
+          const channel = response.channels[i]
+          fullChannelList.push({ id: channel.id, name: channel.name })
+        }
       }
     })
   }
-
-  function subtractKarma (user) {
-    controller.storage.users.get(user, (err, res) => {
-      if (err) console.log(err)
-      console.log('Stored User: ' + util.inspect(res))
-      if (res === undefined) {
-        console.log('~ User undefined ~')
-        mapUserToDB(user, (newUser) => {
-          newUser.karma = _.toInteger(newUser.karma) - 1
-          controller.storage.users.save(newUser)
-          updateScoreboard(newUser)
-        })
-      } else {
-        res.karma = _.toInteger(res.karma) - 1
-        controller.storage.users.save(res)
-        updateScoreboard(res)
-      }
-    })
-  }
-
-  function buildLeaderboard (teamKarma) {
-    const colors = [
-      '#E5E4E2',
-      '#D4AF37',
-      '#C0C0C0',
-      '#CD7F32',
-      '#CF5300'
-    ]
-    return new Promise((resolve, reject) => {
-      if (!teamKarma) reject(teamKarma)
-      let output = { attachments: [] }
-      let i = 0
-      _.forEach(teamKarma, (value) => {
-        output.attachments.push({text: `${i + 1}: ${value.name} - ${value.score}`, color: colors[i]})
-        i++
-      })
-      resolve(output)
-    })
-  }
-
-  function buildScoreboard (teamKarma) {
-    return new Promise((resolve, reject) => {
-      if (!teamKarma) reject(teamKarma)
-      let output = {text: '', color: '#0067B3'}
-      _.forEach(teamKarma, (value) => {
-        output.text += `${value.name}: ${value.score}\n`
-      })
-      resolve(output)
-    })
-  }
-
-  function mapIds (rawIds) {
-    return new Promise((resolve, reject) => {
-      let ids = _.map(rawIds, processRawId)
-      resolve(ids)
-    })
-  }
-
-  function processRawId (rawId) {
-    return _.toString(rawId).substring(2, 11)
-  }
-
-  function mapUserToDB (id, cb) {
-    console.log(`mapping user: ${id} to mongo`)
-    let newUser = {id: id, team_id: '', name: '', karma: '0'}
-    bot.api.users.info({user: id}, (err, res) => {
-      if (err) console.log(err)
-      newUser.team_id = res.user.team_id
-      newUser.name = res.user.profile.real_name
-      controller.storage.users.save(newUser)
-      console.log(`New User:\n${util.inspect(newUser)}\n--> saved to db`)
-      cb(newUser)
-    })
-  }
-
-  /*************************************************************************************************/
 
   controller.hears(['(^help$)'], ['direct_message', 'direct_mention'], (bot, message) => {
     let attachments = [
@@ -149,7 +60,7 @@ export default (controller, bot) => {
         fields: [
           {
             title: 'Example', // maybe make this a gif or jpg?
-            value: 'Jamie: @samanage: how much karma do I have?\n' +
+            value: 'Jamie: @karmabot: how much karma do I have?\n' +
                    'Karmabot: You have 15 karma!\n',
             short: false
           }
@@ -192,16 +103,20 @@ export default (controller, bot) => {
   })
 
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
+    console.log('[conversation] ** scoreboard heard **')
     controller.storage.teams.get(message.team, (err, team) => {
+      console.log(`[conversation] ** retrieving team data **\n${util.inspect(team)}`)
       if (err) console.log(err)
       let leaders = _.slice(team.scoreboard.karma, 0, 4)
       let teamKarma = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
+      console.log(`[conversation] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(teamKarma)}`)
       scoreboard(leaders, teamKarma).then(replyMessage => {
         let slack = {
           as_user: true,
           text: `${team.name}: The Scorey So Far...`,
           attachments: replyMessage.attachments
         }
+        console.log(`[conversation] ** about to reply **\n${util.inspect(slack)}`)
         bot.reply(message, slack)
       })
     })
@@ -271,4 +186,6 @@ export default (controller, bot) => {
       })
     }
   })
+
+  return getUserEmailArray
 }

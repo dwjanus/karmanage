@@ -75,55 +75,70 @@ controller.on('create_bot', (bot, config) => {
   }
 })
 
-// Handle events related to the websocket connection to Slack
-controller.on('rtm_open', bot => {
-  console.log('** The RTM api just connected!')
+const _bots = {}
+const _convos = {}
+function trackConvo (bot, convo) {
+  _bots[bot.config.token] = bot
+  _convos[bot.config.token] = convo
+}
+
+// quick greeting/create convo on new bot creation
+controller.on('create_bot', (bot, botConfig) => {
+  console.log('** bot is being created **')
+  if (_bots[bot.config.token]) { // do nothing
+    console.log(`--> bot: ${bot.config.token} already exists`)
+  } else {
+    bot.startRTM((err) => {
+      if (!err) {
+        if (_convos[bot.config.token]) {
+          console.log(`--> convo: ${bot.config.token} already exists`)
+          _convos[bot.config.token].getUserEmailArray(bot)
+        } else {
+          console.log('--> convo not found, new one being instantiated')
+          const convo = new Conversation(controller, bot)
+          trackConvo(bot, convo)
+          convo.getUserEmailArray(bot)
+        }
+      }
+      bot.startPrivateConversation({ user: botConfig.createdBy }, (error, convo) => {
+        if (error) {
+          console.log(error)
+        } else {
+          convo.say('Howdy! I am the bot that you just added to your team.')
+          convo.say('All you gotta do is send me messages now')
+        }
+      })
+    })
+  }
 })
 
-controller.on('rtm_close', bot => {
-  console.log('** The RTM api just closed')
+// Handle events related to the websocket connection to Slack
+controller.on('rtm_open', (bot) => {
+  console.log(`** The RTM api just connected! -- ${bot.id}`)
+})
+
+controller.on('rtm_close', (bot) => {
+  console.log(`** The RTM api just closed -- ${bot.id}`)
   // may want to attempt to re-open
 })
 
-// simple way to make sure we don't connect to the RTM twice for the same team
-const _bots = {}
-function trackBot (bot) {
-  _bots[bot.config.token] = bot
-}
-
-// simple way to make sure we don't connect our convos to multiple bots
-const _convos = {}
-function trackConvo (bot, convo) {
-  _convos[bot.config.token] = convo
-  trackBot(bot)
-}
-
+// connect all the teams
 controller.storage.teams.all((err, teams) => {
   console.log('** connecting teams **\n')
-  if (err) {
-    throw new Error(err)
-  }
+  if (err) throw new Error(err)
   for (const t in teams) {
     if (teams[t].bot) {
-      const bot = controller.spawn(teams[t]).startRTM(err => {
-        if (err) {
-          console.log('Error connecting bot to Slack:', err)
-        } else {
-          if (!teams[t].scoreboard) {
-            const scoreboard = {id: 'scoreboard', karma: []}
-            console.log('** No scoreboard found for team --> added new one')
-            teams[t].scoreboard = scoreboard
-            controller.storage.teams.save(teams[t])
-          }
-          const convo = ConversationHandler(controller, bot)
+      const bot = controller.spawn(teams[t]).startRTM((error) => {
+        if (error) console.log(`Error: ${error} while connecting bot ${teams[t].bot} to Slack for team: ${teams[t].id}`)
+        else {
+          const convo = Conversation(controller, bot)
           trackConvo(bot, convo)
+          convo.getUserEmailArray(bot)
         }
       })
     }
   }
 })
-
-// maybe insert function to preload users into mongodb - ?
 
 // Simple hack to ping server every 5min and keep app running
 setInterval(() => {
