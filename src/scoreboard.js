@@ -22,36 +22,34 @@ async function scoreboard (leaderKarma, teamKarma) {
 function updateScoreboard (user) {
   storage.teams.get(user.team_id, (err, team) => {
     if (err) console.log(err)
-    let teamKarma = team.scoreboard.karma
     console.log(`Updating Scoreboard with user ${user.fullName} - ${user.karma}`)
-    let checkScore = _.findIndex(teamKarma, (o) => { return o.name == user.name })
+    let checkScore = _.findIndex(team.scoreboard.karma, (o) => { return o.name === user.name })
     console.log('checkScore: ' + checkScore)
-    if (checkScore === -1) teamKarma.push({name: user.fullName, score: user.karma})
-    else teamKarma[checkScore].score = user.karma
-    teamKarma = _.orderBy(teamKarma, ['score', 'name'], ['desc', 'asc'])
-    team.scoreboard.karma = teamKarma
-    storage.teams.save(team)
+    if (checkScore === -1) team.scoreboard.karma.push({ score: user.karma, name: user.fullName })
+    else team.scoreboard.karma[checkScore].score = user.karma
+    team.scoreboard.karma = _.orderBy(team.scoreboard.karma, ['score', 'name'], ['desc', 'asc'])
     console.log('Scoreboard Sorted by score:\n' + util.inspect(team.scoreboard.karma))
+    storage.teams.save(team)
   })
 }
 
-function addKarma (user) {
-  storage.users.get(user, (err, res) => {
+function addKarma (userId) {
+  storage.users.get(userId, (err, user) => {
     if (err) console.log(err)
-    console.log('Stored User: ' + util.inspect(res))
-    res.karma = _.toInteger(res.karma) + 1
-    storage.users.save(res)
-    updateScoreboard(res)
+    console.log('Stored User: ' + util.inspect(user))
+    user.karma = _.toInteger(user.karma) + 1
+    storage.users.save(user)
+    updateScoreboard(user)
   })
 }
 
-function subtractKarma (user) {
-  storage.users.get(user, (err, res) => {
+function subtractKarma (userId) {
+  storage.users.get(userId, (err, user) => {
     if (err) console.log(err)
-    console.log('Stored User: ' + util.inspect(res))
-    res.karma = _.toInteger(res.karma) - 1
-    storage.users.save(res)
-    updateScoreboard(res)
+    console.log('Stored User: ' + util.inspect(user))
+    user.karma = _.toInteger(user.karma) - 1
+    storage.users.save(user)
+    updateScoreboard(user)
   })
 }
 

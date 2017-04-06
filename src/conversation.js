@@ -30,7 +30,7 @@ export default (controller, bot) => {
           }
           fullTeamList.push(newMember)
           controller.storage.users.get(member.id, (error, user) => {
-            if (err) console.log(error)
+            if (err) console.log(err)
             if (!user) controller.storage.users.save(newMember) // adds new team member who do not have sf auth yet
             updateScoreboard(user)
           })
