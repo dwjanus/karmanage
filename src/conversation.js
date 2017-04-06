@@ -110,9 +110,9 @@ export default (controller, bot) => {
       console.log(`[conversation] ** retrieving team data **\n${util.inspect(team)}`)
       if (err) console.log(err)
       let leaders = _.slice(team.scoreboard.karma, 0, 4)
-      let teamKarma = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
+      let losers = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
       console.log(`[conversation] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(teamKarma)}`)
-      scoreboard(leaders, teamKarma).then(replyMessage => {
+      scoreboard(leaders, losers).then(replyMessage => {
         let slack = {
           as_user: true,
           text: `${team.name}: The Scorey So Far...`,
