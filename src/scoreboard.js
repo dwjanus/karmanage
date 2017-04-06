@@ -68,9 +68,9 @@ function buildLeaderboard (leaderKarma) {
   return new Promise((resolve, reject) => {
     if (!leaderKarma) reject(leaderKarma)
     let output = { attachments: [] }
-    let i = 0
+    let i = 1
     _.forEach(leaderKarma, (value) => {
-      output.attachments.push({text: `${i + 1}: ${value.name} - ${value.score}`, color: colors[i]})
+      output.attachments.push({text: `${i}: ${value.name} - ${value.score}`, color: colors[i]})
       i++
     })
     resolve(output)
@@ -82,8 +82,10 @@ function buildScoreboard (teamKarma) {
   return new Promise((resolve, reject) => {
     if (!teamKarma) reject(teamKarma)
     let output = {text: '', color: '#0067B3'}
+    let i = 5
     _.forEach(teamKarma, (value) => {
-      output.text += `${value.name}: ${value.score}\n`
+      output.text += `${i}: ${value.name}: ${value.score}\n`
+      i++
     })
     resolve(output)
   })

@@ -70,16 +70,12 @@ export default (controller, bot) => {
         let newScore = { score: fullTeamList[i].karma, name: fullTeamList[i].fullName }
         console.log(`newScore:\n${util.inspect(newScore)}`)
         if (newScore.name !== "" || " " || null || undefined) {
-          console.log('conditional 1 passed')
-          // this is where our error with scoreboard is coming from
           if (!(_.find(board, (o) => { return o.name == newScore.name }))) {
-            console.log('conditional 2 passed - adding score')
             board.push(newScore)
           }
         }
       }
       board = _.orderBy(board, ['score', 'name'], ['desc', 'asc'])
-      console.log(`board:\n${util.inspect(board)}`)
       team.scoreboard = board
       console.log(`new karma:\n${util.inspect(team.scoreboard)}`)
       controller.storage.teams.save(team)
