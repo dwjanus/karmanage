@@ -68,8 +68,9 @@ export default (controller, bot) => {
       for (let i = 0; i < fullTeamList.length; i++) {
         let newScore = { score: fullTeamList[i].karma, name: fullTeamList[i].fullName }
         console.log(`newScore:\n${util.inspect(newScore)}`)
-        if (newScore.name != "" || " " || null || undefined) {
-          if (_.findIndex(board, (o) => { return o.name === newScore.name }) === -1) {
+        if (newScore.name != "" || " " || null || undefined)
+          // this is where our error with scoreboard is coming from
+          if (!(_.find(board, (o) => { return o.name === newScore.name }))) {
             board.push(newScore)
           }
         }
