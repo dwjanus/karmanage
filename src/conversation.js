@@ -45,6 +45,18 @@ export default (controller, bot) => {
       })
     })
 
+    bot.api.channels.list({}, (err, response) => {
+      if (err) console.log(err)
+      if (response.hasOwnProperty('channels') && response.ok) {
+        const total = response.channels.length
+        for (let i = 0; i < total; i++) {
+          const channel = response.channels[i]
+          fullChannelList.push({ id: channel.id, name: channel.name })
+        }
+      }
+    })
+  }
+
   const updateScoreboard = () => {
     let teamId = fullTeamList[0].team_id
     controller.storage.teams.get(team_id, (err, team) => {
@@ -61,18 +73,6 @@ export default (controller, bot) => {
       team.scoreboard = board
       console.log(`new karma:\n${util.inspect(team.scoreboard)}`)
       controller.storage.teams.save(team)
-    })
-  }
-
-    bot.api.channels.list({}, (err, response) => {
-      if (err) console.log(err)
-      if (response.hasOwnProperty('channels') && response.ok) {
-        const total = response.channels.length
-        for (let i = 0; i < total; i++) {
-          const channel = response.channels[i]
-          fullChannelList.push({ id: channel.id, name: channel.name })
-        }
-      }
     })
   }
 
