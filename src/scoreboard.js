@@ -82,7 +82,7 @@ function buildScoreboard (teamKarma) {
   return new Promise((resolve, reject) => {
     if (!teamKarma) reject(teamKarma)
     let output = {text: '', color: '#0067B3'}
-    let i = 5
+    let i = 6
     _.forEach(teamKarma, (value) => {
       output.text += `${i}: ${value.name}: ${value.score}\n`
       i++
