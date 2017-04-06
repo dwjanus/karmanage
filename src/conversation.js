@@ -10,8 +10,8 @@ const processUsers = scoreHandler.processUsers
 // const updateScoreboard = scoreHandler.updateScoreboard
 
 export default (controller, bot) => {
-  const fullTeamList = []
-  const fullChannelList = []
+  let fullTeamList = []
+  let fullChannelList = []
 
   const getUserEmailArray = (bot) => {
     return new Promise((resolve, reject) => {
@@ -21,7 +21,7 @@ export default (controller, bot) => {
           const total = response.members.length
           for (let i = 0; i < total; i++) {
             const member = response.members[i]
-            if (!member.deleted && !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
+            if (!member.deleted && !member.is_bot && (member.real_name != '' || ' ' || null || undefined)) {
               const newMember = {
                 id: member.id,
                 team_id: member.team_id,
@@ -40,7 +40,6 @@ export default (controller, bot) => {
               })
             }
           }
-          resolve()
         }
       })
     })
@@ -55,6 +54,7 @@ export default (controller, bot) => {
         }
       }
     })
+    resolve()
   }
 
   const updateScoreboard = () => {
@@ -66,7 +66,7 @@ export default (controller, bot) => {
       for (let i = 0; i < fullTeamList.length; i++) {
         let newScore = { score: fullTeamList[i].karma, name: fullTeamList[i].fullName }
         console.log(`newScore:\n${util.inspect(newScore)}`)
-        board.push(newScore)
+        if (newScore.name != "" || " " || null || undefined) board.push(newScore)
       }
       board = _.orderBy(board, ['score', 'name'], ['desc', 'asc'])
       console.log(`board:\n${util.inspect(board)}`)
