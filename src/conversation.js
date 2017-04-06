@@ -7,7 +7,7 @@ const scoreboard = scoreHandler.scoreboard
 const addKarma = scoreHandler.addKarma
 const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
-const updateScoreboard = scoreHandler.updateScoreboard
+// const updateScoreboard = scoreHandler.updateScoreboard
 
 export default (controller, bot) => {
   const fullTeamList = []
@@ -20,6 +20,7 @@ export default (controller, bot) => {
         const total = response.members.length
         for (let i = 0; i < total; i++) {
           const member = response.members[i]
+          console.log(`member:\n${util.inspect(member)}`)
           const newMember = {
             id: member.id,
             team_id: member.team_id,
@@ -29,13 +30,15 @@ export default (controller, bot) => {
             karma: 0
           }
           fullTeamList.push(newMember)
-          controller.storage.users.get(member.id, (error, user) => {
+          controller.storage.users.get(member.id, (err, user) => {
             if (err) console.log(err)
             if (!user) {
               controller.storage.users.save(newMember)
-              updateScoreboard(newMember)
-            } else {
-              updateScoreboard(user)
+              controller.storage.teams.get(newMember.team_id, (err, team) => {
+                if (err) console.log(err)
+                team.scoreboard.karma.push({ score: newMember.karma, name: newMember.fullName })
+                controller.storage.teams.save(team)
+              })
             }
           })
         }
@@ -116,6 +119,9 @@ export default (controller, bot) => {
       let leaders = _.slice(team.scoreboard.karma, 0, 4)
       let losers = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
       console.log(`[conversation] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
+      const teamKarma = team.scoreboard.karma
+      team.scoreboard.karma = _.orderBy(teamKarma, ['score', 'name'], ['desc', 'asc'])
+      controller.storage.teams.save(team)
       scoreboard(leaders, losers).then(replyMessage => {
         let slack = {
           as_user: true,
