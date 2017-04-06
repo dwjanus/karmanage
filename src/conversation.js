@@ -32,7 +32,7 @@ export default (controller, bot) => {
           controller.storage.users.get(member.id, (error, user) => {
             if (err) console.log(error)
             if (!user) controller.storage.users.save(newMember) // adds new team member who do not have sf auth yet
-            else updateScoreboard(user)
+            updateScoreboard(user)
           })
         }
       }
@@ -111,7 +111,7 @@ export default (controller, bot) => {
       if (err) console.log(err)
       let leaders = _.slice(team.scoreboard.karma, 0, 4)
       let losers = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
-      console.log(`[conversation] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(teamKarma)}`)
+      console.log(`[conversation] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
       scoreboard(leaders, losers).then(replyMessage => {
         let slack = {
           as_user: true,
