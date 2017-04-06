@@ -59,7 +59,7 @@ export default (controller, bot) => {
 
   const updateScoreboard = () => {
     let teamId = fullTeamList[0].team_id
-    controller.storage.teams.get(team_id, (err, team) => {
+    controller.storage.teams.get(teamId, (err, team) => {
       if (err) console.log(err)
       console.log(`team: ${team.name} found - scoreboard:\n${util.inspect(team.scoreboard)}`)
       let board = team.scoreboard
