@@ -44,19 +44,19 @@ export default (controller, bot) => {
           }
         }
       })
-    })
 
-    bot.api.channels.list({}, (err, response) => {
-      if (err) console.log(err)
-      if (response.hasOwnProperty('channels') && response.ok) {
-        const total = response.channels.length
-        for (let i = 0; i < total; i++) {
-          const channel = response.channels[i]
-          fullChannelList.push({ id: channel.id, name: channel.name })
+      bot.api.channels.list({}, (err, response) => {
+        if (err) console.log(err)
+        if (response.hasOwnProperty('channels') && response.ok) {
+          const total = response.channels.length
+          for (let i = 0; i < total; i++) {
+            const channel = response.channels[i]
+            fullChannelList.push({ id: channel.id, name: channel.name })
+          }
         }
-      }
+      })
+      resolve()
     })
-    resolve()
   }
 
   const updateScoreboard = () => {
@@ -65,12 +65,17 @@ export default (controller, bot) => {
     controller.storage.teams.get(teamId, (err, team) => {
       if (err) console.log(err)
       console.log(`team: ${team.name} found - scoreboard:\n${util.inspect(team.scoreboard)}`)
-      let board = []
+      let board = team.scoreboard
       for (let i = 0; i < fullTeamList.length; i++) {
         let newScore = { score: fullTeamList[i].karma, name: fullTeamList[i].fullName }
         console.log(`newScore:\n${util.inspect(newScore)}`)
         if (newScore.name !== "" || " " || null || undefined) {
-          board.push(newScore)
+          console.log('conditional 1 passed')
+          // this is where our error with scoreboard is coming from
+          if (!(_.findIndex(board, (o) => { return o.name == newScore.name }))) {
+            console.log('conditional 2 passed - adding score')
+            board.push(newScore)
+          }
         }
       }
       board = _.orderBy(board, ['score', 'name'], ['desc', 'asc'])
