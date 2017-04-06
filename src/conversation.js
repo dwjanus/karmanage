@@ -14,45 +14,55 @@ export default (controller, bot) => {
   const fullChannelList = []
 
   const getUserEmailArray = (bot) => {
-    bot.api.users.list({}, (err, response) => {
-      if (err) console.log(err)
-      if (response.hasOwnProperty('members') && response.ok) {
-        const total = response.members.length
-        for (let i = 0; i < total; i++) {
-          const member = response.members[i]
-          if (!member.deleted && !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
-            const newMember = {
-              id: member.id,
-              team_id: member.team_id,
-              name: member.name,
-              fullName: member.real_name,
-              email: member.profile.email,
-              karma: 0
-            }
-            fullTeamList.push(newMember)
-            controller.storage.users.get(member.id, (err, user) => {
-              if (err) console.log(err)
-              if (!user) {
-                controller.storage.users.save(newMember)
-                console.log(`new member ${newMember.fullName} saved`)
-                controller.storage.teams.get(newMember.team_id, (err, team) => {
-                  if (err) console.log(err)
-                  console.log(`team: ${team.name} found - scoreboard:\n${util.inspect(team.scoreboard)}`)
-                  let board = team.scoreboard
-                  let newScore = { score: newMember.karma, name: newMember.fullName }
-                  console.log(`new karma:\n${util.inspect(newScore)}`)
-                  board.push(newScore)
-                  console.log(`board:\n${util.inspect(board)}`)
-                  team.scoreboard = board
-                  console.log(`new karma:\n${util.inspect(team.scoreboard)}`)
-                  controller.storage.teams.save(team)
-                })
+    return new Promise((resolve, reject) => {
+      bot.api.users.list({}, (err, response) => {
+        if (err) console.log(err)
+        if (response.hasOwnProperty('members') && response.ok) {
+          const total = response.members.length
+          for (let i = 0; i < total; i++) {
+            const member = response.members[i]
+            if (!member.deleted && !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
+              const newMember = {
+                id: member.id,
+                team_id: member.team_id,
+                name: member.name,
+                fullName: member.real_name,
+                email: member.profile.email,
+                karma: 0
               }
-            })
+              fullTeamList.push(newMember)
+              controller.storage.users.get(member.id, (err, user) => {
+                if (err) reject(err)
+                if (!user) {
+                  controller.storage.users.save(newMember)
+                  console.log(`new member ${newMember.fullName} saved`)
+                }
+              })
+            }
           }
+          resolve()
         }
-      }
+      })
     })
+
+  const updateScoreboard = () => {
+    let teamId = fullTeamList[0].team_id
+    controller.storage.teams.get(team_id, (err, team) => {
+      if (err) console.log(err)
+      console.log(`team: ${team.name} found - scoreboard:\n${util.inspect(team.scoreboard)}`)
+      let board = team.scoreboard
+      for (let i = 0; i < fullTeamList.length; i++) {
+        let newScore = { score: fullTeamList[i].karma, name: fullTeamList[i].fullName }
+        console.log(`newScore:\n${util.inspect(newScore)}`)
+        board.push(newScore)
+      }
+      board = _.orderBy(board, ['score', 'name'], ['desc', 'asc'])
+      console.log(`board:\n${util.inspect(board)}`)
+      team.scoreboard = board
+      console.log(`new karma:\n${util.inspect(team.scoreboard)}`)
+      controller.storage.teams.save(team)
+    })
+  }
 
     bot.api.channels.list({}, (err, response) => {
       if (err) console.log(err)
@@ -209,5 +219,5 @@ export default (controller, bot) => {
     }
   })
 
-  return { getUserEmailArray }
+  return { getUserEmailArray, updateScoreboard }
 }
