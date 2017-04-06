@@ -24,14 +24,14 @@ function updateScoreboard (user) {
     if (err) console.log(err)
     console.log(`Updating Scoreboard with user ${user.fullName} - ${user.karma}`)
     console.log(`Current Scoreboard:\n${util.inspect(team.scoreboard.karma)}\n`)
-    let checkScore = _.findIndex(team.scoreboard.karma, (o) => { return o.name === user.name })
+    let teamKarma = team.scoreboard.karma
+    let checkScore = _.findIndex(teamKarma, (o) => { return o.name === user.name })
     console.log('checkScore: ' + checkScore)
-    if (checkScore === -1 && (user.fullName !== null || '')) team.scoreboard.karma.push({ score: user.karma, name: user.fullName })
-    else team.scoreboard.karma[checkScore].score = user.karma
-    console.log(`--> Now it looks like:\n${util.inspect(team.scoreboard.karma)}\n`)
-    const teamKarma = _.orderBy(team.scoreboard.karma, ['score', 'name'], ['desc', 'asc'])
+    if (checkScore === -1 && (user.fullName !== null || '')) teamKarma.push({ score: user.karma, name: user.fullName })
+    else teamKarma[checkScore].score = user.karma
+    console.log(`--> Now it looks like:\n${util.inspect(teamKarma)}\n`)
+    team.scoreboard.karma = _.orderBy(teamKarma, ['score', 'name'], ['desc', 'asc'])
     console.log('--> Scoreboard Sorted by score:\n' + util.inspect(teamKarma) + '\n')
-    team.scoreboard.karma = teamKarma
     storage.teams.save(team)
   })
 }
