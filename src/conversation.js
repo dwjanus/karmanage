@@ -72,7 +72,7 @@ export default (controller, bot) => {
         if (newScore.name !== "" || " " || null || undefined) {
           console.log('conditional 1 passed')
           // this is where our error with scoreboard is coming from
-          if (!(_.findIndex(board, (o) => { return o.name == newScore.name }))) {
+          if (!(_.find(board, (o) => { return o.name == newScore.name }))) {
             console.log('conditional 2 passed - adding score')
             board.push(newScore)
           }
