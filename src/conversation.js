@@ -42,6 +42,7 @@ export default (controller, bot) => {
               }
             }
           }
+          resolve()
         }
       })
 
@@ -55,7 +56,6 @@ export default (controller, bot) => {
           }
         }
       })
-      resolve()
     })
   }
 
