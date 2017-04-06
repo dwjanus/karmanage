@@ -20,27 +20,32 @@ export default (controller, bot) => {
         const total = response.members.length
         for (let i = 0; i < total; i++) {
           const member = response.members[i]
-          console.log(`member:\n${util.inspect(member)}`)
-          const newMember = {
-            id: member.id,
-            team_id: member.team_id,
-            name: member.name,
-            fullName: member.real_name,
-            email: member.profile.email,
-            karma: 0
-          }
-          fullTeamList.push(newMember)
-          controller.storage.users.get(member.id, (err, user) => {
-            if (err) console.log(err)
-            if (!user) {
-              controller.storage.users.save(newMember)
-              controller.storage.teams.get(newMember.team_id, (err, team) => {
-                if (err) console.log(err)
-                team.scoreboard.karma.push({ score: newMember.karma, name: newMember.fullName })
-                controller.storage.teams.save(team)
-              })
+          if (!member.deleted && !member.is_bot) {
+            console.log(`member:\n${util.inspect(member)}`)
+            const newMember = {
+              id: member.id,
+              team_id: member.team_id,
+              name: member.name,
+              fullName: member.real_name,
+              email: member.profile.email,
+              karma: 0
             }
-          })
+            fullTeamList.push(newMember)
+            controller.storage.users.get(member.id, (err, user) => {
+              if (err) console.log(err)
+              if (!user) {
+                controller.storage.users.save(newMember)
+                console.log(`new member ${newMember.fullName} saved`)
+                controller.storage.teams.get(newMember.team_id, (err, team) => {
+                  if (err) console.log(err)
+                  console.log(`team: ${team.name} found - scoreboard:\n${util.inspect(team.scoreboard)}`)
+                  team.scoreboard.push({ score: newMember.karma, name: newMember.fullName })
+                  console.log(`new karma:\n${team.scoreboard}`)
+                  controller.storage.teams.save(team)
+                })
+              }
+            })
+          }
         }
       }
     })
@@ -116,11 +121,12 @@ export default (controller, bot) => {
     controller.storage.teams.get(message.team, (err, team) => {
       console.log(`[conversation] ** retrieving team data **\n${util.inspect(team)}`)
       if (err) console.log(err)
-      let leaders = _.slice(team.scoreboard.karma, 0, 4)
-      let losers = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
+      let leaders = _.slice(team.scoreboard, 0, 4)
+      let losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
       console.log(`[conversation] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
-      const teamKarma = team.scoreboard.karma
-      team.scoreboard.karma = _.orderBy(teamKarma, ['score', 'name'], ['desc', 'asc'])
+      const teamKarma = team.scoreboard
+      team.scoreboard = _.orderBy(teamKarma, ['score', 'name'], ['desc', 'asc'])
+      console.log(`scoreboard:\n${team.scoreboard}`)
       controller.storage.teams.save(team)
       scoreboard(leaders, losers).then(replyMessage => {
         let slack = {
@@ -128,7 +134,7 @@ export default (controller, bot) => {
           text: `${team.name}: The Scorey So Far...`,
           attachments: replyMessage.attachments
         }
-        console.log(`[conversation] ** about to reply **\n${util.inspect(slack)}`)
+        // console.log(`[conversation] ** about to reply **\n${util.inspect(slack)}`)
         bot.reply(message, slack)
       })
     })
