@@ -20,8 +20,7 @@ export default (controller, bot) => {
         const total = response.members.length
         for (let i = 0; i < total; i++) {
           const member = response.members[i]
-          if (!member.deleted && !member.is_bot) {
-            console.log(`member:\n${util.inspect(member)}`)
+          if (!member.deleted && !member.is_bot && (member.name !== '' || ' ' || null || undefined)) {
             const newMember = {
               id: member.id,
               team_id: member.team_id,
@@ -39,7 +38,10 @@ export default (controller, bot) => {
                 controller.storage.teams.get(newMember.team_id, (err, team) => {
                   if (err) console.log(err)
                   console.log(`team: ${team.name} found - scoreboard:\n${util.inspect(team.scoreboard)}`)
-                  team.scoreboard.push({ score: newMember.karma, name: newMember.fullName })
+                  let board = team.scoreboard
+                  let newScore = { score: newMember.karma, name: newMember.fullName }
+                  board.push(newScore)
+                  team.scoreboard = board
                   console.log(`new karma:\n${team.scoreboard}`)
                   controller.storage.teams.save(team)
                 })
