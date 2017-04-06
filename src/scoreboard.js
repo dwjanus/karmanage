@@ -19,7 +19,7 @@ async function scoreboard (leaderKarma, teamKarma) {
   }
 }
 
-function updateScoreboard (teamId) {
+function updateScoreboard (user) {
   storage.teams.get(user.team_id, (err, team) => {
     if (err) console.log(err)
     console.log(`Updating Scoreboard with user ${user.fullName} - ${user.karma}`)
