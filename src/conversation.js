@@ -141,7 +141,7 @@ export default (controller, bot) => {
     controller.storage.teams.get(message.team, (err, team) => {
       console.log(`[conversation] ** retrieving team data **\n${util.inspect(team)}`)
       if (err) console.log(err)
-      let leaders = _.slice(team.scoreboard, 0, 4)
+      let leaders = _.slice(team.scoreboard, 0, 5)
       let losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
       console.log(`[conversation] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
       const teamKarma = team.scoreboard

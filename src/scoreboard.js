@@ -68,9 +68,9 @@ function buildLeaderboard (leaderKarma) {
   return new Promise((resolve, reject) => {
     if (!leaderKarma) reject(leaderKarma)
     let output = { attachments: [] }
-    let i = 1
+    let i = 0
     _.forEach(leaderKarma, (value) => {
-      output.attachments.push({text: `${i}: ${value.name} - ${value.score}`, color: colors[i]})
+      output.attachments.push({text: `${i + 1}: ${value.name} - ${value.score}`, color: colors[i]})
       i++
     })
     resolve(output)
