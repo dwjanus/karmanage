@@ -30,8 +30,6 @@ export default (controller, bot) => {
                 email: member.profile.email,
                 karma: 0
               }
-              if  member.fullName = member.name
-
               fullTeamList.push(newMember)
               controller.storage.users.get(member.id, (err, user) => {
                 if (err) reject(err)
