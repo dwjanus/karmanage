@@ -106,7 +106,7 @@ controller.storage.teams.all((err, teams) => {
       const bot = controller.spawn(teams[t]).startRTM((error) => {
         if (error) console.log(`Error: ${error} while connecting bot ${teams[t].bot} to Slack for team: ${teams[t].id}`)
         else {
-          const convo = Conversation(controller, bot)
+          const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
           convo.getUserEmailArray(bot).then(() => convo.updateScoreboard())
           .catch((err) => {
