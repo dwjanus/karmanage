@@ -60,15 +60,16 @@ export default (controller, bot) => {
   }
 
   const updateScoreboard = () => {
+    console.log('updating scoreboard...')
     let teamId = fullTeamList[0].team_id
     controller.storage.teams.get(teamId, (err, team) => {
       if (err) console.log(err)
       console.log(`team: ${team.name} found - scoreboard:\n${util.inspect(team.scoreboard)}`)
-      let board = []
+      let board = team.scoreboard
       for (let i = 0; i < fullTeamList.length; i++) {
         let newScore = { score: fullTeamList[i].karma, name: fullTeamList[i].fullName }
         console.log(`newScore:\n${util.inspect(newScore)}`)
-        if (newScore.name != "" || " " || null || undefined) {
+        if (newScore.name !== "" || " " || null || undefined) {
           // this is where our error with scoreboard is coming from
           if (!(_.find(board, (o) => { return o.name === newScore.name }))) {
             board.push(newScore)
