@@ -21,7 +21,7 @@ export default (controller, bot) => {
           const total = response.members.length
           for (let i = 0; i < total; i++) {
             const member = response.members[i]
-            if (!member.deleted && !member.is_bot && (member.real_name != '' || ' ' || null || undefined)) {
+            if (!member.deleted && !member.is_bot && (member.real_name !== "" || " " || null || undefined)) {
               const newMember = {
                 id: member.id,
                 team_id: member.team_id,
@@ -30,14 +30,16 @@ export default (controller, bot) => {
                 email: member.profile.email,
                 karma: 0
               }
-              fullTeamList.push(newMember)
-              controller.storage.users.get(member.id, (err, user) => {
-                if (err) reject(err)
-                if (!user) {
-                  controller.storage.users.save(newMember)
-                  console.log(`new member ${newMember.fullName} saved`)
-                }
-              })
+              if (newMember.fullName.length > 1) {
+                fullTeamList.push(newMember)
+                controller.storage.users.get(member.id, (err, user) => {
+                  if (err) reject(err)
+                  if (!user) {
+                    controller.storage.users.save(newMember)
+                    console.log(`new member ${newMember.fullName} saved`)
+                  }
+                })
+              }
             }
           }
         }
@@ -62,12 +64,12 @@ export default (controller, bot) => {
     controller.storage.teams.get(teamId, (err, team) => {
       if (err) console.log(err)
       console.log(`team: ${team.name} found - scoreboard:\n${util.inspect(team.scoreboard)}`)
-      let board = team.scoreboard
+      let board = []
       for (let i = 0; i < fullTeamList.length; i++) {
         let newScore = { score: fullTeamList[i].karma, name: fullTeamList[i].fullName }
         console.log(`newScore:\n${util.inspect(newScore)}`)
         if (newScore.name != "" || " " || null || undefined) {
-          if (_.findIndex(board, (o) => { return o.name === newScore.name }) == -1) {
+          if (_.findIndex(board, (o) => { return o.name === newScore.name }) === -1) {
             board.push(newScore)
           }
         }
