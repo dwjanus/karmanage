@@ -9,8 +9,8 @@ const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
 
 export default (controller, bot) => {
-  let fullTeamList = []
-  let fullChannelList = []
+  const fullTeamList = []
+  const fullChannelList = []
 
   const getUserEmailArray = (bot) => {
     return new Promise((resolve, reject) => {
