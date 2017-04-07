@@ -36,11 +36,11 @@ export default (controller, bot) => {
                     fullTeamList.push(newMember)
                     controller.storage.users.save(newMember)
                     console.log(`new member ${newMember.fullName} saved`)
-                    scoreHandler.updateScoreboard(newMember)
+                    // scoreHandler.updateScoreboard(newMember)
                   } else {
                     newMember.karma = user.karma
                     fullTeamList.push(newMember)
-                    scoreHandler.updateScoreboard(user)
+                    // scoreHandler.updateScoreboard(user)
                   }
                 })
               }
@@ -68,14 +68,14 @@ export default (controller, bot) => {
     controller.storage.teams.get(fullTeamList[0].team_id, (err, team) => {
       if (err) console.log(err)
       console.log(`team: ${team.name} found - scoreboard:\n${util.inspect(team.scoreboard)}`)
-      let board = team.scoreboard
+      let board = []
       for (let i = 0; i < fullTeamList.length; i++) {
         let score = { karma: fullTeamList[i].karma, name: fullTeamList[i].fullName }
         console.log(`newScore:\n${util.inspect(newScore)}`)
         if (newScore.name !== "" || " " || null || undefined) {
-          if (!(_.find(board, (o) => { return o.name == newScore.name }))) {
+          // if (!(_.find(board, (o) => { return o.name == newScore.name }))) {
             board.push(newScore)
-          }
+          // }
         }
       }
       board = _.orderBy(board, ['karma', 'name'], ['desc', 'asc'])
