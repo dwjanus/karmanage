@@ -36,7 +36,8 @@ export default (controller, bot) => {
                   if (!user) {
                     controller.storage.users.save(newMember)
                     console.log(`new member ${newMember.fullName} saved`)
-                  }
+                    scoreHandler.updateScoreboard(newMember)
+                  } else scoreHandler.updateScoreboard(user)
                 })
               }
             }
