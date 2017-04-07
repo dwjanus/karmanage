@@ -69,7 +69,7 @@ export default (controller, bot) => {
       for (let i = 0; i < fullTeamList.length; i++) {
         let score = { karma: fullTeamList[i].karma, name: fullTeamList[i].fullName }
         console.log(`newScore:\n${util.inspect(score)}`)
-        if (score.name !== "" || " " || null || undefined) {
+        if (score.name !== '' || ' ' || null || undefined) {
           if (!(_.find(board, (o) => { return o.name == score.name }))) {
             board.push(score)
           }

@@ -27,7 +27,8 @@ function updateScoreboard (user) {
     let board = team.scoreboard
     let check = _.findIndex(board, (o) => { return o.fullName == user.name })
     console.log('check: ' + util.inspect(check))
-    if (check === -1) board.push({ karma: user.karma, name: user.fullName })
+    if (check === -1 &&
+      user.fullName !== '' || ' ' || null || undefined) board.push({ karma: user.karma, name: user.fullName })
     else board[check].karma = user.karma
     console.log(`--> Now it looks like:\n${util.inspect(board)}\n`)
     team.scoreboard = _.orderBy(board, ['karma', 'name'], ['desc', 'asc'])
@@ -70,7 +71,7 @@ function buildLeaderboard (leaderKarma) {
     let output = { attachments: [] }
     let i = 0
     _.forEach(leaderKarma, (value) => {
-      output.attachments.push({text: `${i + 1}: ${value.name} - ${value.score}`, color: colors[i]})
+      output.attachments.push({text: `${i + 1}: ${value.name} - ${value.karma}`, color: colors[i]})
       i++
     })
     resolve(output)
@@ -84,7 +85,7 @@ function buildScoreboard (teamKarma) {
     let output = {text: '', color: '#0067B3'}
     let i = 6
     _.forEach(teamKarma, (value) => {
-      output.text += `${i}: ${value.name}: ${value.score}\n`
+      output.text += `${i}: ${value.name}: ${value.karma}\n`
       i++
     })
     resolve(output)
