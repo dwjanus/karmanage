@@ -108,7 +108,7 @@ controller.storage.teams.all((err, teams) => {
         else {
           const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
-          convo.getUserEmailArray(bot).then(() => convo.updateScoreboard())
+          convo.getUserEmailArray(bot).then(() => console.log('- user array built -'))
           .catch((err) => {
             console.log(`Error: ${err}`)
           })

@@ -115,5 +115,6 @@ module.exports = {
   scoreboard,
   addKarma,
   subtractKarma,
-  processUsers
+  processUsers,
+  updateScoreboard
 }

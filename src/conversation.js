@@ -36,18 +36,18 @@ export default (controller, bot) => {
                     fullTeamList.push(newMember)
                     controller.storage.users.save(newMember)
                     console.log(`new member ${newMember.fullName} saved`)
-                    // scoreHandler.updateScoreboard(newMember)
+                    scoreHandler.updateScoreboard(newMember)
                   } else {
                     newMember.karma = user.karma
                     fullTeamList.push(newMember)
-                    // scoreHandler.updateScoreboard(user)
+                    scoreHandler.updateScoreboard(user)
                   }
                 })
               }
             }
           }
-          resolve()
         }
+        resolve()
       })
 
       bot.api.channels.list({}, (err, response) => {
