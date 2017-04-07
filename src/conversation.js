@@ -17,31 +17,27 @@ export default (controller, bot) => {
       bot.api.users.list({}, (err, response) => {
         if (err) console.log(err)
         if (response.hasOwnProperty('members') && response.ok) {
-          const total = response.members.length
-          for (let i = 0; i < total; i++) {
+          for (let i = 0; i < response.members.length; i++) {
             const member = response.members[i]
             let newMember = {
               id: member.id,
               team_id: member.team_id,
               name: member.name,
               fullName: member.real_name,
-              email: member.profile.email,
-              karma: 0
+              email: member.profile.email
             }
+            if (member.karma) newMember.karma = member.karma
+            else newMember.karma = 0
+            fullTeamList.push(newMember)
             if (!member.deleted && !member.is_bot && (member.real_name !== "" || " " || null || undefined)) {
               if (member.real_name.length > 1 && member.name !== 'slackbot') {
                 controller.storage.users.get(member.id, (err, user) => {
                   if (err) reject(err)
                   if (!user) {
-                    fullTeamList.push(newMember)
                     controller.storage.users.save(newMember)
                     console.log(`new member ${newMember.fullName} saved`)
-                    // scoreHandler.updateScoreboard(newMember)
-                  } else {
-                    newMember.karma = user.karma
-                    fullTeamList.push(newMember)
-                    // scoreHandler.updateScoreboard(user)
                   }
+                  // scoreHandler.updateScoreboard(newMember)
                 })
               }
             }
