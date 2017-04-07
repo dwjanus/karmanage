@@ -7,7 +7,6 @@ const scoreboard = scoreHandler.scoreboard
 const addKarma = scoreHandler.addKarma
 const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
-// const updateScoreboard = scoreHandler.updateScoreboard
 
 export default (controller, bot) => {
   let fullTeamList = []
@@ -139,14 +138,13 @@ export default (controller, bot) => {
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
     console.log('[conversation] ** scoreboard heard **')
     controller.storage.teams.get(message.team, (err, team) => {
-      console.log(`[conversation] ** retrieving team data **\n${util.inspect(team)}`)
+      console.log(`[conversation] ** retrieving team data **`)
       if (err) console.log(err)
       let leaders = _.slice(team.scoreboard, 0, 5)
       let losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
       console.log(`[conversation] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
       const teamKarma = team.scoreboard
       team.scoreboard = _.orderBy(teamKarma, ['score', 'name'], ['desc', 'asc'])
-      console.log(`scoreboard:\n${team.scoreboard}`)
       controller.storage.teams.save(team)
       scoreboard(leaders, losers).then(replyMessage => {
         let slack = {
@@ -154,7 +152,6 @@ export default (controller, bot) => {
           text: `${team.name}: The Scorey So Far...`,
           attachments: replyMessage.attachments
         }
-        // console.log(`[conversation] ** about to reply **\n${util.inspect(slack)}`)
         bot.reply(message, slack)
       })
     })

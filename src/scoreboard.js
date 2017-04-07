@@ -24,13 +24,13 @@ function updateScoreboard (user) {
     if (err) console.log(err)
     console.log(`Updating Scoreboard with user ${user.fullName} - ${user.karma}`)
     console.log(`Current Scoreboard:\n${util.inspect(team.scoreboard.karma)}\n`)
-    let scoreboard = team.scoreboard
-    let checkScore = _.findIndex(scoreboard, (o) => { return o.name == user.name })
+    let board = team.scoreboard
+    let checkScore = _.findIndex(board, (o) => { return o.name == user.name })
     console.log('checkScore: ' + checkScore)
-    if (checkScore === -1 && (user.fullName !== null || '' || undefined)) teamKarma.push({ score: user.karma, name: user.fullName })
-    else scoreboard[checkScore].score = user.karma
+    if (checkScore === -1 && (user.fullName !== null || '' || undefined)) board.push({ score: user.karma, name: user.fullName })
+    else board[checkScore].score = user.karma
     console.log(`--> Now it looks like:\n${util.inspect(scoreboard)}\n`)
-    team.scoreboard = _.orderBy(scoreboard, ['score', 'name'], ['desc', 'asc'])
+    team.scoreboard = _.orderBy(board, ['score', 'name'], ['desc', 'asc'])
     console.log('--> Scoreboard Sorted by score:\n' + util.inspect(scoreboard) + '\n')
     storage.teams.save(team)
   })
@@ -115,6 +115,5 @@ module.exports = {
   scoreboard,
   addKarma,
   subtractKarma,
-  processUsers,
-  updateScoreboard
+  processUsers
 }
