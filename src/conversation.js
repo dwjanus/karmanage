@@ -29,18 +29,18 @@ export default (controller, bot) => {
               karma: 0
             }
             if (!member.deleted && !member.is_bot && (member.real_name !== "" || " " || null || undefined)) {
-              if (member.real_name.length > 1) {
+              if (member.real_name.length > 1 && member.name !== 'slackbot') {
                 controller.storage.users.get(member.id, (err, user) => {
                   if (err) reject(err)
                   if (!user) {
                     fullTeamList.push(newMember)
                     controller.storage.users.save(newMember)
                     console.log(`new member ${newMember.fullName} saved`)
-                    scoreHandler.updateScoreboard(newMember)
+                    // scoreHandler.updateScoreboard(newMember)
                   } else {
                     newMember.karma = user.karma
                     fullTeamList.push(newMember)
-                    scoreHandler.updateScoreboard(user)
+                    // scoreHandler.updateScoreboard(user)
                   }
                 })
               }

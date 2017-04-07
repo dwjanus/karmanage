@@ -10,8 +10,8 @@ async function scoreboard (leaderKarma, teamKarma) {
   try {
     console.log('--> building scoreboard')
     let leaderboard = await buildLeaderboard(leaderKarma)
-    let scoreboard = await buildScoreboard(teamKarma)
-    leaderboard.attachments.push(scoreboard)
+    let loserboard = await buildScoreboard(teamKarma)
+    leaderboard.attachments.push(loserboard)
     console.log(`--> built\n${util.inspect(leaderboard)}`)
     return leaderboard
   } catch (err) {
@@ -25,13 +25,13 @@ function updateScoreboard (user) {
     console.log(`Updating Scoreboard with user ${user.fullName} - ${user.karma}`)
     console.log(`Current Scoreboard:\n${util.inspect(team.scoreboard)}\n`)
     let board = team.scoreboard
-    let check = _.find(board, (o) => { return o.fullName == user.name })
+    let check = _.findIndex(board, (o) => { return o.fullName == user.name })
     console.log('check: ' + util.inspect(check))
-    if (!check && (user.fullName !== null || '' || undefined)) board.push({ karma: user.karma, name: user.fullName })
-    else check.karma = user.karma
-    console.log(`--> Now it looks like:\n${util.inspect(scoreboard)}\n`)
+    if (check === -1) board.push({ karma: user.karma, name: user.fullName })
+    else board[check].karma = user.karma
+    console.log(`--> Now it looks like:\n${util.inspect(board)}\n`)
     team.scoreboard = _.orderBy(board, ['karma', 'name'], ['desc', 'asc'])
-    console.log('--> Scoreboard Sorted by score:\n' + util.inspect(scoreboard) + '\n')
+    console.log('--> Scoreboard Sorted by score:\n' + util.inspect(board) + '\n')
     storage.teams.save(team)
   })
 }
