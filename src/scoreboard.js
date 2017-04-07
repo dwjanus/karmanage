@@ -25,7 +25,7 @@ function updateScoreboard (user) {
     console.log(`Updating Scoreboard with user ${user.fullName} - ${user.karma}`)
     console.log(`Current Scoreboard:\n${util.inspect(team.scoreboard)}\n`)
     let board = team.scoreboard
-    let check = (_.find(board, (o) => { return o.fullName == user.name }))
+    let check = _.find(board, (o) => { return o.fullName === user.name })
     console.log('check: ' + util.inspect(check))
     if (!check && (user.fullName !== null || '' || undefined)) board.push({ score: user.karma, name: user.fullName })
     else check.score = user.karma
