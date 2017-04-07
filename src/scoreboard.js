@@ -23,12 +23,12 @@ function updateScoreboard (user) {
   storage.teams.get(user.team_id, (err, team) => {
     if (err) console.log(err)
     console.log(`Updating Scoreboard with user ${user.fullName} - ${user.karma}`)
-    console.log(`Current Scoreboard:\n${util.inspect(team.scoreboard.karma)}\n`)
+    console.log(`Current Scoreboard:\n${util.inspect(team.scoreboard)}\n`)
     let board = team.scoreboard
-    let checkScore = _.findIndex(board, (o) => { return o.name == user.name })
-    console.log('checkScore: ' + checkScore)
-    if (checkScore === -1 && (user.fullName !== null || '' || undefined)) board.push({ score: user.karma, name: user.fullName })
-    else board[checkScore].score = user.karma
+    let check = (_.find(board, (o) => { return o.name == user.name }))
+    console.log('check: ' + util.inspect(check))
+    if (!check && (user.fullName !== null || '' || undefined)) board.push({ score: user.karma, name: user.fullName })
+    else check.score = user.karma
     console.log(`--> Now it looks like:\n${util.inspect(scoreboard)}\n`)
     team.scoreboard = _.orderBy(board, ['score', 'name'], ['desc', 'asc'])
     console.log('--> Scoreboard Sorted by score:\n' + util.inspect(scoreboard) + '\n')
