@@ -78,8 +78,7 @@ export default (controller, bot) => {
           // }
         }
       }
-      board = _.orderBy(board, ['karma', 'name'], ['desc', 'asc'])
-      team.scoreboard = board
+      team.scoreboard = _.orderBy(board, ['karma', 'name'], ['desc', 'asc'])
       console.log(`new karma:\n${util.inspect(team.scoreboard)}`)
       controller.storage.teams.save(team)
     })
