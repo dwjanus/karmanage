@@ -73,9 +73,9 @@ export default (controller, bot) => {
         let score = { karma: fullTeamList[i].karma, name: fullTeamList[i].fullName }
         console.log(`newScore:\n${util.inspect(newScore)}`)
         if (newScore.name !== "" || " " || null || undefined) {
-          // if (!(_.find(board, (o) => { return o.name == newScore.name }))) {
+          if (!(_.find(board, (o) => { return o.name == newScore.name }))) {
             board.push(newScore)
-          // }
+          }
         }
       }
       team.scoreboard = _.orderBy(board, ['karma', 'name'], ['desc', 'asc'])
