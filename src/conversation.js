@@ -46,8 +46,8 @@ export default (controller, bot) => {
               }
             }
           }
+          resolve()
         }
-        resolve()
       })
 
       bot.api.channels.list({}, (err, response) => {
