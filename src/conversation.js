@@ -20,7 +20,7 @@ export default (controller, bot) => {
           const total = response.members.length
           for (let i = 0; i < total; i++) {
             const member = response.members[i]
-            const newMember = {
+            let newMember = {
               id: member.id,
               team_id: member.team_id,
               name: member.name,
@@ -65,8 +65,7 @@ export default (controller, bot) => {
 
   const updateScoreboard = () => {
     console.log('updating scoreboard...')
-    let teamId = fullTeamList[0].team_id
-    controller.storage.teams.get(teamId, (err, team) => {
+    controller.storage.teams.get(fullTeamList[0].team_id, (err, team) => {
       if (err) console.log(err)
       console.log(`team: ${team.name} found - scoreboard:\n${util.inspect(team.scoreboard)}`)
       let board = team.scoreboard
@@ -149,7 +148,7 @@ export default (controller, bot) => {
       let losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
       console.log(`[conversation] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
       const teamKarma = team.scoreboard
-      team.scoreboard = _.orderBy(teamKarma, ['score', 'name'], ['desc', 'asc'])
+      team.scoreboard = _.orderBy(teamKarma, ['karma', 'name'], ['desc', 'asc'])
       controller.storage.teams.save(team)
       scoreboard(leaders, losers).then(replyMessage => {
         let slack = {
