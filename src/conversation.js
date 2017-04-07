@@ -20,24 +20,28 @@ export default (controller, bot) => {
           const total = response.members.length
           for (let i = 0; i < total; i++) {
             const member = response.members[i]
+            const newMember = {
+              id: member.id,
+              team_id: member.team_id,
+              name: member.name,
+              fullName: member.real_name,
+              email: member.profile.email,
+              karma: 0
+            }
             if (!member.deleted && !member.is_bot && (member.real_name !== "" || " " || null || undefined)) {
-              const newMember = {
-                id: member.id,
-                team_id: member.team_id,
-                name: member.name,
-                fullName: member.real_name,
-                email: member.profile.email,
-                karma: 0
-              }
-              if (newMember.fullName.length > 1) {
-                fullTeamList.push(newMember)
+              if (member.real_name.length > 1) {
                 controller.storage.users.get(member.id, (err, user) => {
                   if (err) reject(err)
                   if (!user) {
+                    fullTeamList.push(newMember)
                     controller.storage.users.save(newMember)
                     console.log(`new member ${newMember.fullName} saved`)
                     scoreHandler.updateScoreboard(newMember)
-                  } else scoreHandler.updateScoreboard(user)
+                  } else {
+                    newMember.karma = user.karma
+                    fullTeamList.push(newMember)
+                    scoreHandler.updateScoreboard(user)
+                  }
                 })
               }
             }
@@ -67,7 +71,7 @@ export default (controller, bot) => {
       console.log(`team: ${team.name} found - scoreboard:\n${util.inspect(team.scoreboard)}`)
       let board = team.scoreboard
       for (let i = 0; i < fullTeamList.length; i++) {
-        let newScore = { score: fullTeamList[i].karma, name: fullTeamList[i].fullName }
+        let score = { karma: fullTeamList[i].karma, name: fullTeamList[i].fullName }
         console.log(`newScore:\n${util.inspect(newScore)}`)
         if (newScore.name !== "" || " " || null || undefined) {
           if (!(_.find(board, (o) => { return o.name == newScore.name }))) {
@@ -75,7 +79,7 @@ export default (controller, bot) => {
           }
         }
       }
-      board = _.orderBy(board, ['score', 'name'], ['desc', 'asc'])
+      board = _.orderBy(board, ['karma', 'name'], ['desc', 'asc'])
       team.scoreboard = board
       console.log(`new karma:\n${util.inspect(team.scoreboard)}`)
       controller.storage.teams.save(team)
