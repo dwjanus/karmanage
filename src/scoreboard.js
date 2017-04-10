@@ -47,7 +47,7 @@ const updateScoreboard = (user) => {
     storage.teams.get(user.team_id, (err, team) => {
       if (err) console.log(err) // reject(err)
       console.log(`Updating scoreboard for Team ${user.team_id} with user ${user.fullName} - ${user.karma}`)
-      const check = _.findIndex(team.scoreboard, (o) => { return o.name == user.fullName })
+      let check = _.findIndex(team.scoreboard, (o) => { return o.name == user.fullName })
       console.log('check: ' + check)
       if (check === -1 && user.fullName !== '' || ' ' || 'slackbot' || null || undefined) {
         console.log(`User is not on the board -- pushing now`)
