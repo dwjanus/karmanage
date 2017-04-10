@@ -3,10 +3,11 @@ import util from 'util'
 import _ from 'lodash'
 import scoreHandler from './scoreboard.js'
 
+const buildScoreboard = scoreHandler.buildScoreboard
 const addKarma = scoreHandler.addKarma
 const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
-const buildScoreboard = scoreHandler.buildScoreboard
+const updateScoreboard = scoreHandler.updateScoreboard
 
 export default (controller, bot) => {
   let fullTeamList
@@ -23,7 +24,7 @@ export default (controller, bot) => {
           // break this check out into a function
           if (!member.profile.bot_id && !member.deleted && !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
             if (member.real_name.length > 1 && member.name !== 'slackbot') {
-              console.log(`Member ${i}:\n${util.inspect(member)}`)
+              console.log(`check passed for member ${i}:\n${util.inspect(member)}`)
               let newMember = {
                 id: member.id,
                 team_id: member.team_id,
@@ -34,7 +35,7 @@ export default (controller, bot) => {
               if (member.karma) newMember.karma = member.karma
               else newMember.karma = 0
               fullTeamList.push(newMember)
-              console.log(`check passed for member:\n ${util.inspect(newMember)}`)
+              console.log(`newMember:\n ${util.inspect(newMember)}`)
               controller.storage.users.get(member.id, (err, user) => {
                 if (err) reject(err)
                 if (!user) {

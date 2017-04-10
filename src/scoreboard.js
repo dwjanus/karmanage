@@ -133,5 +133,5 @@ module.exports = {
   addKarma,
   subtractKarma,
   processUsers,
-  buildScoreboard
+  updateScoreboard
 }
