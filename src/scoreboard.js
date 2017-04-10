@@ -14,9 +14,6 @@ const buildScoreboard = (team) => {
     console.log(`[buildScoreboard] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
     return Promise.join(buildLeaderboard(leaders), buildLoserboard(losers), (leaderboard, loserboard) => {
       leaderboard.attachments = leaderboard.attachments.concat(loserboard)
-      return leaderboard
-    })
-    .then((leaderboard) => {
       console.log(`[buildScoreboard] leaderboard before resolve:\n${util.inspect(leaderboard)}`)
       return resolve(leaderboard)
     })
@@ -80,7 +77,7 @@ const buildLeaderboard = (leaderKarma) => {
   let lastValue
   return new Promise((resolve, reject) => {
     if (!leaderKarma) reject(leaderKarma)
-    let output = { text: `${team.name}: The Scorey So Far...`, attachments: [] }
+    let output = { attachments: [] }
     let i = 0
     _.forEach(leaderKarma, (value) => {
       output.attachments.push({text: `${i + 1}: ${value.name} - ${value.karma}`, color: colors[i]})
