@@ -6,8 +6,7 @@ import config from './config.js'
 
 const storage = mongo({ mongoUri: config('MONGODB_URI') })
 
-
-function buildScoreboard = (team) => {
+const buildScoreboard = (team) => {
   return new Promise((resolve, reject) => {
     console.log(`\n... building scoreboard for team ${team.id}...`)
 
@@ -32,7 +31,7 @@ function buildScoreboard = (team) => {
   })
 }
 
-function updateScoreboard (user) {
+const updateScoreboard = (user) => {
   storage.teams.get(user.team_id, (err, team) => {
     if (err) console.log(err)
     console.log(`Updating scoreboard for Team ${user.team_id} with user ${user.fullName} - ${user.karma}`)
@@ -52,7 +51,7 @@ function updateScoreboard (user) {
   })
 }
 
-function addKarma (userId) {
+const addKarma = (userId) => {
   storage.users.get(userId, (err, user) => {
     if (err) console.log(err)
     console.log('Stored User:\n' + util.inspect(user))
@@ -63,7 +62,7 @@ function addKarma (userId) {
   })
 }
 
-function subtractKarma (userId) {
+const subtractKarma = (userId) => {
   storage.users.get(userId, (err, user) => {
     if (err) console.log(err)
     console.log('Stored User:\n' + util.inspect(user))
@@ -74,7 +73,7 @@ function subtractKarma (userId) {
   })
 }
 
-function buildLeaderboard (leaderKarma) {
+const buildLeaderboard = (leaderKarma) => {
   console.log('--> building leaderboard')
   const colors = [
     '#E5E4E2',
@@ -95,7 +94,7 @@ function buildLeaderboard (leaderKarma) {
   })
 }
 
-function buildLoserboard (loserKarma) {
+const buildLoserboard = (loserKarma) => {
   console.log('--> building loserboard')
   return new Promise((resolve, reject) => {
     if (!loserKarma) reject(loserKarma)
@@ -118,14 +117,14 @@ async function processUsers (rawIds) {
   }
 }
 
-function mapIds (rawIds) {
+const mapIds = (rawIds) => {
   return new Promise((resolve, reject) => {
     let ids = _.map(rawIds, processRawId)
     resolve(ids)
   })
 }
 
-function processRawId (rawId) {
+const processRawId = (rawId) => {
   return _.toString(rawId).substring(2, 11)
 }
 
@@ -134,5 +133,5 @@ module.exports = {
   addKarma,
   subtractKarma,
   processUsers,
-  updateScoreboard
+  buildScoreboard
 }
