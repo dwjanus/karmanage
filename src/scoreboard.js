@@ -47,18 +47,15 @@ const updateScoreboard = (user) => {
     storage.teams.get(user.team_id, (err, team) => {
       if (err) console.log(err) // reject(err)
       console.log(`Updating scoreboard for Team ${user.team_id} with user ${user.fullName} - ${user.karma}`)
-      console.log(`Current Scoreboard:\n${util.inspect(team.scoreboard)}\n`)
-      let board = team.scoreboard
-      let check = _.findIndex(board, (o) => { return o.name == user.fullName })
+      const check = _.findIndex(team.scoreboard, (o) => { return o.name == user.fullName })
       console.log('check: ' + check)
       if (check === -1 && user.fullName !== '' || ' ' || 'slackbot' || null || undefined) {
         console.log(`User is not on the board -- pushing now`)
-        board.push({ karma: user.karma, name: user.fullName })
+        team.scoreboard.push({ karma: user.karma, name: user.fullName })
       }
-      else board[check].karma = user.karma
-      console.log(`--> Now it looks like:\n${util.inspect(board)}\n`)
-      team.scoreboard = _.orderBy(board, ['karma', 'name'], ['desc', 'asc'])
-      console.log('--> Scoreboard Sorted by score:\n' + util.inspect(board) + '\n')
+      else team.scoreboard[check].karma = user.karma
+      team.scoreboard = _.orderBy(team.scoreboard, ['karma', 'name'], ['desc', 'asc'])
+      console.log(`[scoreboard] New Scoreboard:\n${util.inspect(team.scoreboard)}\n`)
       storage.teams.save(team)
       // resolve(team.scoreboard)
     // })
