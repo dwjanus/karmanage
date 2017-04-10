@@ -9,13 +9,13 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 const buildScoreboard = (team) => {
   return new Promise((resolve, reject) => {
     console.log(`\n... building scoreboard for team ${team.id}...`)
-    orderedboard = _.orderBy(team.scoreboard, ['karma', 'name'], ['desc', 'asc'])
-    console.log(`[buildScoreboard] ** ordered scoreboard **\n${util.inspect(orderedboard)}`)
-
-    team.scoreboard = orderedboard
-    storage.teams.save(team)
-    const leaders = _.slice(orderedboard, 0, 5)
-    const losers = _.slice(orderedboard, 5, orderedboard.length)
+    // orderedboard = _.orderBy(team.scoreboard, ['karma', 'name'], ['desc', 'asc'])
+    // console.log(`[buildScoreboard] ** ordered scoreboard **\n${util.inspect(orderedboard)}`)
+    //
+    // team.scoreboard = orderedboard
+    // storage.teams.save(team)
+    const leaders = _.slice(team.scoreboard, 0, 5)
+    const losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
 
     console.log(`[buildScoreboard] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
 

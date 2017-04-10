@@ -138,7 +138,11 @@ export default (controller, bot) => {
       console.log(`[conversation] ** retrieving data for team ${message.team} **\n${util.inspect(team)}\n`)
       if (err) console.log(err)
       buildScoreboard(team).then(replyMessage => {
-        bot.reply(message, { text: `${team.name}: The Scorey So Far...`, attachments: replyMessage.attachments })
+        const slack = {
+          text: `${team.name}: The Scorey So Far...`,
+          attachments: replyMessage.attachments
+        }
+        bot.reply(message, slack)
       })
       .catch((err) => {
         bot.reply(message, { text: err })
