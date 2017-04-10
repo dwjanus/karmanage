@@ -126,9 +126,9 @@ export default (controller, bot) => {
       buildScoreboard(team).then(replyMessage => {
         bot.reply(message, { text: `${team.name}: The Scorey So Far...`, attachments: replyMessage.attachments })
       })
-      .catch(err) {
+      .catch((err) => {
         bot.reply(message, { text: err })
-      }
+      })
     })
   })
 

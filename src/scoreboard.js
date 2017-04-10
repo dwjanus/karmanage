@@ -26,9 +26,9 @@ function buildScoreboard = (team) => {
       const scoreboard = leaderboard.attachments.push(loserboard)
       return resolve(scoreboard)
     })
-    .catch(err) {
+    .catch((err) => {
       if (err) return reject(err)
-    }
+    })
   })
 }
 
