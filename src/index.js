@@ -109,7 +109,6 @@ controller.storage.teams.all((err, teams) => {
           const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
           convo.getUserEmailArray(bot)
-          })
         }
       })
     }
