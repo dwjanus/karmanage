@@ -3,7 +3,6 @@ import util from 'util'
 import _ from 'lodash'
 import scoreHandler from './scoreboard.js'
 
-const scoreboard = scoreHandler.scoreboard
 const addKarma = scoreHandler.addKarma
 const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
@@ -186,7 +185,7 @@ export default (controller, bot) => {
         if (err) console.log(err)
         let leaders = _.slice(team.scoreboard.karma, 0, 4)
         let teamKarma = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
-        scoreboard(leaders, teamKarma).then(replyMessage => {
+        buildScoreboard(leaders, teamKarma).then(replyMessage => {
           let slack = {
             text: `${team.name}: The Scorey So Far...`,
             attachments: replyMessage.attachments

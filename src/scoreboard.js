@@ -22,8 +22,8 @@ const buildScoreboard = (team) => {
     console.log(`[buildScoreboard] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
 
     return Promise.join(buildLeaderboard(leaders), buildLoserboard(losers), (leaderboard, loserboard) => {
-      const scoreboard = leaderboard.attachments.push(loserboard)
-      return resolve(scoreboard)
+      leaderboard.attachments.push(loserboard)
+      return resolve(leaderboard)
     })
     .catch((err) => {
       if (err) return reject(err)
