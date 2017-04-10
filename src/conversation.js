@@ -20,21 +20,20 @@ export default (controller, bot) => {
       if (response.hasOwnProperty('members') && response.ok) {
         for (let i = 0; i < response.members.length; i++) {
           const member = response.members[i]
-          console.log(`Member ${i}:\n${util.inspect(member)}`)
-          let newMember = {
-            id: member.id,
-            team_id: member.team_id,
-            name: member.name,
-            fullName: member.real_name,
-            email: member.profile.email
-          }
-          if (member.karma) newMember.karma = member.karma
-          else newMember.karma = 0
-          fullTeamList.push(newMember)
           // break this check out into a function
-          if (!member.deleted && !member.is_bot && member.real_name !== '' || ' ' || null || undefined) {
+          if (!member.profile.bot_id && !member.deleted && !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
             if (member.real_name.length > 1 && member.name !== 'slackbot') {
-              // -->
+              console.log(`Member ${i}:\n${util.inspect(member)}`)
+              let newMember = {
+                id: member.id,
+                team_id: member.team_id,
+                name: member.name,
+                fullName: member.real_name,
+                email: member.profile.email
+              }
+              if (member.karma) newMember.karma = member.karma
+              else newMember.karma = 0
+              fullTeamList.push(newMember)
               console.log(`check passed for member:\n ${util.inspect(newMember)}`)
               controller.storage.users.get(member.id, (err, user) => {
                 if (err) reject(err)
