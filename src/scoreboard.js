@@ -129,7 +129,7 @@ const processRawId = (rawId) => {
 }
 
 module.exports = {
-  scoreboard,
+  buildScoreboard,
   addKarma,
   subtractKarma,
   processUsers,
