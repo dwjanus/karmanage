@@ -15,10 +15,10 @@ const buildScoreboard = (team) => {
     return Promise.join(buildLeaderboard(leaders), buildLoserboard(losers), (leaderboard, loserboard) => {
       leaderboard.attachments = leaderboard.attachments.concat(loserboard)
       console.log(`[buildScoreboard] leaderboard before resolve:\n${util.inspect(leaderboard)}`)
-      return resolve(leaderboard)
+      resolve(leaderboard)
     })
     .catch((err) => {
-      if (err) return reject(err)
+      if (err) reject(err)
     })
   })
 }
