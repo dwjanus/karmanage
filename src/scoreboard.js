@@ -7,17 +7,22 @@ import config from './config.js'
 const storage = mongo({ mongoUri: config('MONGODB_URI') })
 
 const buildScoreboard = (team) => {
-  console.log(`\n... building scoreboard for team ${team.id}...`)
-  const leaders = _.slice(team.scoreboard, 0, 5)
-  const losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
-  console.log(`[buildScoreboard] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
-  return new Promise.join(buildLeaderboard(leaders), buildLoserboard(losers), (leaderboard, loserboard) => {
-    leaderboard.attachments = leaderboard.attachments.concat(loserboard)
-    console.log(`[buildScoreboard] leaderboard before resolve:\n${util.inspect(leaderboard)}`)
-    return resolve(leaderboard)
-  })
-  .catch((err) => {
-    if (err) return reject(err)
+  return new Promise((resolve, reject) => {
+    console.log(`\n... building scoreboard for team ${team.id}...`)
+    const leaders = _.slice(team.scoreboard, 0, 5)
+    const losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
+    console.log(`[buildScoreboard] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
+    return Promise.join(buildLeaderboard(leaders), buildLoserboard(losers), (leaderboard, loserboard) => {
+      leaderboard.attachments = leaderboard.attachments.concat(loserboard)
+      return leaderboard
+    })
+    .then((leaderboard) => {
+      console.log(`[buildScoreboard] leaderboard before resolve:\n${util.inspect(leaderboard)}`)
+      return resolve(leaderboard)
+    })
+    .catch((err) => {
+      if (err) reject(err)
+    })
   })
 }
 
