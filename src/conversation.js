@@ -7,77 +7,60 @@ const scoreboard = scoreHandler.scoreboard
 const addKarma = scoreHandler.addKarma
 const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
+const buildScoreboard = scoreHandler.buildScoreboard
 
 export default (controller, bot) => {
-  const fullTeamList = []
-  const fullChannelList = []
+  let fullTeamList
+  let fullChannelList
 
   const getUserEmailArray = (bot) => {
-    return new Promise((resolve, reject) => {
-      bot.api.users.list({}, (err, response) => {
-        if (err) console.log(err)
-        if (response.hasOwnProperty('members') && response.ok) {
-          for (let i = 0; i < response.members.length; i++) {
-            const member = response.members[i]
-            let newMember = {
-              id: member.id,
-              team_id: member.team_id,
-              name: member.name,
-              fullName: member.real_name,
-              email: member.profile.email
-            }
-            if (member.karma) newMember.karma = member.karma
-            else newMember.karma = 0
-            fullTeamList.push(newMember)
-            if (!member.deleted && !member.is_bot && (member.real_name !== "" || " " || null || undefined)) {
-              if (member.real_name.length > 1 && member.name !== 'slackbot') {
-                controller.storage.users.get(member.id, (err, user) => {
-                  if (err) reject(err)
-                  if (!user) {
-                    controller.storage.users.save(newMember)
-                    console.log(`new member ${newMember.fullName} saved`)
-                  }
-                  // scoreHandler.updateScoreboard(newMember)
-                })
-              }
-            }
-          }
-          resolve()
-        }
-      })
-
-      bot.api.channels.list({}, (err, response) => {
-        if (err) console.log(err)
-        if (response.hasOwnProperty('channels') && response.ok) {
-          const total = response.channels.length
-          for (let i = 0; i < total; i++) {
-            const channel = response.channels[i]
-            fullChannelList.push({ id: channel.id, name: channel.name })
-          }
-        }
-      })
-    })
-  }
-
-  const updateScoreboard = () => {
-    console.log('updating scoreboard...')
-    let teamId = fullTeamList[0].team_id
-    controller.storage.teams.get(teamId, (err, team) => {
+    fullTeamList = []
+    fullChannelList = []
+    bot.api.users.list({}, (err, response) => {
       if (err) console.log(err)
-      console.log(`team: ${team.name} found - scoreboard:\n${util.inspect(team.scoreboard)}`)
-      let board = []
-      for (let i = 0; i < fullTeamList.length; i++) {
-        let score = { karma: fullTeamList[i].karma, name: fullTeamList[i].fullName }
-        console.log(`newScore:\n${util.inspect(score)}`)
-        if (score.name !== '' || ' ' || null || undefined) {
-          if (!(_.find(board, (o) => { return o.name == score.name }))) {
-            board.push(score)
+      if (response.hasOwnProperty('members') && response.ok) {
+        for (let i = 0; i < response.members.length; i++) {
+          const member = response.members[i]
+          console.log(`Member ${i}:\n${util.inspect(member)}`)
+          let newMember = {
+            id: member.id,
+            team_id: member.team_id,
+            name: member.name,
+            fullName: member.real_name,
+            email: member.profile.email
+          }
+          if (member.karma) newMember.karma = member.karma
+          else newMember.karma = 0
+          fullTeamList.push(newMember)
+          // break this check out into a function
+          if (!member.deleted && !member.is_bot && member.real_name !== '' || ' ' || null || undefined) {
+            if (member.real_name.length > 1 && member.name !== 'slackbot') {
+              // -->
+              console.log(`check passed for member:\n ${util.inspect(newMember)}`)
+              controller.storage.users.get(member.id, (err, user) => {
+                if (err) reject(err)
+                if (!user) {
+                  console.log('user not found in db')
+                  controller.storage.users.save(newMember)
+                  console.log(`new member ${newMember.fullName} saved`)
+                }
+                updateScoreboard(newMember)
+              })
+            }
           }
         }
       }
-      team.scoreboard = _.orderBy(board, ['karma', 'name'], ['desc', 'asc'])
-      console.log(`new karma:\n${util.inspect(team.scoreboard)}`)
-      controller.storage.teams.save(team)
+    })
+
+    bot.api.channels.list({}, (err, response) => {
+      if (err) console.log(err)
+      if (response.hasOwnProperty('channels') && response.ok) {
+        const total = response.channels.length
+        for (let i = 0; i < total; i++) {
+          const channel = response.channels[i]
+          fullChannelList.push({ id: channel.id, name: channel.name })
+        }
+      }
     })
   }
 
@@ -138,22 +121,14 @@ export default (controller, bot) => {
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
     console.log('[conversation] ** scoreboard heard **')
     controller.storage.teams.get(message.team, (err, team) => {
-      console.log(`[conversation] ** retrieving team data **`)
+      console.log(`[conversation] ** retrieving data for team ${message.team} **\n${util.inspect(team)}\n`)
       if (err) console.log(err)
-      let leaders = _.slice(team.scoreboard, 0, 5)
-      let losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
-      console.log(`[conversation] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
-      const teamKarma = team.scoreboard
-      team.scoreboard = _.orderBy(teamKarma, ['karma', 'name'], ['desc', 'asc'])
-      controller.storage.teams.save(team)
-      scoreboard(leaders, losers).then(replyMessage => {
-        let slack = {
-          as_user: true,
-          text: `${team.name}: The Scorey So Far...`,
-          attachments: replyMessage.attachments
-        }
-        bot.reply(message, slack)
+      buildScoreboard(team).then(replyMessage => {
+        bot.reply(message, { text: `${team.name}: The Scorey So Far...`, attachments: replyMessage.attachments })
       })
+      .catch(err) {
+        bot.reply(message, { text: err })
+      }
     })
   })
 
@@ -222,5 +197,5 @@ export default (controller, bot) => {
     }
   })
 
-  return { getUserEmailArray, updateScoreboard }
+  return { getUserEmailArray }
 }

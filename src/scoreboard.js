@@ -6,29 +6,44 @@ import config from './config.js'
 
 const storage = mongo({ mongoUri: config('MONGODB_URI') })
 
-async function scoreboard (leaderKarma, teamKarma) {
-  try {
-    console.log('--> building scoreboard')
-    let leaderboard = await buildLeaderboard(leaderKarma)
-    let loserboard = await buildScoreboard(teamKarma)
-    leaderboard.attachments.push(loserboard)
-    console.log(`--> built\n${util.inspect(leaderboard)}`)
-    return leaderboard
-  } catch (err) {
-    console.log(err)
-  }
+
+function buildScoreboard = (team) => {
+  return new Promise((resolve, reject) => {
+    console.log(`\n... building scoreboard for team ${team.id}...`)
+
+    orderedboard = _.orderBy(team.scoreboard, ['karma', 'name'], ['desc', 'asc'])
+
+    console.log(`[buildScoreboard] ** ordered scoreboard **\n${util.inspect(orderedboard)}`)
+
+    team.scoreboard = orderedboard
+    storage.teams.save(team)
+    const leaders = _.slice(orderedboard, 0, 5)
+    const losers = _.slice(orderedboard, 5, orderedboard.length)
+
+    console.log(`[buildScoreboard] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
+
+    return Promise.join(buildLeaderboard(leaders), buildLoserboard(losers), (leaderboard, loserboard) => {
+      const scoreboard = leaderboard.attachments.push(loserboard)
+      return resolve(scoreboard)
+    })
+    .catch(err) {
+      if (err) return reject(err)
+    }
+  })
 }
 
 function updateScoreboard (user) {
   storage.teams.get(user.team_id, (err, team) => {
     if (err) console.log(err)
-    console.log(`Updating Scoreboard with user ${user.fullName} - ${user.karma}`)
+    console.log(`Updating scoreboard for Team ${user.team_id} with user ${user.fullName} - ${user.karma}`)
     console.log(`Current Scoreboard:\n${util.inspect(team.scoreboard)}\n`)
     let board = team.scoreboard
     let check = _.findIndex(board, (o) => { return o.fullName == user.name })
-    console.log('check: ' + util.inspect(check))
-    if (check === -1 &&
-      user.fullName !== '' || ' ' || null || undefined) board.push({ karma: user.karma, name: user.fullName })
+    console.log('check: ' + check)
+    if (check === -1 && user.fullName !== '' || ' ' || 'slackbot' || null || undefined) {
+      console.log(`User is not on the board -- pushing now`)
+      board.push({ karma: user.karma, name: user.fullName })
+    }
     else board[check].karma = user.karma
     console.log(`--> Now it looks like:\n${util.inspect(board)}\n`)
     team.scoreboard = _.orderBy(board, ['karma', 'name'], ['desc', 'asc'])
@@ -40,9 +55,10 @@ function updateScoreboard (user) {
 function addKarma (userId) {
   storage.users.get(userId, (err, user) => {
     if (err) console.log(err)
-    console.log('Stored User: ' + util.inspect(user))
+    console.log('Stored User:\n' + util.inspect(user))
     user.karma = _.toInteger(user.karma) + 1
     storage.users.save(user)
+    console.log(`[scoreboard] user ${user.id} saved with new karma of ${user.karma} - updating now...`)
     updateScoreboard(user)
   })
 }
@@ -50,9 +66,10 @@ function addKarma (userId) {
 function subtractKarma (userId) {
   storage.users.get(userId, (err, user) => {
     if (err) console.log(err)
-    console.log('Stored User: ' + util.inspect(user))
+    console.log('Stored User:\n' + util.inspect(user))
     user.karma = _.toInteger(user.karma) - 1
     storage.users.save(user)
+    console.log(`[scoreboard] user ${user.id} saved with new karma of ${user.karma} - updating now...`)
     updateScoreboard(user)
   })
 }
@@ -78,13 +95,13 @@ function buildLeaderboard (leaderKarma) {
   })
 }
 
-function buildScoreboard (teamKarma) {
+function buildLoserboard (loserKarma) {
   console.log('--> building loserboard')
   return new Promise((resolve, reject) => {
-    if (!teamKarma) reject(teamKarma)
+    if (!loserKarma) reject(loserKarma)
     let output = {text: '', color: '#0067B3'}
     let i = 6
-    _.forEach(teamKarma, (value) => {
+    _.forEach(loserKarma, (value) => {
       output.text += `${i}: ${value.name}: ${value.karma}\n`
       i++
     })
