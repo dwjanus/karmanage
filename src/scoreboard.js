@@ -9,16 +9,9 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 const buildScoreboard = (team) => {
   return new Promise((resolve, reject) => {
     console.log(`\n... building scoreboard for team ${team.id}...`)
-    // orderedboard = _.orderBy(team.scoreboard, ['karma', 'name'], ['desc', 'asc'])
-    // console.log(`[buildScoreboard] ** ordered scoreboard **\n${util.inspect(orderedboard)}`)
-    //
-    // team.scoreboard = orderedboard
-    // storage.teams.save(team)
     const leaders = _.slice(team.scoreboard, 0, 5)
     const losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
-
     console.log(`[buildScoreboard] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
-
     return Promise.join(buildLeaderboard(leaders), buildLoserboard(losers), (leaderboard, loserboard) => {
       leaderboard.attachments = leaderboard.attachments.concat(loserboard)
       console.log(`[buildScoreboard] leaderboard before resolve:\n${util.inspect(leaderboard)}`)
@@ -84,7 +77,7 @@ const buildLeaderboard = (leaderKarma) => {
   let lastValue
   return new Promise((resolve, reject) => {
     if (!leaderKarma) reject(leaderKarma)
-    let output = { attachments: [] }
+    let output = { text: `${team.name}: The Scorey So Far...`, attachments: [] }
     let i = 0
     _.forEach(leaderKarma, (value) => {
       output.attachments.push({text: `${i + 1}: ${value.name} - ${value.karma}`, color: colors[i]})
