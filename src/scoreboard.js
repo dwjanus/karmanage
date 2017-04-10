@@ -31,23 +31,37 @@ const buildScoreboard = (team) => {
   })
 }
 
-const updateScoreboard = (user) => {
-  storage.teams.get(user.team_id, (err, team) => {
-    if (err) console.log(err)
-    console.log(`Updating scoreboard for Team ${user.team_id} with user ${user.fullName} - ${user.karma}`)
-    console.log(`Current Scoreboard:\n${util.inspect(team.scoreboard)}\n`)
-    let board = team.scoreboard
-    let check = _.findIndex(board, (o) => { return o.fullName == user.name })
-    console.log('check: ' + check)
-    if (check === -1 && user.fullName !== '' || ' ' || 'slackbot' || null || undefined) {
-      console.log(`User is not on the board -- pushing now`)
-      board.push({ karma: user.karma, name: user.fullName })
+// takes array of users and updates their scores
+const updateTeam = (team) => {
+  return new Promise.map((resolve, reject) => {
+    console.log(`updating team:\n${util.inspect(team)}`)
+    let 
+    for(let t of team) {
+      updateScoreboard(t).then()
     }
-    else board[check].karma = user.karma
-    console.log(`--> Now it looks like:\n${util.inspect(board)}\n`)
-    team.scoreboard = _.orderBy(board, ['karma', 'name'], ['desc', 'asc'])
-    console.log('--> Scoreboard Sorted by score:\n' + util.inspect(board) + '\n')
-    storage.teams.save(team)
+  })
+}
+
+const updateScoreboard = (user) => {
+  return new Promise((resolve, reject) => {
+    storage.teams.get(user.team_id, (err, team) => {
+      if (err) reject(err)
+      console.log(`Updating scoreboard for Team ${user.team_id} with user ${user.fullName} - ${user.karma}`)
+      console.log(`Current Scoreboard:\n${util.inspect(team.scoreboard)}\n`)
+      let board = team.scoreboard
+      let check = _.findIndex(board, (o) => { return o.fullName == user.name })
+      console.log('check: ' + check)
+      if (check === -1 && user.fullName !== '' || ' ' || 'slackbot' || null || undefined) {
+        console.log(`User is not on the board -- pushing now`)
+        board.push({ karma: user.karma, name: user.fullName })
+      }
+      else board[check].karma = user.karma
+      console.log(`--> Now it looks like:\n${util.inspect(board)}\n`)
+      team.scoreboard = _.orderBy(board, ['karma', 'name'], ['desc', 'asc'])
+      console.log('--> Scoreboard Sorted by score:\n' + util.inspect(board) + '\n')
+      storage.teams.save(team)
+      resolve(team.scoreboard)
+    })
   })
 }
 

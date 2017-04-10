@@ -24,7 +24,7 @@ export default (controller, bot) => {
           // break this check out into a function
           if (!member.profile.bot_id && !member.deleted && !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
             if (member.real_name.length > 1 && member.name !== 'slackbot') {
-              console.log(`check passed for member ${i}:\n${util.inspect(member)}`)
+              console.log(`check passed for member ${i}: ${member.id} - ${member.fullName}`)
               let newMember = {
                 id: member.id,
                 team_id: member.team_id,
@@ -43,11 +43,14 @@ export default (controller, bot) => {
                   controller.storage.users.save(newMember)
                   console.log(`new member ${newMember.fullName} saved`)
                 }
-                updateScoreboard(newMember)
               })
             }
           }
         }
+        console.log(`fullTeamList:\n${util.inspect(fullTeamList)}`)
+        updateTeam(fullTeamList).then((teamList) => {
+          console.log(`team updated!\n${util.inspect(teamList)}`)
+        })
       }
     })
 
