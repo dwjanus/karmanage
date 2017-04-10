@@ -57,6 +57,7 @@ export default (controller, bot) => {
           if (err) console.log(err)
           team.scoreboard = localScoreboard
           controller.storage.teams.save(team)
+          console.log('scoreboard saved')
         })
       }
     })
