@@ -61,7 +61,7 @@ const updateScoreboard = (user) => {
       console.log('--> Scoreboard Sorted by score:\n' + util.inspect(board) + '\n')
       storage.teams.save(team)
       // resolve(team.scoreboard)
-    })
+    // })
   })
 }
 
