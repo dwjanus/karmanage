@@ -12,10 +12,13 @@ const updateScoreboard = scoreHandler.updateScoreboard
 export default (controller, bot) => {
   let fullTeamList
   let fullChannelList
+  let localScoreboard
 
   const getUserEmailArray = (bot) => {
     fullTeamList = []
     fullChannelList = []
+    localScoreboard = []
+
     bot.api.users.list({}, (err, response) => {
       if (err) console.log(err)
       if (response.hasOwnProperty('members') && response.ok) {
@@ -35,6 +38,7 @@ export default (controller, bot) => {
               if (member.karma) newMember.karma = member.karma
               else newMember.karma = 0
               fullTeamList.push(newMember)
+              localScoreboard.push({ karma: newMember.karma, name: newMember.fullName })
               controller.storage.users.get(newMember.id, (err, user) => {
                 if (err) console.log(err)
                 if (!user) {
@@ -42,15 +46,18 @@ export default (controller, bot) => {
                   controller.storage.users.save(newMember)
                   console.log(`new member ${newMember.fullName} saved`)
                 }
-                updateScoreboard(newMember)
               })
             }
           }
         }
         console.log(`fullTeamList:\n${util.inspect(fullTeamList)}`)
-        // updateTeam(fullTeamList).then((teamList) => {
-        //   console.log(`team updated!\n${util.inspect(teamList)}`)
-        // })
+        localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
+        console.log(`localScoreboard:\n${util.inspect(localScoreboard)}`)
+        controller.storage.teams.get(fullTeamList[0].team_id, (err, team) => {
+          if (err) console.log(err)
+          team.scoreboard = localScoreboard
+          controller.storage.teams.save(team)
+        })
       }
     })
 
@@ -64,6 +71,10 @@ export default (controller, bot) => {
         }
       }
     })
+  }
+
+  const updateTeam = () => {
+
   }
 
   controller.hears(['(^help$)'], ['direct_message', 'direct_mention'], (bot, message) => {
