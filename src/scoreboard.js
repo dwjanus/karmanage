@@ -32,24 +32,24 @@ const buildScoreboard = (team) => {
 }
 
 // takes array of users and updates their scores
-const updateTeam = (team) => {
-  return new Promise.map((resolve, reject) => {
-    console.log(`updating team:\n${util.inspect(team)}`)
-    let 
-    for(let t of team) {
-      updateScoreboard(t).then()
-    }
-  })
-}
+// const updateTeam = (team) => {
+//   return new Promise.map((resolve, reject) => {
+//     console.log(`updating team:\n${util.inspect(team)}`)
+//     let
+//     for(let t of team) {
+//       updateScoreboard(t).then()
+//     }
+//   })
+// }
 
 const updateScoreboard = (user) => {
-  return new Promise((resolve, reject) => {
+  // return new Promise((resolve, reject) => {
     storage.teams.get(user.team_id, (err, team) => {
-      if (err) reject(err)
+      if (err) console.log(err) // reject(err)
       console.log(`Updating scoreboard for Team ${user.team_id} with user ${user.fullName} - ${user.karma}`)
       console.log(`Current Scoreboard:\n${util.inspect(team.scoreboard)}\n`)
       let board = team.scoreboard
-      let check = _.findIndex(board, (o) => { return o.fullName == user.name })
+      let check = _.findIndex(board, (o) => { return o.name == user.fullName })
       console.log('check: ' + check)
       if (check === -1 && user.fullName !== '' || ' ' || 'slackbot' || null || undefined) {
         console.log(`User is not on the board -- pushing now`)
@@ -60,7 +60,7 @@ const updateScoreboard = (user) => {
       team.scoreboard = _.orderBy(board, ['karma', 'name'], ['desc', 'asc'])
       console.log('--> Scoreboard Sorted by score:\n' + util.inspect(board) + '\n')
       storage.teams.save(team)
-      resolve(team.scoreboard)
+      // resolve(team.scoreboard)
     })
   })
 }

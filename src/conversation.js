@@ -36,21 +36,22 @@ export default (controller, bot) => {
               else newMember.karma = 0
               fullTeamList.push(newMember)
               console.log(`newMember:\n ${util.inspect(newMember)}`)
-              controller.storage.users.get(member.id, (err, user) => {
+              controller.storage.users.get(newMember.id, (err, user) => {
                 if (err) reject(err)
                 if (!user) {
                   console.log('user not found in db')
                   controller.storage.users.save(newMember)
                   console.log(`new member ${newMember.fullName} saved`)
                 }
+                updateScoreboard(newMember)
               })
             }
           }
         }
-        console.log(`fullTeamList:\n${util.inspect(fullTeamList)}`)
-        updateTeam(fullTeamList).then((teamList) => {
-          console.log(`team updated!\n${util.inspect(teamList)}`)
-        })
+        // console.log(`fullTeamList:\n${util.inspect(fullTeamList)}`)
+        // updateTeam(fullTeamList).then((teamList) => {
+        //   console.log(`team updated!\n${util.inspect(teamList)}`)
+        // })
       }
     })
 
