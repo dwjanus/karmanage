@@ -46,7 +46,7 @@ const dbScoreboard = (orderedScores) => {
   return new Promise((resolve, reject) => {
     console.log(`[dbScoreboard]\n--> scores:\n${util.inspect(orderedScores)}`)
     let index = 0
-    let scoreboard = [ scores: [] ]
+    let scoreboard = [ { scores: [] } ]
     if (!orderedScores) return reject()
     return Promise.map(orderedScores, (o) => {
       console.log(`\nfor loop --> index: ${index}\n${util.inspect(o)}`)
