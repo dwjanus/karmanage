@@ -19,7 +19,7 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 //
 // Would also decrease complexity of some build functions
 const dbScoreboard = (orderedScores) => {
-  return new Promise((resolve, reject) => {
+  return new Promise.map((resolve, reject) => {
     console.log(`[dbScoreboard]\n--> scores:\n${util.inspect(orderedScores)}`)
     let index = 0
     let scoreboard = []
@@ -123,11 +123,12 @@ const buildLoserboard = (loserArray) => {
   return new Promise((resolve, reject) => {
     if (!loserArray) reject(new Error('invalid loser array'))
     let output = { text: '', color: '#0067B3' }
-    for (let i = 5; i < loserArray.length; i++) // i was initially = 6 (?)
-    _.forEach(loserArray[i].scores, (value) => {
-      output.text += `${i}: ${value.name}: ${value.karma}\n`
-      i++
-    })
+    for (let i = 5; i < loserArray.length; i++) { // i was initially = 6 (?)
+      _.forEach(loserArray[i].scores, (value) => {
+        output.text += `${i}: ${value.name}: ${value.karma}\n`
+        i++
+      })
+    }
     resolve(output)
   })
 }
