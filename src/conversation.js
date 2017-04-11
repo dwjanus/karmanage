@@ -127,6 +127,7 @@ export default (controller, bot) => {
       console.log(`[conversation] ** retrieving data for team ${message.team}`)
       if (err) console.log(err)
       dbScoreboard(localScoreboard).then((ordered) => {
+
         team.scoreboard = ordered
         controller.storage.save(team)
         console.log('got dbScoreboard return, about to buildScoreboard')

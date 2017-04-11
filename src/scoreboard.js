@@ -65,12 +65,12 @@ const dbScoreboard = (orderedScores) => {
           scoreboard[index].scores.push(o)
         }
       }
-      // return scoreboard
     })
     .then(() => {
       console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
-      return resolve(scoreboard)
+      // return scoreboard
     })
+    return resolve(scoreboard)
   })
 }
 
