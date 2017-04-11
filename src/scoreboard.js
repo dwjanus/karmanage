@@ -27,7 +27,7 @@ const dbScoreboard = (orderedScores) => {
     for (let i = 0; i < orderedScores.length; i++) {
       let o = orderedScores[i]
       console.log(`for loop --> i: ${i} - index: ${index}\n${util.inspect(o)}`)
-      if (!scoreboard[index]) scoreboard[index].scores = [o] // handles zero case and backfilling
+      if (_.isEmpty(scoreboard[index])) scoreboard[index].scores = [o] // handles zero case and backfilling
       else {
         if (scoreboard[index].scores[0].karma === o.karma) scoreboard[index].scores.push(o)
         else {
