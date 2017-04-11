@@ -6,6 +6,39 @@ import config from './config.js'
 
 const storage = mongo({ mongoUri: config('MONGODB_URI') })
 
+// NOTE:
+// May need to restructure database schema to handle ties
+// --> scoreboard: [
+//      { scores: [
+//          { name, karma }
+//          { name, karma }
+//        ]
+//      },
+//      { scores: [] }
+//      { scores: [] }  ]  --> etc.
+//
+// Would also decrease complexity of some build functions
+const dbScoreboard = (orderedScores, team) => {
+  return new Promise((resolve, reject) => {
+    let index = 0
+    let scoreboard = team.scoreboard
+    for (o of orderedScores) {
+      if (!scoreboard[index]) scoreboard[index] = { scores[ o ] } // handles zero case and backfilling
+      else {
+        if (scoreboard[index].scores[0].karma === o.karma) scoreboard[index].scores.push(o)
+        else {
+          index++
+          scoreboard[index] = { scores[ o ] }
+        }
+      }
+    }
+    console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
+    team.scoreboard = scoreboard
+    storage.teams.save(team)
+    return resolve(orderedScores)
+  })
+}
+
 const buildScoreboard = (team) => {
   return new Promise((resolve, reject) => {
     console.log(`\n... building scoreboard for team ${team.id}...`)
@@ -24,22 +57,19 @@ const buildScoreboard = (team) => {
 }
 
 const updateScoreboard = (user) => {
-  // return new Promise((resolve, reject) => {
-    storage.teams.get(user.team_id, (err, team) => {
-      if (err) console.log(err) // reject(err)
-      console.log(`Updating scoreboard for Team ${user.team_id} with user ${user.fullName} - ${user.karma}`)
-      let check = _.findIndex(team.scoreboard, (o) => { return o.name == user.fullName })
-      console.log('check: ' + check)
-      if (check === -1 && user.fullName !== '' || ' ' || 'slackbot' || null || undefined) {
-        console.log(`User is not on the board -- pushing now`)
-        team.scoreboard.push({ karma: user.karma, name: user.fullName })
-      }
-      else team.scoreboard[check].karma = user.karma
-      team.scoreboard = _.orderBy(team.scoreboard, ['karma', 'name'], ['desc', 'asc'])
-      console.log(`[scoreboard] New Scoreboard:\n${util.inspect(team.scoreboard)}\n`)
-      storage.teams.save(team)
-      // resolve(team.scoreboard)
-    // })
+  storage.teams.get(user.team_id, (err, team) => {
+    if (err) console.log(err) // reject(err)
+    console.log(`Updating scoreboard for Team ${user.team_id} with user ${user.fullName} - ${user.karma}`)
+    let check = _.findIndex(team.scoreboard, (o) => { return o.name == user.fullName })
+    console.log('check: ' + check)
+    if (check === -1 && user.fullName !== '' || ' ' || 'slackbot' || null || undefined) {
+      console.log(`User is not on the board -- pushing now`)
+      team.scoreboard.push({ karma: user.karma, name: user.fullName })
+    }
+    else team.scoreboard[check].karma = user.karma
+    team.scoreboard = _.orderBy(team.scoreboard, ['karma', 'name'], ['desc', 'asc'])
+    console.log(`[scoreboard] New Scoreboard:\n${util.inspect(team.scoreboard)}\n`)
+    storage.teams.save(team)
   })
 }
 
@@ -50,7 +80,7 @@ const addKarma = (userId) => {
     user.karma = _.toInteger(user.karma) + 1
     storage.users.save(user)
     console.log(`[scoreboard] user ${user.id} saved with new karma of ${user.karma} - updating now...`)
-    updateScoreboard(user)
+    // updateScoreboard(user)
   })
 }
 
@@ -65,7 +95,7 @@ const subtractKarma = (userId) => {
   })
 }
 
-const buildLeaderboard = (leaderKarma) => {
+const buildLeaderboard = (leaderArray) => {
   console.log('--> building leaderboard')
   const colors = [
     '#E5E4E2',
@@ -74,26 +104,26 @@ const buildLeaderboard = (leaderKarma) => {
     '#CD7F32',
     '#CF5300'
   ]
-  let lastValue
   return new Promise((resolve, reject) => {
-    if (!leaderKarma) reject(leaderKarma)
+    if (!leaderArray) reject(new Error('invalid leader array'))
     let output = { attachments: [] }
-    let i = 0
-    _.forEach(leaderKarma, (value) => {
-      output.attachments.push({text: `${i + 1}: ${value.name} - ${value.karma}`, color: colors[i]})
-      i++
-    })
+    for (let i = 0; i < leaderArray.length; i++) {
+      _.forEach(leaderArray[i].scores, (value) => {
+        output.attachments.push({text: `${i + 1}: ${value.name} - ${value.karma}`, color: colors[i]})
+        i++
+      })
+    }
     resolve(output)
   })
 }
 
-const buildLoserboard = (loserKarma) => {
+const buildLoserboard = (loserArray) => {
   console.log('--> building loserboard')
   return new Promise((resolve, reject) => {
-    if (!loserKarma) reject(loserKarma)
-    let output = {text: '', color: '#0067B3'}
-    let i = 6
-    _.forEach(loserKarma, (value) => {
+    if (!loserArray) reject(new Error('invalid loser array'))
+    let output = { text: '', color: '#0067B3' }
+    for (let i = 5; i < loserArray.length; i++) // i was initially = 6 (?)
+    _.forEach(loserArray[i].scores, (value) => {
       output.text += `${i}: ${value.name}: ${value.karma}\n`
       i++
     })
@@ -122,6 +152,7 @@ const processRawId = (rawId) => {
 }
 
 module.exports = {
+  dbScoreboard,
   buildScoreboard,
   addKarma,
   subtractKarma,

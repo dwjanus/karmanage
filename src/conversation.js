@@ -3,6 +3,7 @@ import util from 'util'
 import _ from 'lodash'
 import scoreHandler from './scoreboard.js'
 
+const dbScoreboard = scoreHandler.dbScoreboard
 const buildScoreboard = scoreHandler.buildScoreboard
 const addKarma = scoreHandler.addKarma
 const subtractKarma = scoreHandler.subtractKarma
@@ -38,7 +39,7 @@ export default (controller, bot) => {
               if (member.karma) newMember.karma = member.karma
               else newMember.karma = 0
               fullTeamList.push(newMember)
-              localScoreboard.push({ karma: newMember.karma, name: newMember.fullName })
+              localScores.push({ karma: newMember.karma, name: newMember.fullName })
               controller.storage.users.get(newMember.id, (err, user) => {
                 if (err) console.log(err)
                 if (!user) {
@@ -51,14 +52,8 @@ export default (controller, bot) => {
           }
         }
         console.log(`fullTeamList:\n${util.inspect(fullTeamList)}`)
-        localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
-        console.log(`localScoreboard:\n${util.inspect(localScoreboard)}`)
-        controller.storage.teams.get(fullTeamList[0].team_id, (err, team) => {
-          if (err) console.log(err)
-          team.scoreboard = localScoreboard
-          controller.storage.teams.save(team)
-          console.log('scoreboard saved')
-        })
+        localScores = _.orderBy(localScores, ['karma', 'name'], ['desc', 'asc'])
+        console.log(`localScores:\n${util.inspect(localScores)}`)
       }
     })
 
@@ -72,10 +67,6 @@ export default (controller, bot) => {
         }
       }
     })
-  }
-
-  const updateTeam = () => {
-
   }
 
   controller.hears(['(^help$)'], ['direct_message', 'direct_mention'], (bot, message) => {
@@ -137,12 +128,15 @@ export default (controller, bot) => {
     controller.storage.teams.get(message.team, (err, team) => {
       console.log(`[conversation] ** retrieving data for team ${message.team} **\n${util.inspect(team)}\n`)
       if (err) console.log(err)
-      buildScoreboard(team).then(replyMessage => {
-        const slack = {
-          text: `${team.name}: The Scorey So Far...`,
-          attachments: replyMessage.attachments
-        }
-        bot.reply(message, replyMessage)
+      dbScoreboard(localScores, team).then(ordered => {
+        localScoreboard = ordered
+        buildScoreboard(team).then(replyMessage => {
+          const slack = {
+            text: `${team.name}: The Scorey So Far...`,
+            attachments: replyMessage.attachments
+          }
+          bot.reply(message, replyMessage)
+        })
       })
       .catch((err) => {
         bot.reply(message, { text: err })
@@ -158,9 +152,27 @@ export default (controller, bot) => {
         console.log('user ids: ', util.inspect(ids))
         for (const i in ids) {
           console.log('userId #' + i + ': ' + ids[i])
-          if (ids[i] !== message.user) addKarma(ids[i])
-          console.log(` ----> + karma assigned to ${ids[i]}`)
+          if (ids[i] !== message.user) {
+            addKarma(ids[i])
+            console.log(`----> + karma assigned to ${ids[i]}\n${util.inspect(message.user)}`)
+            let index = _.findIndex(localScoreboard, (o) => { return o.name == message.user.profile.real_name })
+            console.log(`index in local scores: ${index}`)
+            localScoreboard[index].karma = localScoreboard[index].karma + 1
+            localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
+            console.log(`Local Scoreboard Updated:\n${util.inspect(localScoreboard)}`)
+          }
         }
+      })
+      .then(() => {
+        controller.storage.teams.get(message.team, (err, team) => {
+          if (err) console.log(err)
+          dbScoreboard(localScoreboard, team).then(ordered => {
+            localScoreboard = ordered
+          })
+        })
+      })
+      .catch((err) => {
+        console.log(err)
       })
     }
   })
@@ -174,7 +186,7 @@ export default (controller, bot) => {
         for (const i in ids) {
           console.log('userId #' + i + ': ' + ids[i])
           if (ids[i] !== message.user) subtractKarma(ids[i])
-          console.log(` ----> - karma assigned to ${ids[i]}`)
+          console.log(`----> - karma assigned to ${ids[i]}`)
         }
       })
     }
@@ -194,22 +206,23 @@ export default (controller, bot) => {
   controller.on('slash_command', (bot, message) => {
     console.log('Slash command heard!\n' + util.inspect(message))
     if (message.command === '/mykarma') {
-      controller.storage.users.get(message.user_id, (err, user) => {
+      controller.storage.users.get(message.user, (err, user) => {
         if (err) console.log(err)
         bot.replyPrivate(message, {text: `Your karma is: ${user.karma}`})
       })
     }
     if (message.command === '/scoreboard') {
-      controller.storage.teams.get(message.team_id, (err, team) => {
+      controller.storage.teams.get(message.team, (err, team) => {
         if (err) console.log(err)
-        let leaders = _.slice(team.scoreboard.karma, 0, 4)
-        let teamKarma = _.slice(team.scoreboard.karma, 5, team.scoreboard.karma.length)
-        buildScoreboard(leaders, teamKarma).then(replyMessage => {
+        buildScoreboard(team).then(replyMessage => {
           let slack = {
             text: `${team.name}: The Scorey So Far...`,
             attachments: replyMessage.attachments
           }
           bot.reply(message, slack)
+        })
+        .catch((err) => {
+          bot.replyt(message, { text: err })
         })
       })
     }
