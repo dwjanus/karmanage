@@ -62,7 +62,7 @@ const dbScoreboard = (orderedScores) => {
     })
     .then((scoreboard) => {
       console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
-      return resolve(scoreboard)
+      return resolve(Promise.resolve(scoreboard))
     })
   })
 }
