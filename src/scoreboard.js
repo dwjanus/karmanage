@@ -24,7 +24,7 @@ const dbScoreboard = (orderedScores, team) => {
     let index = 0
     let scoreboard = team.scoreboard
     // here is the issue...
-    return Promise.each(orderedScores, (o) => {
+    return Promise.map(orderedScores, (o) => {
       console.log('* Promise.map *')
       if (!scoreboard[index]) scoreboard[index].scores = [o] // handles zero case and backfilling
       else {
@@ -34,8 +34,9 @@ const dbScoreboard = (orderedScores, team) => {
           scoreboard[index].scores = [o]
         }
       }
+      return orderedScores
     })
-    .then(() => {
+    .then((orderedScores) => {
       console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
       team.scoreboard = scoreboard
       storage.teams.save(team)
