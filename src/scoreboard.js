@@ -24,7 +24,7 @@ const dbScoreboard = (orderedScores, team) => {
     let index = 0
     let scoreboard = team.scoreboard
     // here is the issue...
-    _.forEach(orderedScores, (o) => {
+    return Promise.map(orderedScores, (o) => {
       if (!scoreboard[index]) scoreboard[index].scores = [o] // handles zero case and backfilling
       else {
         if (scoreboard[index].scores[0].karma === o.karma) scoreboard[index].scores.push(o)
@@ -34,10 +34,15 @@ const dbScoreboard = (orderedScores, team) => {
         }
       }
     })
-    console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
-    team.scoreboard = scoreboard
-    storage.teams.save(team)
-    return resolve(orderedScores)
+    .then(() => {
+      console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
+      team.scoreboard = scoreboard
+      storage.teams.save(team)
+      return resolve(orderedScores)
+    })
+    .catch((err) => {
+      return reject(err)
+    })
   })
 }
 
