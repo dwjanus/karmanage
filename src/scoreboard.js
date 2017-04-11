@@ -23,7 +23,7 @@ const dbScoreboard = (orderedScores, team) => {
     let index = 0
     let scoreboard = team.scoreboard
     for (o of orderedScores) {
-      if (!scoreboard[index]) scoreboard[index] = { scores[ o ] } // handles zero case and backfilling
+      if (!scoreboard[index]) scoreboard[index] = { scores: [o] } // handles zero case and backfilling
       else {
         if (scoreboard[index].scores[0].karma === o.karma) scoreboard[index].scores.push(o)
         else {
