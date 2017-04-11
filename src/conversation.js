@@ -128,10 +128,11 @@ export default (controller, bot) => {
     controller.storage.teams.get(message.team, (err, team) => {
       console.log(`[conversation] ** retrieving data for team ${message.team}`)
       if (err) console.log(err)
-      dbScoreboard(localScoreboard, team).then(ordered => {
-        localScoreboard = ordered
+      dbScoreboard(localScoreboard).then((ordered) => {
+        team.scoreboard = ordered
+        controller.storage.save(team)
         console.log('got dbScoreboard return, about to buildScoreboard')
-        buildScoreboard(team).then(replyMessage => {
+        buildScoreboard(team).then((replyMessage) => {
           const slack = {
             text: `${team.name}: The Scorey So Far...`,
             attachments: replyMessage.attachments
