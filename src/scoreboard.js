@@ -37,9 +37,34 @@ const dbScoreboard = (orderedScores) => {
       }
     }
     console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
-    return resolve(scoreboard)
+    return Promise.all(scoreboard).then(() => {return resolve(scoreboard)})
   })
 }
+
+// const dbScoreboard = (orderedScores) => {
+//   return new Promise((resolve, reject) => {
+//     console.log(`[dbScoreboard]\n--> scores:\n${util.inspect(orderedScores)}`)
+//     let index = 0
+//     let scoreboard = []
+//     if (!orderedScores) return reject()
+//     return Promise.map(orderedScores, (o) => {
+//       console.log(`for loop --> i: ${i} - index: ${index}\n${util.inspect(o)}`)
+//       if (_.isEmpty(scoreboard[index])) scoreboard[index].scores = [o] // handles zero case and backfilling
+//       else {
+//         if (scoreboard[index].scores[0].karma === o.karma) scoreboard[index].scores.push(o)
+//         else {
+//           index++
+//           scoreboard[index].scores = [o]
+//         }
+//       }
+//       return scoreboard
+//     })
+//     .then((scoreboard) => {
+//       console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
+//       return resolve(scoreboard)
+//     })
+//   })
+// }
 
 const buildScoreboard = (team) => {
   return new Promise((resolve, reject) => {
