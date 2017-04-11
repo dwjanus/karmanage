@@ -23,7 +23,8 @@ const dbScoreboard = (orderedScores, team) => {
     console.log(`[dbScoreboard]\n--> team: ${team.id}\n--> scores:\n${util.inspect(orderedScores)}`)
     let index = 0
     let scoreboard = team.scoreboard
-    for (o of orderedScores) {
+    // here is the issue...
+    _.forEach(orderedScores, (o) => {
       if (!scoreboard[index]) scoreboard[index].scores = [o] // handles zero case and backfilling
       else {
         if (scoreboard[index].scores[0].karma === o.karma) scoreboard[index].scores.push(o)
@@ -32,7 +33,7 @@ const dbScoreboard = (orderedScores, team) => {
           scoreboard[index].scores = [o]
         }
       }
-    }
+    })
     console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
     team.scoreboard = scoreboard
     storage.teams.save(team)
