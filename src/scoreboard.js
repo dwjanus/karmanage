@@ -18,14 +18,15 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 //      { scores: [] }  ]  --> etc.
 //
 // Would also decrease complexity of some build functions
-const dbScoreboard = (orderedScores, cb) => {
-  // return new Promise((resolve, reject) => {
+const dbScoreboard = (orderedScores) => {
+  return new Promise((resolve, reject) => {
     console.log(`[dbScoreboard]\n--> scores:\n${util.inspect(orderedScores)}`)
     let index = 0
     let scoreboard = []
-    if (!orderedScores) return cb(err, null)
-    for (o of orderedScores) {
-      console.log(`for loop - index: ${index}\n${util.inspect(o)}`)
+    if (!orderedScores) return reject()
+    for (let i = 0; i < orderedScores.length; i++) {
+      let o = orderedScores[i]
+      console.log(`for loop --> i: ${i} - index: ${index}\n${util.inspect(o)}`)
       if (!scoreboard[index]) scoreboard[index].scores = [o] // handles zero case and backfilling
       else {
         if (scoreboard[index].scores[0].karma === o.karma) scoreboard[index].scores.push(o)
@@ -35,10 +36,9 @@ const dbScoreboard = (orderedScores, cb) => {
         }
       }
     }
-    return cb(null, scoreboard)
-    // console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
-    // Promise.all(orderedScores).then(() => { return resolve(scoreboard) })
-  // })
+    console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
+    return resolve(scoreboard)
+  })
 }
 
 const buildScoreboard = (team) => {

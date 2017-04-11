@@ -2,9 +2,8 @@
 import util from 'util'
 import _ from 'lodash'
 import scoreHandler from './scoreboard.js'
-import Promise from 'bluebird'
 
-const dbScoreboard = Promise.promisifyAll(scoreHandler.dbScoreboard)
+const dbScoreboard = scoreHandler.dbScoreboard
 const buildScoreboard = scoreHandler.buildScoreboard
 const addKarma = scoreHandler.addKarma
 const subtractKarma = scoreHandler.subtractKarma
@@ -127,7 +126,6 @@ export default (controller, bot) => {
     controller.storage.teams.get(message.team, (err, team) => {
       console.log(`[conversation] ** retrieving data for team ${message.team}`)
       if (err) console.log(err)
-
       dbScoreboard(localScoreboard).then((ordered) => {
         team.scoreboard = ordered
         controller.storage.save(team)
