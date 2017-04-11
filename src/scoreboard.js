@@ -46,16 +46,23 @@ const dbScoreboard = (orderedScores) => {
   return new Promise((resolve, reject) => {
     console.log(`[dbScoreboard]\n--> scores:\n${util.inspect(orderedScores)}`)
     let index = 0
-    let scoreboard = []
+    let scoreboard = [ scores: [] ]
     if (!orderedScores) return reject()
     return Promise.map(orderedScores, (o) => {
-      console.log(`for loop --> index: ${index}\n${util.inspect(o)}`)
-      if (_.isEmpty(scoreboard[index])) scoreboard[index] = { scores: [o] }// handles zero case and backfilling
-      else {
-        if (scoreboard[index].scores[0].karma === o.karma) scoreboard[index].scores.push(o)
-        else {
+      console.log(`\nfor loop --> index: ${index}\n${util.inspect(o)}`)
+      if (_.isEmpty(scoreboard[index])) {
+        console.log(`- scoreboard[${index}] is empty -`)
+        scoreboard[index].scores.push(o)
+      } else {
+        console.log(`scoreboard[${index}] is NOT empty\n${util.inspect(scoreboard[index])}`)
+        if (scoreboard[index].scores[0].karma === o.karma) {
+          console.log(`- scoreboard[${index}].scores = o.karma -`)
+          scoreboard[index].scores.push(o)
+          console.log(`new scores:\n${util.inspect(scoreboard[index].scores)}`)
+        } else {
           index++
-          scoreboard[index] = { scores: [o] }
+          console.log(`different score being added at index: ${index}`)
+          scoreboard[index].scores.push(o)
         }
       }
       return scoreboard
