@@ -28,7 +28,7 @@ const dbScoreboard = (orderedScores, team) => {
         if (scoreboard[index].scores[0].karma === o.karma) scoreboard[index].scores.push(o)
         else {
           index++
-          scoreboard[index] = { scores[ o ] }
+          scoreboard[index] = { scores: [o] }
         }
       }
     }
