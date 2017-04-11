@@ -20,6 +20,7 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 // Would also decrease complexity of some build functions
 const dbScoreboard = (orderedScores, team) => {
   return new Promise((resolve, reject) => {
+    console.log(`[dbScoreboard]\n--> team: ${team.id}\n--> scores:\n${util.inspect(orderedScores)}`)
     let index = 0
     let scoreboard = team.scoreboard
     for (o of orderedScores) {
