@@ -19,7 +19,7 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 //
 // Would also decrease complexity of some build functions
 const dbScoreboard = (orderedScores) => {
-  return new Promise.map((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     console.log(`[dbScoreboard]\n--> scores:\n${util.inspect(orderedScores)}`)
     let index = 0
     let scoreboard = []
@@ -36,7 +36,7 @@ const dbScoreboard = (orderedScores) => {
       }
     }
     console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
-    return resolve(scoreboard)
+    Promise.all(orderedScores).then(() => { return resolve(scoreboard) })
   })
 }
 
