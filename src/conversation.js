@@ -39,7 +39,7 @@ export default (controller, bot) => {
               if (member.karma) newMember.karma = member.karma
               else newMember.karma = 0
               fullTeamList.push(newMember)
-              localScores.push({ karma: newMember.karma, name: newMember.fullName })
+              localScoreboard.push({ karma: newMember.karma, name: newMember.fullName })
               controller.storage.users.get(newMember.id, (err, user) => {
                 if (err) console.log(err)
                 if (!user) {
@@ -52,8 +52,8 @@ export default (controller, bot) => {
           }
         }
         console.log(`fullTeamList:\n${util.inspect(fullTeamList)}`)
-        localScores = _.orderBy(localScores, ['karma', 'name'], ['desc', 'asc'])
-        console.log(`localScores:\n${util.inspect(localScores)}`)
+        localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
+        console.log(`localScoreboard:\n${util.inspect(localScoreboard)}`)
       }
     })
 
@@ -128,7 +128,7 @@ export default (controller, bot) => {
     controller.storage.teams.get(message.team, (err, team) => {
       console.log(`[conversation] ** retrieving data for team ${message.team} **\n${util.inspect(team)}\n`)
       if (err) console.log(err)
-      dbScoreboard(localScores, team).then(ordered => {
+      dbScoreboard(localScoreboard, team).then(ordered => {
         localScoreboard = ordered
         buildScoreboard(team).then(replyMessage => {
           const slack = {
