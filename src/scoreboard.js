@@ -19,12 +19,13 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 //
 // Would also decrease complexity of some build functions
 const dbScoreboard = (orderedScores, team) => {
-  return new Promise((resolve, reject) => {
+  // return new Promise((resolve, reject) => {
     console.log(`[dbScoreboard]\n--> team: ${team.id}\n--> scores:\n${util.inspect(orderedScores)}`)
     let index = 0
     let scoreboard = team.scoreboard
     // here is the issue...
-    return Promise.map(orderedScores, (o) => {
+    return Promise.each(orderedScores, (o) => {
+      console.log('* Promise.map *')
       if (!scoreboard[index]) scoreboard[index].scores = [o] // handles zero case and backfilling
       else {
         if (scoreboard[index].scores[0].karma === o.karma) scoreboard[index].scores.push(o)
@@ -38,12 +39,12 @@ const dbScoreboard = (orderedScores, team) => {
       console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
       team.scoreboard = scoreboard
       storage.teams.save(team)
-      return resolve(orderedScores)
+      return Promise.resolve(orderedScores)
     })
     .catch((err) => {
-      return reject(err)
+      return Promise.reject(err)
     })
-  })
+  // })
 }
 
 const buildScoreboard = (team) => {

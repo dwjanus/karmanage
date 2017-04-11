@@ -130,6 +130,7 @@ export default (controller, bot) => {
       if (err) console.log(err)
       dbScoreboard(localScoreboard, team).then(ordered => {
         localScoreboard = ordered
+        console.log('got dbScoreboard return, about to buildScoreboard')
         buildScoreboard(team).then(replyMessage => {
           const slack = {
             text: `${team.name}: The Scorey So Far...`,
