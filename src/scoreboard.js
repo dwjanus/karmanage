@@ -49,7 +49,7 @@ const dbScoreboard = (orderedScores) => {
     let scoreboard = []
     if (!orderedScores) return reject()
     return Promise.map(orderedScores, (o) => {
-      console.log(`for loop --> i: ${i} - index: ${index}\n${util.inspect(o)}`)
+      console.log(`for loop --> index: ${index}\n${util.inspect(o)}`)
       if (_.isEmpty(scoreboard[index])) scoreboard[index].scores = [o] // handles zero case and backfilling
       else {
         if (scoreboard[index].scores[0].karma === o.karma) scoreboard[index].scores.push(o)
