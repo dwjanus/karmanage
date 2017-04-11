@@ -50,8 +50,8 @@ const dbScoreboard = (orderedScores) => {
     if (!orderedScores) return reject()
     return Promise.map(orderedScores, (o) => {
       console.log(`\nfor loop --> index: ${index}\n${util.inspect(o)}`)
-      if (_.isEmpty(scoreboard[index])) {
-        console.log(`- scoreboard[${index}] is empty -`)
+      if (_.isEmpty(scoreboard[index].scores)) {
+        console.log(`- scoreboard[${index}].scores is empty -`)
         scoreboard[index].scores.push(o)
       } else {
         console.log(`scoreboard[${index}] is NOT empty\n${util.inspect(scoreboard[index])}`)
