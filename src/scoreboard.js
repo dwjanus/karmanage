@@ -105,11 +105,9 @@ const updateScoreboard = (user) => {
 }
 
 const addKarma = (user) => {
-  console.log('Stored User:\n' + util.inspect(user))
   user.karma = _.toInteger(user.karma) + 1
   storage.users.save(user)
   console.log(`[scoreboard] user ${user.id} saved with new karma of ${user.karma} - updating now...`)
-  // updateScoreboard(user)
 }
 
 const subtractKarma = (userId) => {
