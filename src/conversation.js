@@ -25,7 +25,6 @@ export default (controller, bot) => {
       if (response.hasOwnProperty('members') && response.ok) {
         for (let i = 0; i < response.members.length; i++) {
           const member = response.members[i]
-          // break this check out into a function
           if (!member.profile.bot_id && !member.deleted && !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
             if (member.real_name.length > 1 && member.name !== 'slackbot') {
               let newMember = {
@@ -35,7 +34,7 @@ export default (controller, bot) => {
                 fullName: member.real_name,
                 email: member.profile.email
               }
-              controller.storage.users.get(newMember.id, (err, user) => {
+              controller.storage.users.get(member.id, (err, user) => {
                 if (err) console.log(err)
                 if (!user) {
                   newMember.karma = 0
@@ -44,9 +43,9 @@ export default (controller, bot) => {
                   console.log(`new member ${newMember.fullName} saved`)
                 }
                 newMember.karma = user.karma
-                fullTeamList.push(newMember)
-                localScoreboard.push({ karma: newMember.karma, name: newMember.fullName })
               })
+              fullTeamList.push(newMember)
+              localScoreboard.push({ karma: newMember.karma, name: newMember.fullName })
             }
           }
         }
