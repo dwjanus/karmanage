@@ -133,7 +133,6 @@ const subtractKarma = (userId) => {
 }
 
 const buildLeaderboard = (leaderArray) => {
-  console.log(`--> building leaderboard with:\n${util.inspect(leaderArray)}`)
   const colors = [
     '#E5E4E2',
     '#D4AF37',
@@ -147,8 +146,8 @@ const buildLeaderboard = (leaderArray) => {
     for (let i = 0; i < leaderArray.length; i++) {
       output.attachments.push({ text: `${i + 1}: `, color: colors[i] })
       for (let s of leaderArray[i].scores) {
-        if (s === leaderArray[i].scores[0]) output.attachments[i].text += `${s.name} - ${s.karma}`
-        else output.attachments[i].text += `   ${s.name} - ${s.karma}`
+        if (s === leaderArray[i].scores[0]) output.attachments[i].text += `${s.name} - ${s.karma}\n`
+        else output.attachments[i].text += `   ${s.name} - ${s.karma}\n`
       }
     }
     Promise.all(output.attachments).then(resolve(output))
@@ -156,17 +155,17 @@ const buildLeaderboard = (leaderArray) => {
 }
 
 const buildLoserboard = (loserArray) => {
-  console.log('--> building loserboard')
   return new Promise((resolve, reject) => {
-    if (!loserArray) reject(new Error('invalid loser array'))
-    let output = { text: '', color: '#0067B3' }
+    if (!loserArray) resolve(null)
+    let output = { attachments: [] }
     for (let i = 5; i < loserArray.length; i++) { // i was initially = 6 (?)
-      _.forEach(loserArray[i].scores, (value) => {
-        output.text += `${i}: ${value.name}: ${value.karma}\n`
-        i++
-      })
+      output.attachments.push({ text: `${i + 1}: `, color: '#0067B3' }
+      for (let s of loserArray[i].scores) {
+        if (s === loserArray[i].scores) output.attachments[i].text += `${s.name} - ${s.karma}\n`
+        else output.attachments[i].text += `   ${s.name} - ${s.karma}\n`
+      }
     }
-    resolve(output)
+    Promise.all(output.attachmnets).then(resolve(output))
   })
 }
 
