@@ -89,7 +89,7 @@ const buildScoreboard = (team) => {
 
 const updateScoreboard = (user) => {
   storage.teams.get(user.team_id, (err, team) => {
-    if (err) console.log(err) // reject(err)
+    if (err) console.log(err)
     console.log(`Updating scoreboard for Team ${user.team_id} with user ${user.fullName} - ${user.karma}`)
     let check = _.findIndex(team.scoreboard, (o) => { return o.name == user.fullName })
     console.log('check: ' + check)
@@ -150,8 +150,8 @@ const buildLeaderboard = (leaderArray) => {
 
 const buildLoserboard = (loserArray) => {
   return new Promise((resolve, reject) => {
-    if (!loserArray) resolve(loserArray)
     let output = { attachments: [] }
+    if (!loserArray) resolve(output)
     for (let i = 5; i < loserArray.length; i++) { // i was initially = 6 (?)
       output.attachments.push({ text: `${i + 1}: `, color: '#0067B3' })
       for (let s of loserArray[i].scores) {
