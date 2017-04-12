@@ -154,7 +154,7 @@ export default (controller, bot) => {
             controller.storage.users.get(ids[i], (err, user) => {
               if (err) console.log(err)
               addKarma(user)
-              console.log(`----> + karma assigned to ${ids[i]}\n${util.inspect(message.user)}`)
+              console.log(`----> + karma assigned to ${ids[i]}`)
               let index = _.findIndex(localScoreboard, (o) => { return o.name == user.fullName })
               console.log(`index in local scores: ${index}`)
               localScoreboard[index].karma = localScoreboard[index].karma + 1
@@ -168,7 +168,7 @@ export default (controller, bot) => {
         console.log('--  +1 .then()  --')
         controller.storage.teams.get(message.team, (err, team) => {
           if (err) console.log(err)
-          dbScoreboard(localScoreboard).then(ordered => {
+          dbScoreboard(localScoreboard).then((ordered) => {
             team.scoreboard = ordered
             console.log(`team scoreboard now looks like:\n${util.inspect(ordered)}`)
             controller.storage.teams.save(team)

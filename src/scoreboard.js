@@ -22,8 +22,8 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 const dbScoreboard = (orderedScores) => {
   return new Promise((resolve, reject) => {
     let index = 0
-    let scoreboard = [ { scores: [] } ]
-    if (!orderedScores) return reject()
+    const scoreboard = [ { scores: [] } ]
+    if (orderedScores === undefined) return reject()
     return Promise.map(orderedScores, (o) => {
       if (_.isEmpty(scoreboard[index].scores)) {
         scoreboard[index].scores.push(o)
@@ -107,7 +107,7 @@ const updateScoreboard = (user) => {
 const addKarma = (user) => {
   user.karma = _.toInteger(user.karma) + 1
   storage.users.save(user)
-  console.log(`[scoreboard] user ${user.id} saved with new karma of ${user.karma} - updating now...`)
+  console.log(`[scoreboard] user ${user.id} saved with new karma of ${user.karma}`)
 }
 
 const subtractKarma = (userId) => {
