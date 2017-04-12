@@ -42,7 +42,7 @@ export default (controller, bot) => {
                   controller.storage.users.save(newMember)
                   console.log(`new member ${newMember.fullName} saved`)
                 }
-                newMember.karma = user.karma
+                else newMember.karma = user.karma
               })
               fullTeamList.push(newMember)
               localScoreboard.push({ karma: newMember.karma, name: newMember.fullName })
