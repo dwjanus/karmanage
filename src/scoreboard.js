@@ -159,7 +159,7 @@ const buildLoserboard = (loserArray) => {
     if (!loserArray) resolve(null)
     let output = { attachments: [] }
     for (let i = 5; i < loserArray.length; i++) { // i was initially = 6 (?)
-      output.attachments.push({ text: `${i + 1}: `, color: '#0067B3' }
+      output.attachments.push({ text: `${i + 1}: `, color: '#0067B3' })
       for (let s of loserArray[i].scores) {
         if (s === loserArray[i].scores) output.attachments[i].text += `${s.name} - ${s.karma}\n`
         else output.attachments[i].text += `   ${s.name} - ${s.karma}\n`
