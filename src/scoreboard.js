@@ -21,32 +21,23 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 
 const dbScoreboard = (orderedScores) => {
   return new Promise((resolve, reject) => {
-    // console.log(`[dbScoreboard]\n--> scores:\n${util.inspect(orderedScores)}`)
     let index = 0
     let scoreboard = [ { scores: [] } ]
     if (!orderedScores) return reject()
     return Promise.map(orderedScores, (o) => {
-      // console.log(`\nfor loop --> index: ${index}\n${util.inspect(o)}`)
       if (_.isEmpty(scoreboard[index].scores)) {
-        // console.log(`- scoreboard[${index}].scores is empty -`)
         scoreboard[index].scores.push(o)
       } else {
-        // console.log(`scoreboard[${index}] is NOT empty\n${util.inspect(scoreboard[index])}`)
         if (scoreboard[index].scores[0].karma === o.karma) {
-          // console.log(`- scoreboard[${index}].scores = o.karma -`)
           scoreboard[index].scores.push(o)
-          // console.log(`new scores:\n${util.inspect(scoreboard[index].scores)}`)
         } else {
           index++
-          // console.log(`different score being added at index: ${index}`)
           scoreboard[index].scores.push(o)
         }
       }
       return scoreboard
     })
     .then(() => {
-      console.log(`[dbScoreboard] scoreboard built:\n${util.inspect(scoreboard)}`)
-      // console.log(`[dbScoreboard] scores in scoreboard:\n${util.inspect(scoreboard[0].scores)}`)
       return resolve(scoreboard)
     })
     .catch((err) => {
@@ -82,11 +73,17 @@ const dbScoreboard = (orderedScores) => {
 const buildScoreboard = (team) => {
   return new Promise((resolve, reject) => {
     console.log(`\n... building scoreboard for team ${team.id}...`)
-    const leaders = _.slice(team.scoreboard, 0, 5)
-    const losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
+    let leaders = []
+    let losers = []
+    if (team.scoreboard.length > 5) {
+      leaders = _.slice(team.scoreboard, 0, 5)
+      losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
+    } else {
+      leaders = _.slice(team.scoreboard, 0, team.scoreboard.length)
+    }
     console.log(`[buildScoreboard] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
     return Promise.join(buildLeaderboard(leaders), buildLoserboard(losers), (leaderboard, loserboard) => {
-      leaderboard.attachments = leaderboard.attachments.concat(loserboard)
+      if (loserboard) leaderboard.attachments = leaderboard.attachments.concat(loserboard)
       console.log(`[buildScoreboard] leaderboard before resolve:\n${util.inspect(leaderboard)}`)
       return resolve(leaderboard)
     })
@@ -136,7 +133,7 @@ const subtractKarma = (userId) => {
 }
 
 const buildLeaderboard = (leaderArray) => {
-  console.log('--> building leaderboard')
+  console.log(`--> building leaderboard with:\n${util.inspect(leaderArray)}`)
   const colors = [
     '#E5E4E2',
     '#D4AF37',
@@ -148,12 +145,12 @@ const buildLeaderboard = (leaderArray) => {
     if (!leaderArray) reject(new Error('invalid leader array'))
     let output = { attachments: [] }
     for (let i = 0; i < leaderArray.length; i++) {
-      _.forEach(leaderArray[i].scores, (value) => {
-        output.attachments.push({text: `${i + 1}: ${value.name} - ${value.karma}`, color: colors[i]})
+      for (s of leaderArray[i].scores) {
+        output.attachments.push({text: `${i + 1}: ${s.name} - ${s.karma}`, color: colors[i]})
         i++
-      })
+      }
     }
-    resolve(output)
+    Promise.all(output.attachments).then(resolve(output))
   })
 }
 
