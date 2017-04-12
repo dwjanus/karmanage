@@ -144,7 +144,7 @@ const buildLeaderboard = (leaderArray) => {
         else output.attachments[i].text += `     ${s.name} - ${s.karma}\n`
       }
     }
-    Promise.all(output.attachments).then(resolve(output))
+    Promise.all(output.attachments).then(resolve(output)).catch((err) => reject(err))
   })
 }
 
@@ -164,17 +164,18 @@ const buildLoserboard = (loserArray) => {
   })
 }
 
-async function processUsers (rawIds) {
-  try {
-    let ids = await mapIds(rawIds)
-    return ids
-  } catch (err) {
-    console.log(err)
-  }
-}
+// async function processUsers (rawIds) {
+//   try {
+//     let ids = await mapIds(rawIds)
+//     return ids
+//   } catch (err) {
+//     console.log(err)
+//   }
+// }
 
-const mapIds = (rawIds) => {
+const processUsers = (rawIds) => {
   return new Promise((resolve, reject) => {
+    if (!rawIds) reject(new Error('no ids to process'))
     let ids = _.map(rawIds, processRawId)
     resolve(ids)
   })

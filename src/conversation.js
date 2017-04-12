@@ -124,14 +124,10 @@ export default (controller, bot) => {
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
     console.log('[conversation] ** scoreboard heard **')
     controller.storage.teams.get(message.team, (err, team) => {
-      console.log(`[conversation] ** retrieving data for team ${message.team}`)
       if (err) console.log(err)
       dbScoreboard(localScoreboard).then((ordered) => {
-        console.log(`got dbScoreboard return - first place:\n${util.inspect(ordered[0].scores)}\n`)
         team.scoreboard = ordered
-        console.log(`team scoreboard set:\n${util.inspect(team.scoreboard)}`)
         controller.storage.teams.save(team)
-        console.log(`new scoreboard saved for team ${team.id} ... about to buildScoreboard`)
         buildScoreboard(team).then((replyMessage) => {
           const slack = {
             text: `${team.name}: The Scorey So Far...`,
@@ -152,7 +148,7 @@ export default (controller, bot) => {
     if (rawIds.length > 0) {
       processUsers(rawIds).then(ids => {
         console.log('user ids: ', util.inspect(ids))
-        for (const i in ids) {
+        for (let i in ids) {
           console.log('userId #' + i + ': ' + ids[i])
           if (ids[i] !== message.user) {
             addKarma(ids[i])
@@ -166,10 +162,14 @@ export default (controller, bot) => {
         }
       })
       .then(() => {
+        console.log('--  +1 .then()  --')
         controller.storage.teams.get(message.team, (err, team) => {
           if (err) console.log(err)
           dbScoreboard(localScoreboard, team).then(ordered => {
-            localScoreboard = ordered
+            team.scoreboard = ordered
+            console.log(`team scoreboard now looks like:\n${util.inspect(ordered)}`)
+            controller.storage.teams.save(team)
+            console.log('new scoreboard saved')
           })
         })
       })
