@@ -123,7 +123,6 @@ export default (controller, bot) => {
 
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
     console.log('[conversation] ** scoreboard heard **')
-    console.log(`${util.inspect(message.user)}`)
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
       dbScoreboard(localScoreboard).then((ordered) => {
@@ -152,13 +151,16 @@ export default (controller, bot) => {
         for (let i in ids) {
           console.log('userId #' + i + ': ' + ids[i])
           if (ids[i] !== message.user) {
-            addKarma(ids[i])
-            console.log(`----> + karma assigned to ${ids[i]}\n${util.inspect(message.user)}`)
-            let index = _.findIndex(localScoreboard, (o) => { return o.name == message.user.profile.real_name })
-            console.log(`index in local scores: ${index}`)
-            localScoreboard[index].karma = localScoreboard[index].karma + 1
-            localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
-            console.log(`Local Scoreboard Updated:\n${util.inspect(localScoreboard)}`)
+            controller.storage.users.get(ids[i], (err, user) => {
+              if (err) console.log(err)
+              addKarma(user)
+              console.log(`----> + karma assigned to ${ids[i]}\n${util.inspect(message.user)}`)
+              let index = _.findIndex(localScoreboard, (o) => { return o.name == user.fullName })
+              console.log(`index in local scores: ${index}`)
+              localScoreboard[index].karma = localScoreboard[index].karma + 1
+              localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
+              console.log(`Local Scoreboard Updated:\n${util.inspect(localScoreboard)}`)
+            })
           }
         }
       })
