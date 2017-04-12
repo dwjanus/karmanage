@@ -145,8 +145,10 @@ const buildLeaderboard = (leaderArray) => {
     if (!leaderArray) reject(new Error('invalid leader array'))
     let output = { attachments: [] }
     for (let i = 0; i < leaderArray.length; i++) {
+      output.attachments.push({ text: `${i + 1}: `, color: colors[i] })
       for (let s of leaderArray[i].scores) {
-        output.attachments.push({text: `${i + 1}: ${s.name} - ${s.karma}`, color: colors[i]})
+        if (s === leaderArray[i].scores[0]) output.attachments[i].text += `${s.name} - ${s.karma}`
+        else output.attachments[i].text += `   ${s.name} - ${s.karma}`
       }
     }
     Promise.all(output.attachments).then(resolve(output))
