@@ -73,17 +73,17 @@ const dbScoreboard = (orderedScores) => {
 const buildScoreboard = (team) => {
   return new Promise((resolve, reject) => {
     console.log(`\n... building scoreboard for team ${team.id}...`)
-    let leaders = []
-    let losers = []
-    if (team.scoreboard.length > 5) {
+    // let leaders = []
+    // let losers = []
+    // if (team.scoreboard.length > 5) {
       leaders = _.slice(team.scoreboard, 0, 5)
       losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
-    } else {
-      leaders = _.slice(team.scoreboard, 0, team.scoreboard.length)
-    }
+    // } else {
+      // leaders = _.slice(team.scoreboard, 0, team.scoreboard.length)
+    // }
     console.log(`[buildScoreboard] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
     return Promise.join(buildLeaderboard(leaders), buildLoserboard(losers), (leaderboard, loserboard) => {
-      if (!loserboard.attachments) leaderboard.attachments = leaderboard.attachments.concat(loserboard.attachments)
+      if (loserboard.attachments) leaderboard.attachments = leaderboard.attachments.concat(loserboard.attachments)
       console.log(`[buildScoreboard] leaderboard before resolve:\n${util.inspect(leaderboard)}`)
       return resolve(leaderboard)
     })
@@ -156,7 +156,7 @@ const buildLeaderboard = (leaderArray) => {
 
 const buildLoserboard = (loserArray) => {
   return new Promise((resolve, reject) => {
-    if (!loserArray) resolve(null)
+    if (!loserArray) reject()
     let output = { attachments: [] }
     for (let i = 5; i < loserArray.length; i++) { // i was initially = 6 (?)
       output.attachments.push({ text: `${i + 1}: `, color: '#0067B3' })
