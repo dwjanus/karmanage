@@ -6,18 +6,28 @@ import config from './config.js'
 
 const storage = mongo({ mongoUri: config('MONGODB_URI') })
 
-// NOTE:
-// May need to restructure database schema to handle ties
-// --> scoreboard: [
-//      { scores: [
-//          { name, karma }
-//          { name, karma }
-//        ]
-//      },
-//      { scores: [] }
-//      { scores: [] }  ]  --> etc.
+// may try this one for efficiency sake...
 //
-// Would also decrease complexity of some build functions
+// const dbScoreboard = (orderedScores) => {
+//   return new Promise((resolve, reject) => {
+//     let index = 0
+//     let scoreboard = [ { scores: [] } ]
+//     if (!orderedScores) return reject()
+//     for (o of orderedScores) {
+//       if (_.isEmpty(scoreboard[index].scores)) {
+//         scoreboard[index].scores.push(o)
+//       } else {
+//         if (scoreboard[index].scores[0].karma === o.karma) {
+//           scoreboard[index].scores.push(o)
+//         } else {
+//           index++
+//           scoreboard[index].scores.push(o)
+//         }
+//       }
+//     }
+//     Promise.all(scoreboard).then(resolve(scoreboard))
+//   })
+// }
 
 const dbScoreboard = (orderedScores) => {
   return new Promise((resolve, reject) => {
@@ -48,28 +58,6 @@ const dbScoreboard = (orderedScores) => {
   })
 }
 
-// may try this one for efficiency sake...
-//
-// const dbScoreboard = (orderedScores) => {
-//   return new Promise((resolve, reject) => {
-//     let index = 0
-//     let scoreboard = [ { scores: [] } ]
-//     if (!orderedScores) return reject()
-//     for (o of orderedScores) {
-//       if (_.isEmpty(scoreboard[index].scores)) {
-//         scoreboard[index].scores.push(o)
-//       } else {
-//         if (scoreboard[index].scores[0].karma === o.karma) {
-//           scoreboard[index].scores.push(o)
-//         } else {
-//           index++
-//           scoreboard[index].scores.push(o)
-//         }
-//       }
-//     }
-//     Promise.all(scoreboard).then(resolve(scoreboard))
-//   })
-// }
 
 const buildScoreboard = (team) => {
   return new Promise((resolve, reject) => {
@@ -88,38 +76,16 @@ const buildScoreboard = (team) => {
   })
 }
 
-const updateScoreboard = (user) => {
-  storage.teams.get(user.team_id, (err, team) => {
-    if (err) console.log(err)
-    console.log(`Updating scoreboard for Team ${user.team_id} with user ${user.fullName} - ${user.karma}`)
-    let check = _.findIndex(team.scoreboard, (o) => { return o.name == user.fullName })
-    console.log('check: ' + check)
-    if (check === -1 && user.fullName !== '' || ' ' || 'slackbot' || null || undefined) {
-      console.log(`User is not on the board -- pushing now`)
-      team.scoreboard.push({ karma: user.karma, name: user.fullName })
-    }
-    else team.scoreboard[check].karma = user.karma
-    team.scoreboard = _.orderBy(team.scoreboard, ['karma', 'name'], ['desc', 'asc'])
-    console.log(`[scoreboard] New Scoreboard:\n${util.inspect(team.scoreboard)}\n`)
-    storage.teams.save(team)
-  })
-}
-
 const addKarma = (user) => {
   user.karma = _.toInteger(user.karma) + 1
   storage.users.save(user)
   console.log(`[scoreboard] user ${user.id} saved with new karma of ${user.karma}`)
 }
 
-const subtractKarma = (userId) => {
-  storage.users.get(userId, (err, user) => {
-    if (err) console.log(err)
-    console.log('Stored User:\n' + util.inspect(user))
-    user.karma = _.toInteger(user.karma) - 1
-    storage.users.save(user)
-    console.log(`[scoreboard] user ${user.id} saved with new karma of ${user.karma} - updating now...`)
-    updateScoreboard(user)
-  })
+const subtractKarma = (user) => {
+  user.karma = _.toInteger(user.karma) - 1
+  storage.users.save(user)
+  console.log(`[scoreboard] user ${user.id} saved with new karma of ${user.karma} - updating now...`)
 }
 
 const buildLeaderboard = (leaderArray) => {

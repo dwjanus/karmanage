@@ -187,11 +187,36 @@ export default (controller, bot) => {
     if (rawIds.length > 0) {
       processUsers(rawIds).then(ids => {
         console.log('user ids: ', util.inspect(ids))
-        for (const i in ids) {
+        for (let i in ids) {
           console.log('userId #' + i + ': ' + ids[i])
-          if (ids[i] !== message.user) subtractKarma(ids[i])
-          console.log(`----> - karma assigned to ${ids[i]}`)
+          if (ids[i] !== message.user) {
+            controller.storage.users.get(ids[i], (err, user) => {
+              if (err) console.log(err)
+              subtractKarma(user)
+              console.log(`----> - karma assigned to ${ids[i]}`)
+              let index = _.findIndex(localScoreboard, (o) => { return o.name == user.fullName })
+              console.log(`index in local scores: ${index}`)
+              localScoreboard[index].karma = localScoreboard[index].karma + 1
+              localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
+              console.log(`Local Scoreboard Updated:\n${util.inspect(localScoreboard)}`)
+            })
+          }
         }
+      })
+      .then(() => {
+        console.log('--  -1 .then()  --')
+        controller.storage.teams.get(message.team, (err, team) => {
+          if (err) console.log(err)
+          dbScoreboard(localScoreboard).then((ordered) => {
+            team.scoreboard = ordered
+            console.log(`team scoreboard now looks like:\n${util.inspect(ordered)}`)
+            controller.storage.teams.save(team)
+            console.log('new scoreboard saved')
+          })
+        })
+      })
+      .catch((err) => {
+        console.log(err)
       })
     }
   })
