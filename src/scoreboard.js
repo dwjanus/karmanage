@@ -83,7 +83,7 @@ const buildScoreboard = (team) => {
     }
     console.log(`[buildScoreboard] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
     return Promise.join(buildLeaderboard(leaders), buildLoserboard(losers), (leaderboard, loserboard) => {
-      if (!_.isEmpty(loserboard)) leaderboard.attachments = leaderboard.attachments.concat(loserboard)
+      if (!_.isEmpty(loserboard.attachments)) leaderboard.attachments = leaderboard.attachments.concat(loserboard.attachments)
       console.log(`[buildScoreboard] leaderboard before resolve:\n${util.inspect(leaderboard)}`)
       return resolve(leaderboard)
     })
@@ -147,7 +147,7 @@ const buildLeaderboard = (leaderArray) => {
       output.attachments.push({ text: `${i + 1}: `, color: colors[i] })
       for (let s of leaderArray[i].scores) {
         if (s === leaderArray[i].scores[0]) output.attachments[i].text += `${s.name} - ${s.karma}\n`
-        else output.attachments[i].text += `   ${s.name} - ${s.karma}\n`
+        else output.attachments[i].text += `     ${s.name} - ${s.karma}\n`
       }
     }
     Promise.all(output.attachments).then(resolve(output))
@@ -162,7 +162,7 @@ const buildLoserboard = (loserArray) => {
       output.attachments.push({ text: `${i + 1}: `, color: '#0067B3' })
       for (let s of loserArray[i].scores) {
         if (s === loserArray[i].scores) output.attachments[i].text += `${s.name} - ${s.karma}\n`
-        else output.attachments[i].text += `   ${s.name} - ${s.karma}\n`
+        else output.attachments[i].text += `     ${s.name} - ${s.karma}\n`
       }
     }
     Promise.all(output.attachmnets).then(resolve(output))
