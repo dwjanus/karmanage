@@ -76,8 +76,8 @@ const buildScoreboard = (team) => {
     // let leaders = []
     // let losers = []
     // if (team.scoreboard.length > 5) {
-      leaders = _.slice(team.scoreboard, 0, 5)
-      losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
+      const leaders = _.slice(team.scoreboard, 0, 5)
+      const losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
     // } else {
       // leaders = _.slice(team.scoreboard, 0, team.scoreboard.length)
     // }
@@ -156,7 +156,7 @@ const buildLeaderboard = (leaderArray) => {
 
 const buildLoserboard = (loserArray) => {
   return new Promise((resolve, reject) => {
-    if (!loserArray) reject()
+    if (!loserArray) resolve(null)
     let output = { attachments: [] }
     for (let i = 5; i < loserArray.length; i++) { // i was initially = 6 (?)
       output.attachments.push({ text: `${i + 1}: `, color: '#0067B3' })
