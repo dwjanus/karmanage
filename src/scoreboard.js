@@ -19,29 +19,6 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 //
 // Would also decrease complexity of some build functions
 
-// const dbScoreboard = (orderedScores) => {
-//   return new Promise((resolve, reject) => {
-//     console.log(`[dbScoreboard]\n--> scores:\n${util.inspect(orderedScores)}`)
-//     let index = 0
-//     let scoreboard = []
-//     if (!orderedScores) return reject()
-//     for (let i = 0; i < orderedScores.length; i++) {
-//       let o = orderedScores[i]
-//       console.log(`for loop --> i: ${i} - index: ${index}\n${util.inspect(o)}`)
-//       if (_.isEmpty(scoreboard[index])) scoreboard[index].scores = [o] // handles zero case and backfilling
-//       else {
-//         if (scoreboard[index].scores[0].karma === o.karma) scoreboard[index].scores.push(o)
-//         else {
-//           index++
-//           scoreboard[index].scores = [o]
-//         }
-//       }
-//     }
-//     console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
-//     return Promise.all(scoreboard).then(() => {return resolve(scoreboard)})
-//   })
-// }
-
 const dbScoreboard = (orderedScores) => {
   return new Promise((resolve, reject) => {
     // console.log(`[dbScoreboard]\n--> scores:\n${util.inspect(orderedScores)}`)
@@ -78,6 +55,28 @@ const dbScoreboard = (orderedScores) => {
     return resolve(scoreboard)
   })
 }
+
+
+// const dbScoreboard = (orderedScores) => {
+//   return new Promise((resolve, reject) => {
+//     let index = 0
+//     let scoreboard = [ { scores: [] } ]
+//     if (!orderedScores) return reject()
+//     for (o of orderedScores) {
+//       if (_.isEmpty(scoreboard[index].scores)) {
+//         scoreboard[index].scores.push(o)
+//       } else {
+//         if (scoreboard[index].scores[0].karma === o.karma) {
+//           scoreboard[index].scores.push(o)
+//         } else {
+//           index++
+//           scoreboard[index].scores.push(o)
+//         }
+//       }
+//     }
+//     Promise.all(scoreboard).then(resolve(scoreboard))
+//   })
+// }
 
 const buildScoreboard = (team) => {
   return new Promise((resolve, reject) => {
