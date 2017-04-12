@@ -67,7 +67,7 @@ const dbScoreboard = (orderedScores) => {
       }
     })
     .then(() => {
-      console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
+      console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard.scores)}`)
       // return scoreboard
     })
     return resolve(scoreboard)
