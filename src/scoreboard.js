@@ -49,31 +49,32 @@ const dbScoreboard = (orderedScores) => {
     let scoreboard = [ { scores: [] } ]
     if (!orderedScores) return reject()
     return Promise.map(orderedScores, (o) => {
-      console.log(`\nfor loop --> index: ${index}\n${util.inspect(o)}`)
+      // console.log(`\nfor loop --> index: ${index}\n${util.inspect(o)}`)
       if (_.isEmpty(scoreboard[index].scores)) {
-        console.log(`- scoreboard[${index}].scores is empty -`)
+        // console.log(`- scoreboard[${index}].scores is empty -`)
         scoreboard[index].scores.push(o)
       } else {
-        console.log(`scoreboard[${index}] is NOT empty\n${util.inspect(scoreboard[index])}`)
+        // console.log(`scoreboard[${index}] is NOT empty\n${util.inspect(scoreboard[index])}`)
         if (scoreboard[index].scores[0].karma === o.karma) {
-          console.log(`- scoreboard[${index}].scores = o.karma -`)
+          // console.log(`- scoreboard[${index}].scores = o.karma -`)
           scoreboard[index].scores.push(o)
-          console.log(`new scores:\n${util.inspect(scoreboard[index].scores)}`)
+          // console.log(`new scores:\n${util.inspect(scoreboard[index].scores)}`)
         } else {
           index++
-          console.log(`different score being added at index: ${index}`)
+          // console.log(`different score being added at index: ${index}`)
           scoreboard[index].scores.push(o)
         }
       }
     })
     .then(() => {
-      console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
-      console.log(`[dbScoreboard] scores in scoreboard:\n${util.inspect(scoreboard[0].scores)}`)
-      return resolve(scoreboard)
+      // console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
+      // console.log(`[dbScoreboard] scores in scoreboard:\n${util.inspect(scoreboard[0].scores)}`)
+      return Promise.resolve(scoreboard)
     })
     .catch((err) => {
       console.log(err)
     })
+    return resolve(scoreboard)
   })
 }
 
