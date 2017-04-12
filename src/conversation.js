@@ -35,17 +35,17 @@ export default (controller, bot) => {
                 fullName: member.real_name,
                 email: member.profile.email
               }
-              if (member.karma) newMember.karma = member.karma
-              else newMember.karma = 0
-              fullTeamList.push(newMember)
-              localScoreboard.push({ karma: newMember.karma, name: newMember.fullName })
               controller.storage.users.get(newMember.id, (err, user) => {
                 if (err) console.log(err)
                 if (!user) {
+                  newMember.karma = 0
                   console.log('user not found in db')
                   controller.storage.users.save(newMember)
                   console.log(`new member ${newMember.fullName} saved`)
                 }
+                newMember.karma = user.karma
+                fullTeamList.push(newMember)
+                localScoreboard.push({ karma: newMember.karma, name: newMember.fullName })
               })
             }
           }
