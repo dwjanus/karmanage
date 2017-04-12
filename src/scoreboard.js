@@ -43,11 +43,11 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 // }
 
 const dbScoreboard = (orderedScores) => {
-  return new Promise((resolve, reject) => {
+  // return new Promise((resolve, reject) => {
     console.log(`[dbScoreboard]\n--> scores:\n${util.inspect(orderedScores)}`)
     let index = 0
     let scoreboard = [ { scores: [] } ]
-    if (!orderedScores) return reject()
+    // if (!orderedScores) return reject()
     return Promise.map(orderedScores, (o) => {
       console.log(`\nfor loop --> index: ${index}\n${util.inspect(o)}`)
       if (_.isEmpty(scoreboard[index].scores)) {
@@ -67,11 +67,14 @@ const dbScoreboard = (orderedScores) => {
       }
     })
     .then(() => {
-      console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard.scores)}`)
-      // return scoreboard
+      console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
+      console.log(`[dbScoreboard] scores in scoreboard:\n${util.inspect(scoreboard[0].scores)}`)
+      return resolve(scoreboard)
     })
-    return resolve(scoreboard)
-  })
+    .catch((err) => {
+      console.log(err)
+    })
+  // })
 }
 
 const buildScoreboard = (team) => {
