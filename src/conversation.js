@@ -32,12 +32,12 @@ export default (controller, bot) => {
                 team_id: member.team_id,
                 name: member.name,
                 fullName: member.real_name,
-                email: member.profile.email
+                email: member.profile.email,
+                karma: 0
               }
               controller.storage.users.get(member.id, (err, user) => {
                 if (err) console.log(err)
                 if (!user) {
-                  newMember.karma = 0
                   console.log('user not found in db')
                   controller.storage.users.save(newMember)
                   console.log(`new member ${newMember.fullName} saved`)
