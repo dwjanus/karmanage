@@ -150,8 +150,8 @@ const buildLeaderboard = (leaderArray) => {
 
 const buildLoserboard = (loserArray) => {
   return new Promise((resolve, reject) => {
-    if (!loserArray) reject()
     let output = { attachments: [] }
+    if (!loserArray) resolve(output.attachments)
     for (let i = 5; i < loserArray.length; i++) { // i was initially = 6 (?)
       output.attachments.push({ text: `${i + 1}: `, color: '#0067B3' })
       for (let s of loserArray[i].scores) {
