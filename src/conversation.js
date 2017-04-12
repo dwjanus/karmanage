@@ -130,7 +130,7 @@ export default (controller, bot) => {
         console.log(`got dbScoreboard return - first place:\n${util.inspect(ordered[0].scores)}\n`)
         team.scoreboard = ordered
         console.log(`team scoreboard set:\n${util.inspect(team.scoreboard)}`)
-        controller.storage.save(team)
+        controller.storage.teams.save(team)
         console.log(`new scoreboard saved for team ${team.id} ... about to buildScoreboard`)
         buildScoreboard(team).then((replyMessage) => {
           const slack = {
