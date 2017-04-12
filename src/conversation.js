@@ -164,18 +164,18 @@ export default (controller, bot) => {
           }
         }
       })
-      .then(() => {
-        console.log('--  +1 .then()  --')
-        controller.storage.teams.get(message.team, (err, team) => {
-          if (err) console.log(err)
-          dbScoreboard(localScoreboard).then((ordered) => {
-            team.scoreboard = ordered
-            console.log(`team scoreboard now looks like:\n${util.inspect(ordered)}`)
-            controller.storage.teams.save(team)
-            console.log('new scoreboard saved')
-          })
-        })
-      })
+      // .then(() => {
+      //   console.log('--  +1 .then()  --')
+      //   controller.storage.teams.get(message.team, (err, team) => {
+      //     if (err) console.log(err)
+      //     dbScoreboard(localScoreboard).then((ordered) => {
+      //       team.scoreboard = ordered
+      //       console.log(`team scoreboard now looks like:\n${util.inspect(ordered)}`)
+      //       controller.storage.teams.save(team)
+      //       console.log('new scoreboard saved')
+      //     })
+      //   })
+      // })
       .catch((err) => {
         console.log(err)
       })

@@ -21,9 +21,9 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 
 const dbScoreboard = (orderedScores) => {
   return new Promise((resolve, reject) => {
+    if (orderedScores === undefined) return reject()
     let index = 0
     const scoreboard = [ { scores: [] } ]
-    if (orderedScores === undefined) return reject()
     return Promise.map(orderedScores, (o) => {
       if (_.isEmpty(scoreboard[index].scores)) {
         scoreboard[index].scores.push(o)
