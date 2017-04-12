@@ -161,15 +161,6 @@ const buildLoserboard = (loserArray) => {
   })
 }
 
-// async function processUsers (rawIds) {
-//   try {
-//     let ids = await mapIds(rawIds)
-//     return ids
-//   } catch (err) {
-//     console.log(err)
-//   }
-// }
-
 const processUsers = (rawIds) => {
   return new Promise((resolve, reject) => {
     if (!rawIds) reject(new Error('no ids to process'))
