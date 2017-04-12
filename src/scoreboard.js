@@ -45,7 +45,7 @@ const dbScoreboard = (orderedScores) => {
       return scoreboard
     })
     .then(() => {
-      console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
+      console.log(`[dbScoreboard] scoreboard built:\n${util.inspect(scoreboard)}`)
       // console.log(`[dbScoreboard] scores in scoreboard:\n${util.inspect(scoreboard[0].scores)}`)
       return resolve(scoreboard)
     })
@@ -56,7 +56,8 @@ const dbScoreboard = (orderedScores) => {
   })
 }
 
-
+// may try this one for efficiency sake...
+//
 // const dbScoreboard = (orderedScores) => {
 //   return new Promise((resolve, reject) => {
 //     let index = 0

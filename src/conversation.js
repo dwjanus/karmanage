@@ -127,9 +127,11 @@ export default (controller, bot) => {
       console.log(`[conversation] ** retrieving data for team ${message.team}`)
       if (err) console.log(err)
       dbScoreboard(localScoreboard).then((ordered) => {
-        console.log(`got dbScoreboard return:\n${util.inspect(ordered)}\n ... about to buildScoreboard`)
+        console.log(`got dbScoreboard return - first place:\n${util.inspect(ordered[0].scores)}\n`)
         team.scoreboard = ordered
+        console.log(`team scoreboard set:\n${util.inspect(team.scoreboard)}`)
         controller.storage.save(team)
+        console.log(`new scoreboard saved for team ${team.id} ... about to buildScoreboard`)
         buildScoreboard(team).then((replyMessage) => {
           const slack = {
             text: `${team.name}: The Scorey So Far...`,
