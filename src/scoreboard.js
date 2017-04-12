@@ -23,7 +23,7 @@ const dbScoreboard = (orderedScores) => {
   return new Promise((resolve, reject) => {
     if (orderedScores === undefined) return reject()
     let index = 0
-    const scoreboard = [ { scores: [] } ]
+    let scoreboard = [ { scores: [] } ]
     return Promise.map(orderedScores, (o) => {
       if (_.isEmpty(scoreboard[index].scores)) {
         scoreboard[index].scores.push(o)
@@ -32,6 +32,7 @@ const dbScoreboard = (orderedScores) => {
           scoreboard[index].scores.push(o)
         } else {
           index++
+          scoreboard[index] = { scores: [] }
           scoreboard[index].scores.push(o)
         }
       }
