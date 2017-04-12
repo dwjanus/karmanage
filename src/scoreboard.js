@@ -44,7 +44,7 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 
 const dbScoreboard = (orderedScores) => {
   return new Promise((resolve, reject) => {
-    console.log(`[dbScoreboard]\n--> scores:\n${util.inspect(orderedScores)}`)
+    // console.log(`[dbScoreboard]\n--> scores:\n${util.inspect(orderedScores)}`)
     let index = 0
     let scoreboard = [ { scores: [] } ]
     if (!orderedScores) return reject()
@@ -67,9 +67,9 @@ const dbScoreboard = (orderedScores) => {
       }
     })
     .then(() => {
-      // console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
+      console.log(`[dbScoreboard] scoreboard built in db:\n${util.inspect(scoreboard)}`)
       // console.log(`[dbScoreboard] scores in scoreboard:\n${util.inspect(scoreboard[0].scores)}`)
-      return scoreboard
+      return Promise.resolve(scoreboard)
     })
     .catch((err) => {
       console.log(err)
