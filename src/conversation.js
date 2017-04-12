@@ -123,6 +123,7 @@ export default (controller, bot) => {
 
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
     console.log('[conversation] ** scoreboard heard **')
+    console.log(`${util.inspect(message.user)}`)
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
       dbScoreboard(localScoreboard).then((ordered) => {
