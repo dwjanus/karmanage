@@ -130,6 +130,8 @@ export default (controller, bot) => {
         team.scoreboard = ordered
         controller.storage.save(team)
         console.log('got dbScoreboard return, about to buildScoreboard')
+      })
+      .then(() => {
         buildScoreboard(team).then((replyMessage) => {
           const slack = {
             text: `${team.name}: The Scorey So Far...`,
