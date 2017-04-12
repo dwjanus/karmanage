@@ -150,8 +150,9 @@ const buildLeaderboard = (leaderArray) => {
 
 const buildLoserboard = (loserArray) => {
   return new Promise((resolve, reject) => {
+    console.log(`building loserboard:\n${util.inspect(loserArray)}`)
     let output = { attachments: [] }
-    if (!loserArray) resolve(output.attachments)
+    if (!loserArray || _.isEmpty(loserArray)) resolve(output)
     for (let i = 5; i < loserArray.length; i++) { // i was initially = 6 (?)
       output.attachments.push({ text: `${i + 1}: `, color: '#0067B3' })
       for (let s of loserArray[i].scores) {
@@ -159,7 +160,7 @@ const buildLoserboard = (loserArray) => {
         else output.attachments[i].text += `     ${s.name} - ${s.karma}\n`
       }
     }
-    Promise.all(output.attachmnets).then(resolve(output))
+    Promise.all(output.attachmnets).then(resolve(output)).catch((err) => reject(err))
   })
 }
 
