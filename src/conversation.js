@@ -12,7 +12,7 @@ const processUsers = scoreHandler.processUsers
 export default (controller, bot) => {
   let fullUserList
   let fullChannelList
-  const localScoreboard = []
+  let localScoreboard = []
 
   const getUserEmailArray = (bot) => {
     fullUserList = []
