@@ -10,27 +10,14 @@ const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
 
 export default (controller, bot) => {
-  let fullTeamList
   let fullUserList
   let fullChannelList
   let localScoreboard
 
   const getUserEmailArray = (bot) => {
-    fullTeamList = []
     fullUserList = []
     fullChannelList = []
     localScoreboard = []
-
-    bot.api.teams.list({}, (err, response) => {
-      if (err) console.log(err)
-      if (response.hasOwnProperty('teams') && response.ok) {
-        const total = response.teams.length
-        for (let i = 0; i < total; i++) {
-          const team = response.teams[i]
-          fullTeamList.push({ id: team.id, name: team.name })
-        }
-      }
-    })
 
     bot.api.users.list({}, (err, response) => {
       if (err) console.log(err)
