@@ -26,7 +26,7 @@ export default (controller, bot) => {
         for (let i = 0; i < response.members.length; i++) {
           const member = response.members[i]
           if (_.find(localScoreboard, { 'team': member.team_id }) === undefined) {
-              localScoreboard.push({ team: currentTeam, scores: [] })
+              localScoreboard.push({ team: member.team_id, scores: [] })
           }
           if (!member.profile.bot_id && !member.deleted &&
             !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
