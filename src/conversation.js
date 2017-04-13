@@ -48,8 +48,6 @@ export default (controller, bot) => {
             }
           }
         }
-        localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
-        console.log(`localScoreboard:\n${util.inspect(localScoreboard)}`)
       }
     })
 
@@ -123,6 +121,8 @@ export default (controller, bot) => {
     console.log('[conversation] ** scoreboard heard **')
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
+      localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
+      console.log(`localScoreboard:\n${util.inspect(localScoreboard)}`)
       dbScoreboard(localScoreboard).then((ordered) => {
         team.scoreboard = ordered
         controller.storage.teams.save(team)
