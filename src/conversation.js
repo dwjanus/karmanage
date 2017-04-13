@@ -12,22 +12,17 @@ const processUsers = scoreHandler.processUsers
 export default (controller, bot) => {
   let fullUserList
   let fullChannelList
-  let localScoreboard
+  const localScoreboard = []
 
   const getUserEmailArray = (bot) => {
     fullUserList = []
     fullChannelList = []
-    localScoreboard = []
 
     bot.api.users.list({}, (err, response) => {
       if (err) console.log(err)
       if (response.hasOwnProperty('members') && response.ok) {
         for (let i = 0; i < response.members.length; i++) {
           const member = response.members[i]
-          if (_.find(localScoreboard, { 'team': member.team_id }) == undefined) {
-            console.log(`team: ${member.team_id} not in localScores hash -- added`)
-            localScoreboard.push({ team: member.team_id, scores: [] })
-          }
           if (!member.profile.bot_id && !member.deleted &&
             !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
             if (member.real_name.length > 1 && member.name !== 'slackbot') {
@@ -38,6 +33,10 @@ export default (controller, bot) => {
                 fullName: member.real_name,
                 email: member.profile.email,
                 karma: 0
+              }
+              if (_.find(localScoreboard, { 'team': member.team_id }) == undefined) {
+                console.log(`team: ${member.team_id} not in localScores hash -- added`)
+                localScoreboard.push({ team: member.team_id, scores: [] })
               }
               controller.storage.users.get(member.id, (err, user) => {
                 if (err) console.log(err)
