@@ -26,7 +26,7 @@ export default (controller, bot) => {
           const member = response.members[i]
           if (!member.profile.bot_id && !member.deleted && !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
             if (member.real_name.length > 1 && member.name !== 'slackbot') {
-              let newMember = {
+              const newMember = {
                 id: member.id,
                 team_id: member.team_id,
                 name: member.name,
@@ -42,9 +42,9 @@ export default (controller, bot) => {
                   console.log(`new member ${newMember.fullName} saved`)
                 }
                 else newMember.karma = user.karma
+                fullTeamList.push(newMember)
+                localScoreboard.push({ karma: newMember.karma, name: newMember.fullName })
               })
-              fullTeamList.push(newMember)
-              localScoreboard.push({ karma: newMember.karma, name: newMember.fullName })
             }
           }
         }
