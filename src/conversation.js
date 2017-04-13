@@ -17,7 +17,7 @@ export default (controller, bot) => {
   const getUserEmailArray = (bot, currentTeam) => {
     fullUserList = []
     fullChannelList = []
-    localScoreboard = []
+    localScoreboard = [ { team: currentTeam, scores: [] }]
 
     console.log(`Current Team: ${util.inspect(currentTeam)}`)
     bot.api.users.list({}, (err, response) => {
@@ -25,7 +25,7 @@ export default (controller, bot) => {
       if (response.hasOwnProperty('members') && response.ok) {
         for (let i = 0; i < response.members.length; i++) {
           const member = response.members[i]
-          if (member.team_id === currentTeam && !member.profile.bot_id && !member.deleted &&
+          if (!member.profile.bot_id && !member.deleted &&
             !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
             if (member.real_name.length > 1 && member.name !== 'slackbot') {
               const newMember = {
@@ -45,7 +45,7 @@ export default (controller, bot) => {
                 }
                 else newMember.karma = user.karma
                 fullUserList.push(newMember)
-                localScoreboard.push({ karma: newMember.karma, name: newMember.fullName })
+                _.filter(localScoreboard, { 'team': currentTeam }).scores.push({ karma: newMember.karma, name: newMember.fullName })
               })
             }
           }
@@ -125,9 +125,10 @@ export default (controller, bot) => {
     if (message.event !== 'direct_message') bot.reply = bot.replyInThread
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
-      localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
-      console.log(`localScoreboard:\n${util.inspect(localScoreboard)}`)
-      dbScoreboard(localScoreboard).then((ordered) => {
+      local = _.find(localScoreboard, { team: team.id }).scores
+      local = _.orderBy(local, ['karma', 'name'], ['desc', 'asc'])
+      console.log(`local:\n${util.inspect(local)}`)
+      dbScoreboard(local).then((ordered) => {
         team.scoreboard = ordered
         controller.storage.teams.save(team)
         buildScoreboard(team).then((replyMessage) => {
