@@ -17,7 +17,7 @@ export default (controller, bot) => {
   const getUserEmailArray = (bot, currentTeam) => {
     fullUserList = []
     fullChannelList = []
-    localScoreboard = {}
+    localScoreboard = []
 
     console.log(`Current Team: ${util.inspect(currentTeam)}`)
     bot.api.users.list({}, (err, response) => {
