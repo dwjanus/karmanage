@@ -111,6 +111,7 @@ export default (controller, bot) => {
   })
 
   controller.hears(['my karma', 'my score'], ['direct_message', 'direct_mention'], (bot, message) => {
+    if (message.event !== 'direct_message') bot.reply = bot.replyPrivate
     controller.storage.users.get(message.user, (err, user) => {
       if (err) console.log(err)
       bot.reply(message, {text: `Your karma is: ${user.karma}`})
@@ -119,6 +120,7 @@ export default (controller, bot) => {
 
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
     console.log('[conversation] ** scoreboard heard **')
+    if (message.event !== 'direct_message') bot.reply = bot.replyInThread
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
       localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
@@ -135,7 +137,7 @@ export default (controller, bot) => {
         })
       })
       .catch((err) => {
-        bot.reply(message, { text: err })
+        bot.replyInThread(message, { text: err })
       })
     })
   })
@@ -242,15 +244,21 @@ export default (controller, bot) => {
     if (message.command === '/scoreboard') {
       controller.storage.teams.get(message.team, (err, team) => {
         if (err) console.log(err)
-        buildScoreboard(team).then(replyMessage => {
-          let slack = {
-            text: `${team.name}: The Scorey So Far...`,
-            attachments: replyMessage.attachments
-          }
-          bot.reply(message, slack)
+        localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
+        console.log(`localScoreboard:\n${util.inspect(localScoreboard)}`)
+        dbScoreboard(localScoreboard).then((ordered) => {
+          team.scoreboard = ordered
+          controller.storage.teams.save(team)
+          buildScoreboard(team).then((replyMessage) => {
+            const slack = {
+              text: `${team.name}: The Scorey So Far...`,
+              attachments: replyMessage.attachments
+            }
+            bot.replyPrivate(message, replyMessage)
+          })
         })
         .catch((err) => {
-          bot.replyt(message, { text: err })
+          bot.replyPrivate(message, { text: err })
         })
       })
     }

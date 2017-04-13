@@ -90,11 +90,11 @@ const subtractKarma = (user) => {
 
 const buildLeaderboard = (leaderArray) => {
   const colors = [
+    '#D5BF37',
     '#E5E4E2',
-    '#D4AF37',
-    '#C0C0C0',
     '#CD7F32',
-    '#CF5300'
+    '#CF5300',
+    '#952A2A'
   ]
   return new Promise((resolve, reject) => {
     if (!leaderArray) reject(new Error('invalid leader array'))

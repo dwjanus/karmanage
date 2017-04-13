@@ -1,7 +1,7 @@
 {
   "name": "karmanage",
   "version": "1.0.0",
-  "description": "Karma bot integration for Samanage internal channels",
+  "description": "Karma bot integration for Samanage internal Slack channels",
   "repository": "https://github.com/dwjanus/karmanage",
   "main": "build/index.js",
   "scripts": {
