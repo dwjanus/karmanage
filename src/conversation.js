@@ -17,7 +17,7 @@ export default (controller, bot) => {
   const getUserEmailArray = (bot, currentTeam) => {
     fullUserList = []
     fullChannelList = []
-    localScoreboard = [ { team: currentTeam, scores: [] }]
+    localScoreboard = []
 
     console.log(`Current Team: ${util.inspect(currentTeam)}`)
     bot.api.users.list({}, (err, response) => {
@@ -25,6 +25,9 @@ export default (controller, bot) => {
       if (response.hasOwnProperty('members') && response.ok) {
         for (let i = 0; i < response.members.length; i++) {
           const member = response.members[i]
+          if (_.find(localScoreboard, { 'team': member.team_id }) === undefined) {
+              localScoreboard.push({ team: currentTeam, scores: [] })
+          }
           if (!member.profile.bot_id && !member.deleted &&
             !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
             if (member.real_name.length > 1 && member.name !== 'slackbot') {
@@ -45,7 +48,7 @@ export default (controller, bot) => {
                 }
                 else newMember.karma = user.karma
                 fullUserList.push(newMember)
-                _.filter(localScoreboard, { 'team': currentTeam }).scores.push({ karma: newMember.karma, name: newMember.fullName })
+                _.find(localScoreboard, { 'team': newMember.team_id }).scores.push({ karma: newMember.karma, name: newMember.fullName })
               })
             }
           }
