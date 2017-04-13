@@ -11,17 +11,31 @@ const processUsers = scoreHandler.processUsers
 
 export default (controller, bot) => {
   let fullTeamList
+  let fullUserList
   let fullChannelList
   let localScoreboard
 
   const getUserEmailArray = (bot) => {
     fullTeamList = []
+    fullUserList = []
     fullChannelList = []
     localScoreboard = []
+
+    bot.api.teams.list({}, (err, response) => {
+      if (err) console.log(err)
+      if (response.hasOwnProperty('teams') && response.ok) {
+        const total = response.teams.length
+        for (let i = 0; i < total; i++) {
+          const team = response.teams[i]
+          fullTeamList.push({ id: team.id, name: team.name })
+        }
+      }
+    })
 
     bot.api.users.list({}, (err, response) => {
       if (err) console.log(err)
       if (response.hasOwnProperty('members') && response.ok) {
+        console.log(`response:\n${util.inspect(response)}`)
         for (let i = 0; i < response.members.length; i++) {
           const member = response.members[i]
           if (!member.profile.bot_id && !member.deleted && !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
@@ -42,7 +56,7 @@ export default (controller, bot) => {
                   console.log(`new member ${newMember.fullName} saved`)
                 }
                 else newMember.karma = user.karma
-                fullTeamList.push(newMember)
+                fullUserList.push(newMember)
                 localScoreboard.push({ karma: newMember.karma, name: newMember.fullName })
               })
             }
