@@ -14,12 +14,11 @@ export default (controller, bot) => {
   let fullChannelList
   let localScoreboard
 
-  const getUserEmailArray = (bot, currentTeam) => {
+  const getUserEmailArray = (bot) => {
     fullUserList = []
     fullChannelList = []
     localScoreboard = []
 
-    console.log(`Current Team: ${util.inspect(currentTeam)}`)
     bot.api.users.list({}, (err, response) => {
       if (err) console.log(err)
       if (response.hasOwnProperty('members') && response.ok) {
