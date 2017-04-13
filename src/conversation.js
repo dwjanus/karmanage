@@ -128,7 +128,8 @@ export default (controller, bot) => {
     if (message.event !== 'direct_message') bot.reply = bot.replyInThread
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
-      let local = _.find(localScoreboard, { 'team': team.id }).scores
+      console.log(`localScoreboard:\n${util.inspect(localScoreboard)}`)
+      let local = _.find(localScoreboard, { 'team': message.team }).scores
       local = _.orderBy(local, ['karma', 'name'], ['desc', 'asc'])
       console.log(`local:\n${util.inspect(local)}`)
       dbScoreboard(local).then((ordered) => {
