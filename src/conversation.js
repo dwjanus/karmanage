@@ -24,8 +24,9 @@ export default (controller, bot) => {
       if (response.hasOwnProperty('members') && response.ok) {
         for (let i = 0; i < response.members.length; i++) {
           const member = response.members[i]
-          if (_.find(localScoreboard, { 'team': member.team_id }) === undefined) {
-              localScoreboard.push({ team: member.team_id, scores: [] })
+          if (_.find(localScoreboard, { 'team': member.team_id }) == undefined) {
+            console.log(`team: ${member.team_id} not in localScores hash -- added`)
+            localScoreboard.push({ team: member.team_id, scores: [] })
           }
           if (!member.profile.bot_id && !member.deleted &&
             !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
