@@ -108,7 +108,7 @@ controller.storage.teams.all((err, teams) => {
         else {
           const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
-          convo.getUserEmailArray(bot)
+          convo.getUserEmailArray(bot, teams[t].id)
         }
       })
     }

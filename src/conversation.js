@@ -14,20 +14,19 @@ export default (controller, bot) => {
   let fullChannelList
   let localScoreboard
 
-  const getUserEmailArray = (bot) => {
+  const getUserEmailArray = (bot, currentTeam) => {
     fullUserList = []
     fullChannelList = []
-    localScoreboard = []
+    localScoreboard = {}
 
-    console.log(`${util.inspect(bot)}`)
+    console.log(`Current Team: ${util.inspect(currentTeam)}`)
     bot.api.users.list({}, (err, response) => {
       if (err) console.log(err)
       if (response.hasOwnProperty('members') && response.ok) {
-        console.log(`response:\n${util.inspect(response)}`)
         for (let i = 0; i < response.members.length; i++) {
           const member = response.members[i]
-          // if (member.team_id === bot.team_id)
-          if (!member.profile.bot_id && !member.deleted && !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
+          if (member.team_id === currentTeam && !member.profile.bot_id && !member.deleted &&
+            !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
             if (member.real_name.length > 1 && member.name !== 'slackbot') {
               const newMember = {
                 id: member.id,
