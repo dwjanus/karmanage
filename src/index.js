@@ -1,7 +1,7 @@
 
 import http from 'http'
 import Botkit from 'botkit'
-import mongo from 'botkit-storage-mongo'
+import mongo from './db.js'
 import config from './config.js'
 import Conversation from './conversation.js'
 import Promise from 'bluebird'

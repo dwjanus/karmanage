@@ -17,12 +17,12 @@ module.exports = function(config) {
         throw new Error('Need to provide mongo address.')
     }
 
-    var db = monk(config.mongoUri),
-        storage = {};
+    const db = monk(config.mongoUri)
+    let storage = {}
 
     ['teams', 'channels', 'users', 'scores'].forEach(function(zone) {
         storage[zone] = getStorage(db, zone)
-    });
+    })
 
     return storage
 };
