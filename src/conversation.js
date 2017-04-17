@@ -46,7 +46,7 @@ export default (controller, bot) => {
               }
             }
           }
-          Promise.all(fullUserList).then(resolve(fullUserList)).catch((err) => reject(err))
+          return Promise.all(fullUserList).then(resolve(fullUserList)).catch((err) => reject(err))
         }
       })
     })
