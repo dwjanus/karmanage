@@ -56,7 +56,7 @@ export default (controller, bot) => {
                     // } else {
                       scores.ordered.push({ name: newMember.fullName, user_id: newMember.id, karma: newMember.karma })
                       scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
-                      controller.storage.save(scores)
+                      controller.storage.scores.save(scores)
                     // }
                   })
                 })
