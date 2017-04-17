@@ -11,11 +11,9 @@ const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
 
 export default (controller, bot) => {
-  let fullUserList = []
 
   const buildUserArray = (bot) => {
     return new Promise((resolve, reject) => {
-      fullUserList = []
       bot.api.users.list({}, (err, response) => {
         if (err) return reject(err)
         if (response.hasOwnProperty('members') && response.ok) {
@@ -40,47 +38,34 @@ export default (controller, bot) => {
                     console.log(`new member ${newMember.fullName} saved`)
                   }
                   else newMember.karma = user.karma
-                  fullUserList.push(newMember)
-                  console.log(`${member.fullName} added to fullUserList`)
+                  controller.storage.scores.get(newMember.team_id, (err, scores) => {
+                    if (err) return reject(err)
+                    if (!scores) {
+                      console.log(`id: ${newMember.team_id} not found - making new score`)
+                      const newScore = {
+                        id: newMember.team_id,
+                        ordered: [
+                          {
+                            name: newMember.fullName,
+                            user_id: newMember.id,
+                            karma: newMember.karma
+                          }
+                        ]
+                      }
+                      controller.storage.scores.save(newScore)
+                    } else {
+                      scores.ordered.push({ name: newMember.fullName, user_id: newMember.id, karma: newMember.karma })
+                      scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
+                      controller.storage.save(scores)
+                    }
+                  })
                 })
               }
             }
           }
-          return Promise.all(fullUserList).then(() => { return resolve(fullUserList) })
+          return resolve()
         }
       })
-    })
-  }
-
-  const dbScores = () => {
-    console.log('dbScores')
-    return new Promise((resolve, reject) => {
-      console.log(`fullUserList:\n${util.inspect(fullUserList)}`)
-      for (u of fullUserList) { // may have to user a promise.map here
-        controller.storage.scores.get(u.team_id, (err, scores) => {
-          if (err) reject(err)
-          if (!scores) {
-            console.log(`id: ${u.team_id} not found - making new score`)
-            const newScore = {
-              id: u.team_id,
-              ordered: [
-                {
-                  name: u.fullName,
-                  user_id: u.id,
-                  karma: u.karma
-                }
-              ]
-            }
-            controller.storage.scores.save(newScore)
-          } else {
-            scores.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma })
-            scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
-            controller.storage.save(scores)
-          }
-        })
-      }
-      return resolve()
-      // Promise.all(fullUserList).then(return resolve())
     })
   }
 
