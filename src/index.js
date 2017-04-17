@@ -130,7 +130,7 @@ controller.storage.users.all((err, users) => {
           ordered: []
         }
         score.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
-        console.log(`saving new scores document for team: ${teams[t].id}`)
+        console.log(`saving new scores document for team: ${u.team_id}`)
         controller.storage.scores.save(score)
       } else {
         let found = _.findIndex(scores.ordered, (o) => { return o.user_id == u.id })
