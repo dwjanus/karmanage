@@ -19,8 +19,9 @@ module.exports = function(config) {
 
     const db = monk(config.mongoUri)
     let storage = {}
+    const zones = ['teams', 'channels', 'users', 'scores']
 
-    ['teams', 'channels', 'users', 'scores'].forEach(function(zone) {
+    zones.forEach(function(zone) {
         storage[zone] = getStorage(db, zone)
     })
 
