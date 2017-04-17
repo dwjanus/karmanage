@@ -51,9 +51,9 @@ export default (controller, bot) => {
           .catch((err) => {
             return reject(err)
           })
-          return resolve(fullUserList)
         }
       })
+      return resolve(fullUserList)
     })
   }
 
