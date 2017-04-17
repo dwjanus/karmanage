@@ -11,7 +11,7 @@ const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
 
 export default (controller, bot) => {
-  const fullUserList = []
+  let fullUserList = []
 
   const buildUserArray = (bot) => {
     return new Promise((resolve, reject) => {
@@ -41,6 +41,7 @@ export default (controller, bot) => {
                   }
                   else newMember.karma = user.karma
                   fullUserList.push(newMember)
+                  console.log(`${member.fullName} added to fullUserList`)
                 })
               }
             }
