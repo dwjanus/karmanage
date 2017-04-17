@@ -81,7 +81,8 @@ export default (controller, bot) => {
           }
         })
       }
-      Promise.all(fullUserList).then(return resolve())
+      return resolve()
+      // Promise.all(fullUserList).then(return resolve())
     })
   }
 
