@@ -119,28 +119,44 @@ controller.storage.teams.all((err, teams) => {
 })
 
 // build team scores with all users
-controller.storage.users.all((err, users) => {
-  if (err) throw new Error(err)
-  for (let u of users) {
-    controller.storage.scores.get(u.team_id, (err, scores) => {
-      if (err) console.log(err)
-      if (!scores) {
-        let score = {
-          id: u.team_id,
-          ordered: []
-        }
-        score.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
-        console.log(`saving new scores document for team: ${u.team_id}`)
-        controller.storage.scores.save(score)
-      } else {
-        let found = _.findIndex(scores.ordered, (o) => { return o.user_id == u.id })
-        if (found !== -1) scores.ordered[found].karma = u.karma
-        else scores.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
-        scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
-        controller.storage.scores.save(scores)
+const users = Promise.promisify(controller.storage.users.all)
+const dbscores = Promise.promisify(controller.storage.scores.get)
+const buildscores = (u) => {
+  dbscores(u.team_id).then((scores) => {
+    console.log(`${u.team_id} scores:\n${util.inspect(scores)}`)
+    if (!scores) {
+      console.log(`no scores document for team: ${u.team_id}`)
+      let score = {
+        id: u.team_id,
+        ordered: []
       }
-    })
-  }
+      score.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
+      controller.storage.scores.save(score)
+      console.log('new score saved')
+    } else {
+      console.log(`scores document found for team: ${u.team_id}`)
+      let found = _.findIndex(scores.ordered, (o) => { return o.user_id == u.id })
+      if (found !== -1) scores.ordered[found].karma = u.karma
+      else scores.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
+      scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
+      controller.storage.scores.save(scores)
+      console.log('score saved')
+
+    }
+  })
+  .catch((err) => {
+    console.log(err)
+  })
+}
+
+users.then((users) => {
+  console.log(`got ${users.length} users`)
+  return Promise.map(users, (user) => {
+    return buildscores(user)
+  })
+  .then(() => {
+    console.log('score documents complete!')
+  })
 })
 
 
