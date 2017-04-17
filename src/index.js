@@ -2,6 +2,7 @@
 import http from 'http'
 import Botkit from 'botkit'
 import util from 'util'
+import _ from 'lodash'
 import mongo from './db.js'
 import config from './config.js'
 import Conversation from './conversation.js'
