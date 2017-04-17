@@ -12,7 +12,7 @@ const processUsers = scoreHandler.processUsers
 
 export default (controller, bot) => {
 
-  const buildUserArray = (bot) => {
+  const dbScores = (bot) => {
     return new Promise((resolve, reject) => {
       bot.api.users.list({}, (err, response) => {
         if (err) return reject(err)
@@ -272,5 +272,5 @@ export default (controller, bot) => {
     }
   })
 
-  return { buildUserArray, dbScores }
+  return { dbScores }
 }
