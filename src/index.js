@@ -149,7 +149,7 @@ const buildscores = (u) => {
   })
 }
 
-users.then((users) => {
+controller.storage.users.all((err, users) => {
   console.log(`got ${users.length} users`)
   return Promise.map(users, (user) => {
     return buildscores(user)
