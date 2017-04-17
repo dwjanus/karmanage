@@ -16,7 +16,7 @@ export default (controller, bot) => {
   const buildUserArray = (bot) => {
     return new Promise((resolve, reject) => {
       fullUserList = []
-      return bot.api.users.list({}, (err, response) => {
+      bot.api.users.list({}, (err, response) => {
         if (err) return reject(err)
         if (response.hasOwnProperty('members') && response.ok) {
           for (let i = 0; i < response.members.length; i++) {
@@ -46,7 +46,7 @@ export default (controller, bot) => {
               }
             }
           }
-          return resolve(fullUserList)
+          return Promise.all(fullUserList).then(() => { return resolve(fullUserList) })
         }
       })
     })
