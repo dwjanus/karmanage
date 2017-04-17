@@ -110,7 +110,7 @@ controller.storage.teams.all((err, teams) => {
         else {
           const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
-          convo.dbScores().then(() => {
+          convo.dbScores(bot).then(() => {
             console.log('Ordered scores saved per team')
           })
           .catch((err) => {
