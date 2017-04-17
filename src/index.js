@@ -120,12 +120,7 @@ controller.storage.teams.all((err, teams) => {
               console.log(`saving new scores document for team: ${teams[t].id}`)
               controller.storage.scores.save(score)
             }
-            convo.dbScores(bot).then(() => {
-              console.log('Ordered scores saved per team')
-            })
-            .catch((err) => {
-              console.log(err)
-            })
+            convo.dbScores(bot)
           })
         }
       })

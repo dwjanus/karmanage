@@ -13,59 +13,56 @@ const processUsers = scoreHandler.processUsers
 export default (controller, bot) => {
 
   const dbScores = (bot) => {
-    return new Promise((resolve, reject) => {
-      bot.api.users.list({}, (err, response) => {
-        if (err) return reject(err)
-        if (response.hasOwnProperty('members') && response.ok) {
-          for (let i = 0; i < response.members.length; i++) {
-            let member = response.members[i]
-            if (!member.profile.bot_id && !member.deleted &&
-            !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
-              if (member.real_name.length > 1 && member.name !== 'slackbot') {
-                const newMember = {
-                  id: member.id,
-                  team_id: member.team_id,
-                  name: member.name,
-                  fullName: member.real_name,
-                  email: member.profile.email,
-                  karma: 0
-                }
-                controller.storage.users.get(member.id, (err, user) => {
-                  if (err) return reject(err)
-                  if (!user) {
-                    console.log('user not found in db')
-                    controller.storage.users.save(newMember)
-                    console.log(`new member ${newMember.fullName} saved`)
-                  }
-                  else newMember.karma = user.karma
-                  controller.storage.scores.get(newMember.team_id, (err, scores) => {
-                    if (err) return reject(err)
-                    // if (!scores) {
-                    //   console.log(`id: ${newMember.team_id} not found - making new score`)
-                    //   const newScore = {
-                    //     id: newMember.team_id,
-                    //     ordered: [
-                    //       {
-                    //         name: newMember.fullName,
-                    //         user_id: newMember.id,
-                    //         karma: newMember.karma
-                    //       }
-                    //     ]
-                    //   }
-                    //  controller.storage.scores.save(newScore)
-                    // } else {
-                      scores.ordered.push({ name: newMember.fullName, user_id: newMember.id, karma: newMember.karma })
-                      scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
-                      controller.storage.scores.save(scores)
-                    // }
-                  })
-                })
+    bot.api.users.list({}, (err, response) => {
+      if (err) console.log(err)
+      if (response.hasOwnProperty('members') && response.ok) {
+        for (let i = 0; i < response.members.length; i++) {
+          let member = response.members[i]
+          if (!member.profile.bot_id && !member.deleted &&
+          !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
+            if (member.real_name.length > 1 && member.name !== 'slackbot') {
+              const newMember = {
+                id: member.id,
+                team_id: member.team_id,
+                name: member.name,
+                fullName: member.real_name,
+                email: member.profile.email,
+                karma: 0
               }
+              controller.storage.users.get(member.id, (err, user) => {
+                if (err) console.log(err)
+                if (!user) {
+                  console.log('user not found in db')
+                  controller.storage.users.save(newMember)
+                  console.log(`new member ${newMember.fullName} saved`)
+                }
+                else newMember.karma = user.karma
+                controller.storage.scores.get(newMember.team_id, (err, scores) => {
+                  if (err) console.log(err)
+                  // if (!scores) {
+                  //   console.log(`id: ${newMember.team_id} not found - making new score`)
+                  //   const newScore = {
+                  //     id: newMember.team_id,
+                  //     ordered: [
+                  //       {
+                  //         name: newMember.fullName,
+                  //         user_id: newMember.id,
+                  //         karma: newMember.karma
+                  //       }
+                  //     ]
+                  //   }
+                  //  controller.storage.scores.save(newScore)
+                  let found = _.find(scores.ordered, { 'user_id': newMember.id })
+                  if (found) found.karma = newMember.karma
+                  else scores.ordered.push({ name: newMember.fullName, user_id: newMember.id, karma: newMember.karma })
+                  scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
+                  controller.storage.scores.save(scores)
+                })
+              })
             }
           }
-          return resolve()
         }
-      })
+      }
     })
   }
 
