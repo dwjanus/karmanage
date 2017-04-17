@@ -111,40 +111,38 @@ controller.storage.teams.all((err, teams) => {
         else {
           const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
-          controller.storage.scores.get(teams[t].id, (err, scores) => {
-            if (err) console.log(err)
-            if (!scores) {
-              let score = {
-                id: teams[t].id,
-                ordered: []
-              }
-              console.log(`saving new scores document for team: ${teams[t].id}`)
-              controller.storage.scores.save(score)
-            }
-            convo.buildUserArray(bot)
-          })
+          convo.buildUserArray(bot)
         }
       })
     }
   }
-  dbScores()
 })
 
-const dbScores = () => {
-  controller.storage.users.all((err, users) => {
-    if (err) throw new Error(err)
-    for (let u of users) {
-      controller.storage.scores.get(u.team_id, (err, scores) => {
-        if (err) console.log(err)
+// build team scores with all users
+controller.storage.users.all((err, users) => {
+  if (err) throw new Error(err)
+  for (let u of users) {
+    controller.storage.scores.get(u.team_id, (err, scores) => {
+      if (err) console.log(err)
+      if (!scores) {
+        let score = {
+          id: u.team_id,
+          ordered: []
+        }
+        score.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
+        console.log(`saving new scores document for team: ${teams[t].id}`)
+        controller.storage.scores.save(score)
+      } else {
         let found = _.findIndex(scores.ordered, (o) => { return o.user_id == u.id })
         if (found !== -1) scores.ordered[found].karma = u.karma
         else scores.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
         scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
         controller.storage.scores.save(scores)
-      })
-    }
-  })
-}
+      }
+    })
+  }
+})
+
 
 // Simple hack to ping server every 5min and keep app running
 setInterval(() => {
