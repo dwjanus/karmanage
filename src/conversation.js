@@ -40,24 +40,24 @@ export default (controller, bot) => {
                   else newMember.karma = user.karma
                   controller.storage.scores.get(newMember.team_id, (err, scores) => {
                     if (err) return reject(err)
-                    if (!scores) {
-                      console.log(`id: ${newMember.team_id} not found - making new score`)
-                      const newScore = {
-                        id: newMember.team_id,
-                        ordered: [
-                          {
-                            name: newMember.fullName,
-                            user_id: newMember.id,
-                            karma: newMember.karma
-                          }
-                        ]
-                      }
-                      controller.storage.scores.save(newScore)
-                    } else {
+                    // if (!scores) {
+                    //   console.log(`id: ${newMember.team_id} not found - making new score`)
+                    //   const newScore = {
+                    //     id: newMember.team_id,
+                    //     ordered: [
+                    //       {
+                    //         name: newMember.fullName,
+                    //         user_id: newMember.id,
+                    //         karma: newMember.karma
+                    //       }
+                    //     ]
+                    //   }
+                    //  controller.storage.scores.save(newScore)
+                    // } else {
                       scores.ordered.push({ name: newMember.fullName, user_id: newMember.id, karma: newMember.karma })
                       scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
                       controller.storage.save(scores)
-                    }
+                    // }
                   })
                 })
               }
