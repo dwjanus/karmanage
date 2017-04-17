@@ -19,7 +19,8 @@ export default (controller, bot) => {
       bot.api.users.list({}, (err, response) => {
         if (err) return reject(err)
         if (response.hasOwnProperty('members') && response.ok) {
-          return Promise.map(response.members, (member) => {
+          for (let i = 0; i < response.members.length; i++) {
+            let member = response.members[i]
             if (!member.profile.bot_id && !member.deleted &&
             !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
               if (member.real_name.length > 1 && member.name !== 'slackbot') {
@@ -43,17 +44,10 @@ export default (controller, bot) => {
                 })
               }
             }
-            return fullUserList
-          })
-          .then(() => {
-            return resolve(fullUserList)
-          })
-          .catch((err) => {
-            return reject(err)
-          })
+          }
         }
+        return resolve(fullUserList)
       })
-      return resolve(fullUserList)
     })
   }
 
