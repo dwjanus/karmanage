@@ -119,11 +119,10 @@ controller.storage.teams.all((err, teams) => {
 })
 
 // build team scores with all users
-const users = Promise.promisify(controller.storage.users.all)
-const dbscores = Promise.promisify(controller.storage.scores.get)
 const buildscores = (u) => {
-  dbscores(u.team_id).then((scores) => {
-    console.log(`${u.team_id} scores:\n${util.inspect(scores)}`)
+  controller.storage.scores.get(u.team_id, (err, scores) => {
+    console.log(`current user: ${u.fullName}, ${u.team_id} scores:\n${util.inspect(scores)}`)
+    if (err) console.log(err)
     if (!scores) {
       console.log(`no scores document for team: ${u.team_id}`)
       let score = {
@@ -132,7 +131,7 @@ const buildscores = (u) => {
       }
       score.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
       controller.storage.scores.save(score)
-      console.log('new score saved')
+      console.log('new score saved\n')
     } else {
       console.log(`scores document found for team: ${u.team_id}`)
       let found = _.findIndex(scores.ordered, (o) => { return o.user_id == u.id })
@@ -140,18 +139,14 @@ const buildscores = (u) => {
       else scores.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
       scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
       controller.storage.scores.save(scores)
-      console.log('score saved')
-
+      console.log('score saved\n')
     }
-  })
-  .catch((err) => {
-    console.log(err)
   })
 }
 
 controller.storage.users.all((err, users) => {
   console.log(`got ${users.length} users`)
-  return Promise.map(users, (user) => {
+  Promise.map(users, (user) => {
     return buildscores(user)
   })
   .then(() => {
