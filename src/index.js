@@ -120,7 +120,13 @@ controller.storage.teams.all((err, teams) => {
               console.log(`saving new scores document for team: ${teams[t].id}`)
               controller.storage.scores.save(score)
             }
-            convo.dbScores(bot)
+            convo.buildUserArray(bot).then((userList) => {
+              console.log(`user list built:\n${util.inspect(userList)}`)
+              convo.dbScores()
+            })
+            .catch((err) => {
+              console.log(err)
+            })
           })
         }
       })

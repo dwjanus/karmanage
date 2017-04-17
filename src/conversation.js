@@ -11,59 +11,64 @@ const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
 
 export default (controller, bot) => {
+  let fullUserList = []
 
-  const dbScores = (bot) => {
-    bot.api.users.list({}, (err, response) => {
-      if (err) console.log(err)
-      if (response.hasOwnProperty('members') && response.ok) {
-        for (let i = 0; i < response.members.length; i++) {
-          let member = response.members[i]
-          if (!member.profile.bot_id && !member.deleted &&
-          !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
-            if (member.real_name.length > 1 && member.name !== 'slackbot') {
-              const newMember = {
-                id: member.id,
-                team_id: member.team_id,
-                name: member.name,
-                fullName: member.real_name,
-                email: member.profile.email,
-                karma: 0
-              }
-              controller.storage.users.get(member.id, (err, user) => {
-                if (err) console.log(err)
-                if (!user) {
-                  console.log('user not found in db')
-                  controller.storage.users.save(newMember)
-                  console.log(`new member ${newMember.fullName} saved`)
+  const buildUserArray = (bot) => {
+    return new Promise((resolve, reject) => {
+      fullUserList = []
+      bot.api.users.list({}, (err, response) => {
+        if (err) return reject(err)
+        if (response.hasOwnProperty('members') && response.ok) {
+          for (let i = 0; i < response.members.length; i++) {
+            let member = response.members[i]
+            if (!member.profile.bot_id && !member.deleted &&
+            !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
+              if (member.real_name.length > 1 && member.name !== 'slackbot') {
+                const newMember = {
+                  id: member.id,
+                  team_id: member.team_id,
+                  name: member.name,
+                  fullName: member.real_name,
+                  email: member.profile.email,
+                  karma: 0
                 }
-                else newMember.karma = user.karma
-                controller.storage.scores.get(newMember.team_id, (err, scores) => {
-                  if (err) console.log(err)
-                  // if (!scores) {
-                  //   console.log(`id: ${newMember.team_id} not found - making new score`)
-                  //   const newScore = {
-                  //     id: newMember.team_id,
-                  //     ordered: [
-                  //       {
-                  //         name: newMember.fullName,
-                  //         user_id: newMember.id,
-                  //         karma: newMember.karma
-                  //       }
-                  //     ]
-                  //   }
-                  //  controller.storage.scores.save(newScore)
-                  let found = _.find(scores.ordered, { 'user_id': newMember.id })
-                  if (found) found.karma = newMember.karma
-                  else scores.ordered.push({ name: newMember.fullName, user_id: newMember.id, karma: newMember.karma })
-                  scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
-                  controller.storage.scores.save(scores)
+                controller.storage.users.get(member.id, (err, user) => {
+                  if (err) return reject(err)
+                  if (!user) {
+                    console.log('user not found in db')
+                    controller.storage.users.save(newMember)
+                    console.log(`new member ${newMember.fullName} saved`)
+                  }
+                  else newMember.karma = user.karma
+                  fullUserList.push(newMember)
+                  console.log(`${member.fullName} added to fullUserList`)
                 })
-              })
+              }
             }
           }
+          Promise.all(fullUserList).then(resolve(fullUserList)).catch((err) => reject(err))
         }
-      }
+      })
     })
+  }
+
+  const dbScores = () => {
+    console.log('dbScores')
+    // return new Promise((resolve, reject) => {
+      console.log(`fullUserList:\n${util.inspect(fullUserList)}`)
+      for (u of fullUserList) { // may have to user a promise.map here
+        controller.storage.scores.get(u.team_id, (err, scores) => {
+          if (err) console.log(err)
+          let found = _.findIndex(scores.ordered, (o) => { return o.user_id == u.id })
+          if (found !== -1) scores.ordered[found].karma = u.karma
+          else scores.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
+          scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
+          controller.storage.scores.save(scores)
+        })
+      }
+      // return resolve()
+      // Promise.all(fullUserList).then(return resolve())
+    // })
   }
 
   controller.hears(['(^help$)'], ['direct_message', 'direct_mention'], (bot, message) => {
@@ -269,5 +274,5 @@ export default (controller, bot) => {
     }
   })
 
-  return { dbScores }
+  return { buildUserArray, dbScores }
 }
