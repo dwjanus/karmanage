@@ -16,7 +16,7 @@ export default (controller, bot) => {
   const buildUserArray = (bot) => {
     return new Promise((resolve, reject) => {
       fullUserList = []
-      bot.api.users.list({}, (err, response) => {
+      return bot.api.users.list({}, (err, response) => {
         if (err) return reject(err)
         if (response.hasOwnProperty('members') && response.ok) {
           for (let i = 0; i < response.members.length; i++) {
@@ -45,18 +45,21 @@ export default (controller, bot) => {
               }
             }
           }
+          return resolve(fullUserList)
         }
-        return resolve(fullUserList)
       })
     })
   }
 
   const dbScores = () => {
+    console.log('dbScores')
     return new Promise((resolve, reject) => {
+      console.log(`fullUserList:\n${util.inspect(fullUserList)}`)
       for (u of fullUserList) { // may have to user a promise.map here
         controller.storage.scores.get(u.team_id, (err, scores) => {
           if (err) reject(err)
           if (!scores) {
+            console.log(`id: ${u.team_id} not found - making new score`)
             const newScore = {
               id: u.team_id,
               ordered: [
