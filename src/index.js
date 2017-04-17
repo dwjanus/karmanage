@@ -146,12 +146,7 @@ const buildscores = (u) => {
 
 controller.storage.users.all((err, users) => {
   console.log(`got ${users.length} users`)
-  Promise.map(users, (user) => {
-    return buildscores(user)
-  })
-  .then(() => {
-    console.log('score documents complete!')
-  })
+  _.forEach(users, buildscores(user))
 })
 
 
