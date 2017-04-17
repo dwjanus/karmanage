@@ -57,7 +57,7 @@ export default (controller, bot) => {
     })
   }
 
-  const dBScores = () => {
+  const dbScores = () => {
     return new Promise((resolve, reject) => {
       for (u of fullUserList) { // may have to user a promise.map here
         controller.storage.scores.get(u.team_id, (err, scores) => {
