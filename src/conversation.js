@@ -55,7 +55,7 @@ export default (controller, bot) => {
         }
       })
     })
-  })
+  }
 
   const dBScores = () => {
     return new Promise((resolve, reject) => {
