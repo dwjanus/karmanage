@@ -14,7 +14,7 @@ export default (controller, bot) => {
   let fullUserList = []
 
   const buildUserArray = (bot) => {
-    return new Promise((resolve, reject) => {
+    // return new Promise((resolve, reject) => {
       fullUserList = []
       bot.api.users.list({}, (err, response) => {
         if (err) return reject(err)
@@ -40,36 +40,36 @@ export default (controller, bot) => {
                     console.log(`new member ${newMember.fullName} saved`)
                   }
                   else newMember.karma = user.karma
-                  fullUserList.push(newMember)
+                  // fullUserList.push(newMember)
                   // console.log(`${newMember.fullName} added to fullUserList`)
                 })
               }
             }
           }
-          return Promise.all(fullUserList).then(resolve(fullUserList)).catch((err) => reject(err))
+          // return Promise.all(fullUserList).then(resolve(fullUserList)).catch((err) => reject(err))
         }
       })
-    })
-  }
-
-  const dbScores = (fullUserList) => {
-    console.log('dbScores')
-    // return new Promise((resolve, reject) => {
-      console.log(`fullUserList:\n${util.inspect(fullUserList)}`)
-      for (u of fullUserList) { // may have to user a promise.map here
-        controller.storage.scores.get(u.team_id, (err, scores) => {
-          if (err) console.log(err)
-          let found = _.findIndex(scores.ordered, (o) => { return o.user_id == u.id })
-          if (found !== -1) scores.ordered[found].karma = u.karma
-          else scores.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
-          scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
-          controller.storage.scores.save(scores)
-        })
-      }
-      // return resolve()
-      // Promise.all(fullUserList).then(return resolve())
     // })
   }
+
+  // const dbScores = (fullUserList) => {
+  //   console.log('dbScores')
+  //   // return new Promise((resolve, reject) => {
+  //     console.log(`fullUserList:\n${util.inspect(fullUserList)}`)
+  //     for (u of fullUserList) { // may have to user a promise.map here
+  //       controller.storage.scores.get(u.team_id, (err, scores) => {
+  //         if (err) console.log(err)
+  //         let found = _.findIndex(scores.ordered, (o) => { return o.user_id == u.id })
+  //         if (found !== -1) scores.ordered[found].karma = u.karma
+  //         else scores.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
+  //         scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
+  //         controller.storage.scores.save(scores)
+  //       })
+  //     }
+  //     // return resolve()
+  //     // Promise.all(fullUserList).then(return resolve())
+  //   // })
+  // }
 
   controller.hears(['(^help$)'], ['direct_message', 'direct_mention'], (bot, message) => {
     let attachments = [
@@ -274,5 +274,5 @@ export default (controller, bot) => {
     }
   })
 
-  return { buildUserArray, dbScores }
+  return { buildUserArray }
 }

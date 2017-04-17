@@ -103,7 +103,7 @@ controller.on('rtm_close', (bot) => {
 controller.storage.teams.all((err, teams) => {
   console.log('** connecting teams **\n')
   if (err) throw new Error(err)
-  for (const t in teams) {
+  for (let t in teams) {
     if (teams[t].bot) {
       const bot = controller.spawn(teams[t]).startRTM((error) => {
         if (error) console.log(`Error: ${error} while connecting bot ${teams[t].bot} to Slack for team: ${teams[t].id}`)
@@ -120,19 +120,30 @@ controller.storage.teams.all((err, teams) => {
               console.log(`saving new scores document for team: ${teams[t].id}`)
               controller.storage.scores.save(score)
             }
-            convo.buildUserArray(bot).then((userList) => {
-              console.log(`user list built:\n${util.inspect(userList)}`)
-              convo.dbScores(userList)
-            })
-            .catch((err) => {
-              console.log(err)
-            })
+            convo.buildUserArray(bot)
           })
         }
       })
     }
   }
+  dbScores()
 })
+
+const dbScores = () => {
+  controller.storage.users.all((err, users) => {
+    if (err) throw new Error(err)
+    for (let u of users) {
+      controller.storage.scores.get(u.team_id, (err, scores) => {
+        if (err) console.log(err)
+        let found = _.findIndex(scores.ordered, (o) => { return o.user_id == u.id })
+        if (found !== -1) scores.ordered[found].karma = u.karma
+        else scores.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
+        scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
+        controller.storage.scores.save(scores)
+      })
+    }
+  })
+}
 
 // Simple hack to ping server every 5min and keep app running
 setInterval(() => {
