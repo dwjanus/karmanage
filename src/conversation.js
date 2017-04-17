@@ -2,6 +2,7 @@
 import util from 'util'
 import _ from 'lodash'
 import scoreHandler from './scoreboard.js'
+import Promise from 'bluebird'
 
 const dbScoreboard = scoreHandler.dbScoreboard
 const buildScoreboard = scoreHandler.buildScoreboard
@@ -11,59 +12,76 @@ const processUsers = scoreHandler.processUsers
 
 export default (controller, bot) => {
   let fullUserList
-  let fullChannelList
-  let localScoreboard = []
 
-  const getUserEmailArray = (bot) => {
-    fullUserList = []
-    fullChannelList = []
-
-    bot.api.users.list({}, (err, response) => {
-      if (err) console.log(err)
-      if (response.hasOwnProperty('members') && response.ok) {
-        for (let i = 0; i < response.members.length; i++) {
-          const member = response.members[i]
-          if (!member.profile.bot_id && !member.deleted &&
+  const buildUserArray = (bot) => {
+    return new Promise((resolve, reject) => {
+      fullUserList = []
+      bot.api.users.list({}, (err, response) => {
+        if (err) return reject(err)
+        if (response.hasOwnProperty('members') && response.ok) {
+          return Promise.map(response.members, (member) => {
+            if (!member.profile.bot_id && !member.deleted &&
             !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
-            if (member.real_name.length > 1 && member.name !== 'slackbot') {
-              const newMember = {
-                id: member.id,
-                team_id: member.team_id,
-                name: member.name,
-                fullName: member.real_name,
-                email: member.profile.email,
-                karma: 0
-              }
-              if (_.find(localScoreboard, { 'team': member.team_id }) == undefined) {
-                console.log(`team: ${member.team_id} not in localScores hash -- added`)
-                localScoreboard.push({ team: member.team_id, scores: [] })
-              }
-              controller.storage.users.get(member.id, (err, user) => {
-                if (err) console.log(err)
-                if (!user) {
-                  console.log('user not found in db')
-                  controller.storage.users.save(newMember)
-                  console.log(`new member ${newMember.fullName} saved`)
+              if (member.real_name.length > 1 && member.name !== 'slackbot') {
+                const newMember = {
+                  id: member.id,
+                  team_id: member.team_id,
+                  name: member.name,
+                  fullName: member.real_name,
+                  email: member.profile.email,
+                  karma: 0
                 }
-                else newMember.karma = user.karma
-                fullUserList.push(newMember)
-                _.find(localScoreboard, { 'team': newMember.team_id }).scores.push({ karma: newMember.karma, name: newMember.fullName })
-              })
+                controller.storage.users.get(member.id, (err, user) => {
+                  if (err) return reject(err)
+                  if (!user) {
+                    console.log('user not found in db')
+                    controller.storage.users.save(newMember)
+                    console.log(`new member ${newMember.fullName} saved`)
+                  }
+                  else newMember.karma = user.karma
+                  fullUserList.push(newMember)
+                })
+              }
             }
-          }
+            return fullUserList
+          })
+          .then(() => {
+            return resolve(fullUserList)
+          })
+          .catch((err) => {
+            return reject(err)
+          })
+          return resolve(fullUserList)
         }
-      }
+      })
     })
+  })
 
-    bot.api.channels.list({}, (err, response) => {
-      if (err) console.log(err)
-      if (response.hasOwnProperty('channels') && response.ok) {
-        const total = response.channels.length
-        for (let i = 0; i < total; i++) {
-          const channel = response.channels[i]
-          fullChannelList.push({ id: channel.id, name: channel.name })
-        }
+  const dBScores = () => {
+    return new Promise((resolve, reject) => {
+      for (u of fullUserList) { // may have to user a promise.map here
+        controller.storage.scores.get(u.team_id, (err, scores) => {
+          if (err) reject(err)
+          if (!scores) {
+            const newScore = {
+              id: u.team_id,
+              ordered: [
+                {
+                  name: u.fullName,
+                  user_id: u.id,
+                  karma: u.karma
+                }
+              ]
+            }
+            controller.storage.scores.save(newScore)
+          } else {
+            scores.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma })
+            scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
+            controller.storage.save(scores)
+          }
+        })
       }
+      Promise.all(fullUserList).then(return resolve())
     })
   }
 
@@ -270,5 +288,5 @@ export default (controller, bot) => {
     }
   })
 
-  return { getUserEmailArray }
+  return { buildUserArray, dbScores }
 }

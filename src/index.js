@@ -4,6 +4,7 @@ import Botkit from 'botkit'
 import mongo from 'botkit-storage-mongo'
 import config from './config.js'
 import Conversation from './conversation.js'
+import Promise from 'bluebird'
 
 /*************************************************************************************************/
 
@@ -89,11 +90,11 @@ controller.on('create_bot', (bot, botConfig) => {
 
 // Handle events related to the websocket connection to Slack
 controller.on('rtm_open', (bot) => {
-  console.log(`** The RTM api just connected! -- ${bot.id}`)
+  console.log(`** The RTM api just connected! -- ${bot}`)
 })
 
 controller.on('rtm_close', (bot) => {
-  console.log(`** The RTM api just closed -- ${bot.id}`)
+  console.log(`** The RTM api just closed -- ${bot}`)
   // may want to attempt to re-open
 })
 
@@ -108,7 +109,15 @@ controller.storage.teams.all((err, teams) => {
         else {
           const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
-          convo.getUserEmailArray(bot)
+          convo.buildUserArray(bot).then((fullUserList) => {
+            console.log(`fullUserList built:\n${util.inspect(fullUserList)}`)
+            convo.dbScores().then(() => {
+              console.log('Ordered scores saved per team')
+            })
+          })
+          .catch((err) => {
+            console.log(err)
+          })
         }
       })
     }

@@ -1,7 +1,7 @@
 import util from 'util'
 import _ from 'lodash'
 import Promise from 'bluebird'
-import mongo from 'botkit-storage-mongo'
+import mongo from './db.js'
 import config from './config.js'
 
 const storage = mongo({ mongoUri: config('MONGODB_URI') })
