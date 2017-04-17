@@ -146,7 +146,7 @@ const buildscores = (u) => {
 
 controller.storage.users.all((err, users) => {
   console.log(`got ${users.length} users`)
-  _.forEach(users, buildscores(user))
+  _.forEach(users, (user) => buildscores(user))
 })
 
 
