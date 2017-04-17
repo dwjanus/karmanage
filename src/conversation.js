@@ -41,7 +41,7 @@ export default (controller, bot) => {
                   }
                   else newMember.karma = user.karma
                   fullUserList.push(newMember)
-                  console.log(`${member.fullName} added to fullUserList`)
+                  // console.log(`${newMember.fullName} added to fullUserList`)
                 })
               }
             }
@@ -52,7 +52,7 @@ export default (controller, bot) => {
     })
   }
 
-  const dbScores = () => {
+  const dbScores = (fullUserList) => {
     console.log('dbScores')
     // return new Promise((resolve, reject) => {
       console.log(`fullUserList:\n${util.inspect(fullUserList)}`)

@@ -122,7 +122,7 @@ controller.storage.teams.all((err, teams) => {
             }
             convo.buildUserArray(bot).then((userList) => {
               console.log(`user list built:\n${util.inspect(userList)}`)
-              convo.dbScores()
+              convo.dbScores(userList)
             })
             .catch((err) => {
               console.log(err)
