@@ -80,7 +80,8 @@ const dbScoreboard = (teamId) => {
             scoreboard[index].scores.push(scores.ordered[i])
           }
         }
-        scores.ordered[i].rank_id = index
+        scores.ordered[i].rank_index = index
+        if ( scores.ordered[i].rankd_id) delete scores.ordered[i].rankd_id
         storage.scores.save(scores)
       }
       Promise.all(scoreboard).then(resolve(scoreboard)).catch((err) => reject(err))
