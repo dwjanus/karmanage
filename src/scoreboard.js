@@ -179,8 +179,8 @@ const buildNearby = (nearbyArray) => {
       console.log('(loop)')
       if (nearbyArray[i].karma < nearbyArray[i - 1].karma) {
         c += 1
-        output.attachments.push({ text: `${nearbyArray[start].rank_id + 1}: ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`, color: colors[c] })
-      } else output.attachments[c].text += `     ${s.name} - ${s.karma}\n`
+        output.attachments.push({ text: `${nearbyArray[i].rank_id + 1}: ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`, color: colors[c] })
+      } else output.attachments[c].text += `     ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`
     }
     console.log(`output:\n${util.inspect(output)}`)
     Promise.all(output.attachments).then(resolve(output)).catch((err) => reject(err))
