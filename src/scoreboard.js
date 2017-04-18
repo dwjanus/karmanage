@@ -48,6 +48,8 @@ const dbScoreboard = (teamId) => {
             scoreboard[index].scores.push(o)
           }
         }
+        o.rank_index = index
+        storage.scores.save(o)
         return scoreboard
       })
       .then(() => {
@@ -171,13 +173,14 @@ const buildNearby = (nearbyArray, start) => {
     let output = { attachments: [] }
     if (!nearbyArray || _.isEmpty(nearbyArray)) resolve(output)
     let c = 0
-    output.attachments.push({ text: `${start + 1}: ${nearbyArray[start].name} - ${nearbyArray[start].karma}\n`, color: colors[c] })
-    for (let i = start + 1; i < nearbyArray.length; i++) { // i was initially = 6 (?)
+    output.attachments.push({ text: `${nearbyArray[start].rank_id}: ${nearbyArray[start].name} - ${nearbyArray[start].karma}\n`, color: colors[c] })
+    for (let i = start + 1; i < nearbyArray.length; i++) {
       if (nearbyArray[i].karma < nearbyArray[i - 1].karma) {
         c += 1
-        output.attachments.push({ text: `${i + 1}: ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`, color: colors[c] })
+        output.attachments.push({ text: `${nearbyArray[start].rank_id}: ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`, color: colors[c] })
       } else output.attachments[c].text += `     ${s.name} - ${s.karma}\n`
     }
+    console.log(`output:\n${util.inspect(output)}`)
     Promise.all(output.attachments).then(resolve(output)).catch((err) => reject(err))
   })
 }
