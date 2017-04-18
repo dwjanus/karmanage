@@ -6,6 +6,7 @@ import Promise from 'bluebird'
 
 const dbScoreboard = scoreHandler.dbScoreboard
 const buildScoreboard = scoreHandler.buildScoreboard
+const buildLimitedScoreboard = scoreHandler.buildLimitedScoreboard
 const addKarma = scoreHandler.addKarma
 const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
