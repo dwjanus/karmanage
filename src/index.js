@@ -124,7 +124,7 @@ const buildscores = (teamId) => {
   controller.storage.users.all((err, users) => {
     if (err) console.log(err)
     console.log(`${users.length} total users`)
-    let team = _.filter(users, (o) => { return o.team_id == teamId })
+    let team = _.filter(users, (o) => { return o.team_id == teamId && o.fullName !== null || undefined })
     console.log(`got ${team.length} users for current team: ${teamId}`)
     controller.storage.scores.get(teamId, (err, scores) => {
       if (err) console.log(err)
