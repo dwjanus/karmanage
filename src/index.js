@@ -139,7 +139,7 @@ const buildscores = (teamId) => {
         console.log(`new scores document created for team: ${teamId}`)
         for (let user of team) {
           if (user.name != null || undefined || '' && user.karma) {
-            newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma})            
+            newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma})
           }
         }
       } else {
