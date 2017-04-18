@@ -137,7 +137,7 @@ const buildscores = (teamId) => {
         controller.storage.scores.save(newScores)
         for (let user of team) {
           if (user.name != null || undefined || '' && user.karma) {
-            newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma})
+            newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma, rank_id: null })
           }
         }
       } else {
@@ -146,7 +146,7 @@ const buildscores = (teamId) => {
           if (user.name != null || undefined || '' && user.karma) {
             let found = _.findIndex(newScores.ordered, (o) => { return o.user_id == user.id })
             if (found !== -1) newScores.ordered[found].karma = user.karma
-            else newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma})
+            else newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma, rank_id: null })
           }
         }
       }
