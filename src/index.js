@@ -112,7 +112,7 @@ controller.storage.teams.all((err, teams) => {
           const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
           convo.buildUserArray(bot)
-          buildscores(team[t].id)
+          buildscores(teams[t].id)
         }
       })
     }
@@ -142,7 +142,7 @@ const buildscores = (teamId) => {
       }
 
       for (user of team) {
-        let found = _.findIndex(newScores.ordered, (o) => { return o.user_id == u.id })
+        let found = _.findIndex(newScores.ordered, (o) => { return o.user_id == user.id })
         if (found !== -1) newScores.ordered[found].karma = user.karma
         else newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma})
       }
