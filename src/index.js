@@ -143,9 +143,11 @@ const buildscores = (teamId) => {
       } else {
         newScores = scores
         for (let user of team) {
-          let found = _.findIndex(newScores.ordered, (o) => { return o.user_id == user.id })
-          if (found !== -1) newScores.ordered[found].karma = user.karma
-          else newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma})
+          if (user.name != null || undefined || '' && user.karma) {
+            let found = _.findIndex(newScores.ordered, (o) => { return o.user_id == user.id })
+            if (found !== -1) newScores.ordered[found].karma = user.karma
+            else newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma})
+          }
         }
       }
       newScores.ordered = _.orderBy(newScores.ordered, ['karma', 'name'], ['desc', 'asc'])
