@@ -101,6 +101,7 @@ const updateScores = (user) => {
     if (err) console.log(err)
     let found = _.findIndex(scores.ordered, (o) => { return o.user_id == user.id })
     scores.ordered[found].karma = user.karma
+    scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
     storage.scores.save(scores)
   })
 }
