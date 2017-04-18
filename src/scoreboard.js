@@ -69,7 +69,6 @@ const buildScoreboard = (team) => {
     console.log(`[buildScoreboard] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
     return Promise.join(buildLeaderboard(leaders), buildLoserboard(losers), (leaderboard, loserboard) => {
       if (loserboard.attachments) leaderboard.attachments = leaderboard.attachments.concat(loserboard.attachments)
-      console.log(`[buildScoreboard] leaderboard before resolve:\n${util.inspect(leaderboard)}`)
       return resolve(leaderboard)
     })
     .catch((err) => {
