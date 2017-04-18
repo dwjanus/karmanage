@@ -29,32 +29,35 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 //   })
 // }
 
-const dbScoreboard = (orderedScores) => {
+const dbScoreboard = (teamId) => {
   return new Promise((resolve, reject) => {
-    if (orderedScores === undefined) return reject()
+    if (teamId === undefined) return reject()
     let index = 0
     let scoreboard = [ { scores: [] } ]
-    return Promise.map(orderedScores, (o) => {
-      if (_.isEmpty(scoreboard[index].scores)) {
-        scoreboard[index].scores.push(o)
-      } else {
-        if (scoreboard[index].scores[0].karma === o.karma) {
+    storage.scores.get(teamId, (err, scores) => {
+      if (err) return reject(err)
+      return Promise.map(scores.ordered, (o) => {
+        if (_.isEmpty(scoreboard[index].scores)) {
           scoreboard[index].scores.push(o)
         } else {
-          index++
-          scoreboard[index] = { scores: [] }
-          scoreboard[index].scores.push(o)
+          if (scoreboard[index].scores[0].karma === o.karma) {
+            scoreboard[index].scores.push(o)
+          } else {
+            index++
+            scoreboard[index] = { scores: [] }
+            scoreboard[index].scores.push(o)
+          }
         }
-      }
-      return scoreboard
-    })
-    .then(() => {
+        return scoreboard
+      })
+      .then(() => {
+        return resolve(scoreboard)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
       return resolve(scoreboard)
     })
-    .catch((err) => {
-      console.log(err)
-    })
-    return resolve(scoreboard)
   })
 }
 
@@ -76,15 +79,26 @@ const buildScoreboard = (team) => {
   })
 }
 
+const updateScores = (user) => {
+  storage.scores.get(user.team_id, (err, scores) => {
+    if (err) console.log(err)
+    let found = _.findIndex(scores.ordered, (o) => { return o.user_id == user.id })
+    scores.ordered[found].karma = user.karma
+    storage.scores.save(scores)
+  })
+}
+
 const addKarma = (user) => {
   user.karma = _.toInteger(user.karma) + 1
   storage.users.save(user)
+  updateScores(user)
   console.log(`[scoreboard] user ${user.id} saved with new karma of ${user.karma}`)
 }
 
 const subtractKarma = (user) => {
   user.karma = _.toInteger(user.karma) - 1
   storage.users.save(user)
+  updateScores(user)
   console.log(`[scoreboard] user ${user.id} saved with new karma of ${user.karma} - updating now...`)
 }
 

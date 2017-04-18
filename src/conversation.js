@@ -11,65 +11,38 @@ const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
 
 export default (controller, bot) => {
-  let fullUserList = []
-
   const buildUserArray = (bot) => {
-    // return new Promise((resolve, reject) => {
-      fullUserList = []
-      bot.api.users.list({}, (err, response) => {
-        if (err) return reject(err)
-        if (response.hasOwnProperty('members') && response.ok) {
-          for (let i = 0; i < response.members.length; i++) {
-            let member = response.members[i]
-            if (!member.profile.bot_id && !member.deleted &&
-            !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
-              if (member.real_name.length > 1 && member.name !== 'slackbot') {
-                const newMember = {
-                  id: member.id,
-                  team_id: member.team_id,
-                  name: member.name,
-                  fullName: member.real_name,
-                  email: member.profile.email,
-                  karma: 0
-                }
-                controller.storage.users.get(member.id, (err, user) => {
-                  if (err) return reject(err)
-                  if (!user) {
-                    console.log('user not found in db')
-                    controller.storage.users.save(newMember)
-                    console.log(`new member ${newMember.fullName} saved`)
-                  }
-                  else newMember.karma = user.karma
-                  // fullUserList.push(newMember)
-                  // console.log(`${newMember.fullName} added to fullUserList`)
-                })
+    bot.api.users.list({}, (err, response) => {
+      if (err) console.log(err)
+      if (response.hasOwnProperty('members') && response.ok) {
+        for (let i = 0; i < response.members.length; i++) {
+          let member = response.members[i]
+          if (!member.profile.bot_id && !member.deleted &&
+          !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
+            if (member.real_name.length > 1 && member.name !== 'slackbot') {
+              const newMember = {
+                id: member.id,
+                team_id: member.team_id,
+                name: member.name,
+                fullName: member.real_name,
+                email: member.profile.email,
+                karma: 0
               }
+              controller.storage.users.get(member.id, (err, user) => {
+                if (err) console.log(err)
+                if (!user) {
+                  console.log('user not found in db')
+                  controller.storage.users.save(newMember)
+                  console.log(`new member ${newMember.fullName} saved`)
+                }
+                else newMember.karma = user.karma
+              })
             }
           }
-          // return Promise.all(fullUserList).then(resolve(fullUserList)).catch((err) => reject(err))
         }
-      })
-    // })
+      }
+    })
   }
-
-  // const dbScores = (fullUserList) => {
-  //   console.log('dbScores')
-  //   // return new Promise((resolve, reject) => {
-  //     console.log(`fullUserList:\n${util.inspect(fullUserList)}`)
-  //     for (u of fullUserList) { // may have to user a promise.map here
-  //       controller.storage.scores.get(u.team_id, (err, scores) => {
-  //         if (err) console.log(err)
-  //         let found = _.findIndex(scores.ordered, (o) => { return o.user_id == u.id })
-  //         if (found !== -1) scores.ordered[found].karma = u.karma
-  //         else scores.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
-  //         scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
-  //         controller.storage.scores.save(scores)
-  //       })
-  //     }
-  //     // return resolve()
-  //     // Promise.all(fullUserList).then(return resolve())
-  //   // })
-  // }
 
   controller.hears(['(^help$)'], ['direct_message', 'direct_mention'], (bot, message) => {
     let attachments = [
@@ -131,11 +104,7 @@ export default (controller, bot) => {
     if (message.event !== 'direct_message') bot.reply = bot.replyInThread
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
-      console.log(`localScoreboard:\n${util.inspect(localScoreboard)}`)
-      let local = _.find(localScoreboard, { 'team': message.team }).scores
-      local = _.orderBy(local, ['karma', 'name'], ['desc', 'asc'])
-      console.log(`local:\n${util.inspect(local)}`)
-      dbScoreboard(local).then((ordered) => {
+      dbScoreboard(team.id).then((ordered) => {
         team.scoreboard = ordered
         controller.storage.teams.save(team)
         buildScoreboard(team).then((replyMessage) => {
@@ -165,26 +134,9 @@ export default (controller, bot) => {
               if (err) console.log(err)
               addKarma(user)
               console.log(`----> + karma assigned to ${ids[i]}`)
-              let index = _.findIndex(localScoreboard, (o) => { return o.name == user.fullName })
-              console.log(`index in local scores: ${index}`)
-              localScoreboard[index].karma = localScoreboard[index].karma + 1
-              localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
-              console.log(`Local Scoreboard Updated:\n${util.inspect(localScoreboard)}`)
             })
           }
         }
-      })
-      .then(() => {
-        console.log('--  +1 .then()  --')
-        controller.storage.teams.get(message.team, (err, team) => {
-          if (err) console.log(err)
-          dbScoreboard(localScoreboard).then((ordered) => {
-            team.scoreboard = ordered
-            console.log(`team scoreboard now looks like:\n${util.inspect(ordered)}`)
-            controller.storage.teams.save(team)
-            console.log('new scoreboard saved')
-          })
-        })
       })
       .catch((err) => {
         console.log(err)
@@ -205,26 +157,9 @@ export default (controller, bot) => {
               if (err) console.log(err)
               subtractKarma(user)
               console.log(`----> - karma assigned to ${ids[i]}`)
-              let index = _.findIndex(localScoreboard, (o) => { return o.name == user.fullName })
-              console.log(`index in local scores: ${index}`)
-              localScoreboard[index].karma = localScoreboard[index].karma + 1
-              localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
-              console.log(`Local Scoreboard Updated:\n${util.inspect(localScoreboard)}`)
             })
           }
         }
-      })
-      .then(() => {
-        console.log('--  -1 .then()  --')
-        controller.storage.teams.get(message.team, (err, team) => {
-          if (err) console.log(err)
-          dbScoreboard(localScoreboard).then((ordered) => {
-            team.scoreboard = ordered
-            console.log(`team scoreboard now looks like:\n${util.inspect(ordered)}`)
-            controller.storage.teams.save(team)
-            console.log('new scoreboard saved')
-          })
-        })
       })
       .catch((err) => {
         console.log(err)
@@ -254,9 +189,7 @@ export default (controller, bot) => {
     if (message.command === '/scoreboard') {
       controller.storage.teams.get(message.team, (err, team) => {
         if (err) console.log(err)
-        localScoreboard = _.orderBy(localScoreboard, ['karma', 'name'], ['desc', 'asc'])
-        console.log(`localScoreboard:\n${util.inspect(localScoreboard)}`)
-        dbScoreboard(localScoreboard).then((ordered) => {
+        dbScoreboard(team.id).then((ordered) => {
           team.scoreboard = ordered
           controller.storage.teams.save(team)
           buildScoreboard(team).then((replyMessage) => {
