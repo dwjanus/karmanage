@@ -75,7 +75,7 @@ controller.on('create_bot', (bot, botConfig) => {
           console.log('--> convo not found, new one being instantiated')
           const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
-          convo.getUserEmailArray(bot)
+          convo.buildUserArray(bot)
         }
       }
       bot.startPrivateConversation({ user: botConfig.createdBy }, (error, convo) => {
@@ -112,6 +112,7 @@ controller.storage.teams.all((err, teams) => {
           const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
           convo.buildUserArray(bot)
+          buildScores(team[t].id)
         }
       })
     }
@@ -119,35 +120,38 @@ controller.storage.teams.all((err, teams) => {
 })
 
 // build team scores with all users
-const buildscores = (u) => {
-  controller.storage.scores.get(u.team_id, (err, scores) => {
-    console.log(`current user: ${u.fullName}, ${u.team_id} scores:\n${util.inspect(scores)}`)
+const buildscores = (teamId) => {
+  controller.storage.users.all((err, users) => {
     if (err) console.log(err)
-    if (!scores) {
-      console.log(`no scores document for team: ${u.team_id}`)
-      let score = {
-        id: u.team_id,
-        ordered: []
+    console.log(`${users.length} total users`)
+    let team = _.filter(users, (o) => { return o.team_id == teamId })
+    console.log(`got ${team.length} users for current team: ${teamId}`)
+    controller.storage.scores.get(teamId, (err, scores) => {
+      if (err) console.log(err)
+      let newScores = {}
+      if (!scores) {
+        console.log(`no scores document for team: ${teamId}`)
+        newScores = {
+          id: teamId,
+          ordered: []
+        }
+        controller.storage.scores.save(newScores)
+        console.log(`new scores document created for team: ${teamId}`)
+      } else {
+        newScores = scores
       }
-      score.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
-      controller.storage.scores.save(score)
-      console.log('new score saved\n')
-    } else {
-      console.log(`scores document found for team: ${u.team_id}`)
-      let found = _.findIndex(scores.ordered, (o) => { return o.user_id == u.id })
-      if (found !== -1) scores.ordered[found].karma = u.karma
-      else scores.ordered.push({ name: u.fullName, user_id: u.id, karma: u.karma})
-      scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
-      controller.storage.scores.save(scores)
-      console.log('score saved\n')
+
+      for (user of team) {
+        let found = _.findIndex(newScores.ordered, (o) => { return o.user_id == u.id })
+        if (found !== -1) newScores.ordered[found].karma = user.karma
+        else newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma})
+      }
+      console.log(`sorted scores for ${teamId}:\n${util.inspect(newScores.ordered)}`)
+      newScores.ordered = _.orderBy(newScores.ordered, ['karma', 'name'], ['desc', 'asc'])
+      controller.storage.scores.save(newScores)
     }
   })
 }
-
-controller.storage.users.all((err, users) => {
-  console.log(`got ${users.length} users`)
-  _.forEach(users, (user) => buildscores(user))
-})
 
 
 // Simple hack to ping server every 5min and keep app running
