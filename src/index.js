@@ -113,9 +113,10 @@ controller.storage.teams.all((err, teams) => {
           const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
           convo.buildUserArray(bot)
-          scoreboard.dbScoreboard(team[t].id).then((board) => {
-            team[t].scoreboard = board
-            controller.storage.teams.save(team[t])
+          scoreboard.dbScoreboard(teams[t].id).then((board) => {
+            console.log('initial scoreboard built at index')
+            teams[t].scoreboard = board
+            controller.storage.teams.save(teams[t])
             buildscores(teams[t].id)
           })
           .catch((err) => {
