@@ -86,6 +86,7 @@ const buildLimitedScoreboard = (team, user) => {
       const start = found >= 2 ? found - 2 : 0
       const nearbyScores = _.slice(scores.ordered, start, found + 2)
       return buildNearby(nearbyScores, start).then((nearbyboard) => {
+        console.log(`got our nearbyboard:\n${util.inspect(nearbyboard)}`)
         return resolve(nearbyboard)
       })
       .catch((err) => {
@@ -169,8 +170,9 @@ const buildNearby = (nearbyArray, start) => {
     let output = { attachments: [] }
     if (!nearbyArray || _.isEmpty(nearbyArray)) resolve(output)
     let c = 0
-    for (let i = start; i < nearbyArray.length; i++) { // i was initially = 6 (?)
-      if (i > 0 && nearbyArray[i].karma < nearbyArray[i - 1].karma) {
+    output.attachments.push({ text: `${start + 1}: ${nearbyArray[start].name} - ${nearbyArray[start].karma}\n`, color: colors[c] })
+    for (let i = start + 1; i < nearbyArray.length; i++) { // i was initially = 6 (?)
+      if (nearbyArray[i].karma < nearbyArray[i - 1].karma) {
         c += 1
         output.attachments.push({ text: `${i + 1}: ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`, color: colors[c] })
       } else output.attachments[c].text += `     ${s.name} - ${s.karma}\n`

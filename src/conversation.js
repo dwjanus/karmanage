@@ -17,11 +17,6 @@ export default (controller, bot) => {
       if (err) console.log(err)
       if (response.hasOwnProperty('members') && response.ok) {
         for (let i = 0; i < response.members.length; i++) {
-          // delete this later
-          let member = response.members[i]
-          if (i == 0) {
-            console.log(util.inspect(member))
-          }
           if (!member.profile.bot_id && !member.deleted &&
           !member.is_bot && (member.real_name != '' || ' ' || null || undefined)
           && (member.name != '' || ' ' || null || undefined)) {
@@ -107,7 +102,7 @@ export default (controller, bot) => {
   })
 
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
-    console.log('[conversation] ** scoreboard heard **\nUser:\n' + util.inspect(message.user))
+    console.log('[conversation] ** scoreboard heard **')
     if (message.event !== 'direct_message') bot.reply = bot.replyInThread
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
@@ -116,7 +111,7 @@ export default (controller, bot) => {
         controller.storage.teams.save(team)
         controller.storage.users.get(message.user, (err, user) => {
           if (err) console.log(err)
-          if (user.is_admin) {
+          if (user.is_admin) { // || user.id == U1EG4KCS1
             console.log('user is admin - building full scoreboard')
             buildScoreboard(team).then((replyMessage) => {
               const slack = {
