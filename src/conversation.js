@@ -17,6 +17,7 @@ export default (controller, bot) => {
       if (err) console.log(err)
       if (response.hasOwnProperty('members') && response.ok) {
         for (let i = 0; i < response.members.length; i++) {
+          let member = response.members[i]
           if (!member.profile.bot_id && !member.deleted &&
           !member.is_bot && (member.real_name != '' || ' ' || null || undefined)
           && (member.name != '' || ' ' || null || undefined)) {
