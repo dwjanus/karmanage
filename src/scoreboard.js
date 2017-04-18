@@ -61,7 +61,6 @@ const dbScoreboard = (teamId) => {
   })
 }
 
-
 const buildScoreboard = (team) => {
   return new Promise((resolve, reject) => {
     console.log(`\n... building scoreboard for team ${team.id}...`)
@@ -75,6 +74,24 @@ const buildScoreboard = (team) => {
     })
     .catch((err) => {
       if (err) reject(err)
+    })
+  })
+}
+
+const buildLimitedScoreboard = (team, user) => {
+  return new Promise((resolve, reject) => {
+    console.log(`\n... building limited scoreboard for user ${user.id} in team ${team.id}...`)
+    storage.scores.get(team.id, (err, scores) => {
+      if (err) reject(err)
+      const found = _.findIndex(scores.ordered, (o) => { return o.user_id == user.id })
+      const start = found >= 2 ? found - 2 : 0
+      const nearbyScores = _.slice(scores.ordered, start, start + 4)
+      buildNearby(nearbyScores, start).then((nearbyboard) => {
+        return resolve(nearbyboard)
+      })
+      .catch((err) => {
+        if (err) reject(err)
+      })
     })
   })
 }
@@ -136,7 +153,30 @@ const buildLoserboard = (loserArray) => {
         else output.attachments[i].text += `     ${s.name} - ${s.karma}\n`
       }
     }
-    Promise.all(output.attachmnets).then(resolve(output)).catch((err) => reject(err))
+    Promise.all(output.attachments).then(resolve(output)).catch((err) => reject(err))
+  })
+}
+
+const buildNearby = (nearbyArray, start) => {
+  const colors = [
+    '#05BF37',
+    '#F5E4E2',
+    '#FF7F32',
+    '#CF53F0',
+    '#650A0C'
+  ]
+  return new Promise((resolve, reject) => {
+    console.log(`building nearbyboard:\n${util.inspect(nearbyArray)}`)
+    let output = { attachments: [] }
+    if (!nearbyArray || _.isEmpty(nearbyArray)) resolve(output)
+    let c = 0
+    for (let i = start; i < nearbyArray.length; i++) { // i was initially = 6 (?)
+      if (i > 0 && nearbyArray[i].karma < nearbyArray[i - 1].karma) {
+        c += 1
+        output.attachments.push({ text: `${i + 1}: ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`, color: colors[c] })
+      } else output.attachments[c].text += `     ${s.name} - ${s.karma}\n`
+    }
+    Promise.all(output.attachments).then(resolve(output)).catch((err) => reject(err))
   })
 }
 
@@ -155,6 +195,7 @@ const processRawId = (rawId) => {
 module.exports = {
   dbScoreboard,
   buildScoreboard,
+  buildLimitedScoreboard,
   addKarma,
   subtractKarma,
   processUsers

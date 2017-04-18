@@ -92,7 +92,7 @@ export default (controller, bot) => {
   })
 
   controller.hears(['my karma', 'my score'], ['direct_message', 'direct_mention'], (bot, message) => {
-    // if (message.event !== 'direct_message') bot.reply = bot.replyPrivate
+    if (message.event !== 'direct_message') bot.reply = bot.replyPrivate
     controller.storage.users.get(message.user, (err, user) => {
       if (err) console.log(err)
       bot.reply(message, {text: `Your karma is: ${user.karma}`})
@@ -100,13 +100,14 @@ export default (controller, bot) => {
   })
 
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
-    console.log('[conversation] ** scoreboard heard **')
+    console.log('[conversation] ** scoreboard heard **\nUser:\n' + util.inspect(message.user))
     if (message.event !== 'direct_message') bot.reply = bot.replyInThread
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
       dbScoreboard(team.id).then((ordered) => {
         team.scoreboard = ordered
         controller.storage.teams.save(team)
+        // if (!message.user.is_admin) buildScoreboard = scoreHandler.buildLimitedScoreboard
         buildScoreboard(team).then((replyMessage) => {
           const slack = {
             text: `${team.name}: The Scorey So Far...`,
