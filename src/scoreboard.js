@@ -82,12 +82,12 @@ const buildScoreboard = (team) => {
 const buildLimitedScoreboard = (team, user) => {
   return new Promise((resolve, reject) => {
     console.log(`\n... building limited scoreboard for user ${user.id} in team ${team.id}...`)
-    storage.scores.get(team.id, (err, scores) => {
-      if (err) reject(err)
+    return storage.scores.get(team.id, (err, scores) => {
+      if (err) return reject(err)
       const found = _.findIndex(scores.ordered, (o) => { return o.user_id == user.id })
       const start = found >= 2 ? found - 2 : 0
-      const nearbyScores = _.slice(scores.ordered, start, found + 2)
-      return buildNearby(nearbyScores, start).then((nearbyboard) => {
+      const nearbyScores = _.slice(scores.ordered, start, found + 3)
+      return buildNearby(nearbyScores).then((nearbyboard) => {
         console.log(`got our nearbyboard:\n${util.inspect(nearbyboard)}`)
         return resolve(nearbyboard)
       })
@@ -160,7 +160,7 @@ const buildLoserboard = (loserArray) => {
   })
 }
 
-const buildNearby = (nearbyArray, start) => {
+const buildNearby = (nearbyArray) => {
   const colors = [
     '#05BF37',
     '#F5E4E2',
@@ -173,11 +173,11 @@ const buildNearby = (nearbyArray, start) => {
     let output = { attachments: [] }
     if (!nearbyArray || _.isEmpty(nearbyArray)) resolve(output)
     let c = 0
-    output.attachments.push({ text: `${nearbyArray[start].rank_id}: ${nearbyArray[start].name} - ${nearbyArray[start].karma}\n`, color: colors[c] })
-    for (let i = start + 1; i < nearbyArray.length; i++) {
+    output.attachments.push({ text: `${nearbyArray[0].rank_id + 1}: ${nearbyArray[0].name} - ${nearbyArray[0].karma}\n`, color: colors[c] })
+    for (let i = 1; i < nearbyArray.length; i++) {
       if (nearbyArray[i].karma < nearbyArray[i - 1].karma) {
         c += 1
-        output.attachments.push({ text: `${nearbyArray[start].rank_id}: ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`, color: colors[c] })
+        output.attachments.push({ text: `${nearbyArray[start].rank_id + 1}: ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`, color: colors[c] })
       } else output.attachments[c].text += `     ${s.name} - ${s.karma}\n`
     }
     console.log(`output:\n${util.inspect(output)}`)
