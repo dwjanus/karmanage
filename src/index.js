@@ -137,14 +137,17 @@ const buildscores = (teamId) => {
         }
         controller.storage.scores.save(newScores)
         console.log(`new scores document created for team: ${teamId}`)
+        for (let user of team) {
+          newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma})
+        }
       } else {
+        console.log(`scores document found for team: ${teamId}`)
         newScores = scores
-      }
-
-      for (user of team) {
-        let found = _.findIndex(newScores.ordered, (o) => { return o.user_id == user.id })
-        if (found !== -1) newScores.ordered[found].karma = user.karma
-        else newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma})
+        for (let user of team) {
+          let found = _.findIndex(newScores.ordered, (o) => { return o.user_id == user.id })
+          if (found !== -1) newScores.ordered[found].karma = user.karma
+          else newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma})
+        }
       }
       console.log(`sorted scores for ${teamId}:\n${util.inspect(newScores.ordered)}`)
       newScores.ordered = _.orderBy(newScores.ordered, ['karma', 'name'], ['desc', 'asc'])
