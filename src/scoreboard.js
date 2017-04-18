@@ -173,16 +173,13 @@ const buildNearby = (nearbyArray) => {
     let output = { attachments: [] }
     if (!nearbyArray || _.isEmpty(nearbyArray)) resolve(output)
     let c = 0
-    output.attachments.push({ text: `${nearbyArray[0].rank_id + 1}: ${nearbyArray[0].name} - ${nearbyArray[0].karma}\n`, color: colors[c] })
-    console.log(`output before loop:\n${util.inspect(output)}`)
+    output.attachments.push({ text: `${nearbyArray[0].rank_index + 1}: ${nearbyArray[0].name} - ${nearbyArray[0].karma}\n`, color: colors[c] })
     for (let i = 1; i < nearbyArray.length; i++) {
-      console.log('(loop)')
       if (nearbyArray[i].karma < nearbyArray[i - 1].karma) {
         c += 1
-        output.attachments.push({ text: `${nearbyArray[i].rank_id + 1}: ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`, color: colors[c] })
+        output.attachments.push({ text: `${nearbyArray[i].rank_index + 1}: ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`, color: colors[c] })
       } else output.attachments[c].text += `     ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`
     }
-    console.log(`output:\n${util.inspect(output)}`)
     Promise.all(output.attachments).then(resolve(output)).catch((err) => reject(err))
   })
 }
