@@ -16,9 +16,14 @@ export default (controller, bot) => {
       if (err) console.log(err)
       if (response.hasOwnProperty('members') && response.ok) {
         for (let i = 0; i < response.members.length; i++) {
+          // delete this later
           let member = response.members[i]
+          if (i == 0) {
+            console.log(util.inspect(member))
+          }
           if (!member.profile.bot_id && !member.deleted &&
-          !member.is_bot && (member.real_name !== '' || ' ' || null || undefined)) {
+          !member.is_bot && (member.real_name != '' || ' ' || null || undefined)
+          && (member.name != '' || ' ' || null || undefined)) {
             if (member.real_name.length > 1 && member.name !== 'slackbot') {
               const newMember = {
                 id: member.id,
@@ -26,7 +31,8 @@ export default (controller, bot) => {
                 name: member.name,
                 fullName: member.real_name,
                 email: member.profile.email,
-                karma: 0
+                karma: 0,
+                is_admin: member.is_admin
               }
               controller.storage.users.get(member.id, (err, user) => {
                 if (err) console.log(err)
@@ -107,7 +113,7 @@ export default (controller, bot) => {
       dbScoreboard(team.id).then((ordered) => {
         team.scoreboard = ordered
         controller.storage.teams.save(team)
-        // if (!message.user.is_admin) buildScoreboard = scoreHandler.buildLimitedScoreboard
+        // if (message.user.is_admin)
         buildScoreboard(team).then((replyMessage) => {
           const slack = {
             text: `${team.name}: The Scorey So Far...`,
