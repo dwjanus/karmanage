@@ -29,6 +29,38 @@ const storage = mongo({ mongoUri: config('MONGODB_URI') })
 //   })
 // }
 
+// const dbScoreboard = (teamId) => {
+//   return new Promise((resolve, reject) => {
+//     if (teamId === undefined) return reject()
+//     let index = 0
+//     let scoreboard = [ { scores: [] } ]
+//     storage.scores.get(teamId, (err, scores) => {
+//       if (err) return reject(err)
+//       return Promise.map(scores.ordered, (o) => {
+//         if (_.isEmpty(scoreboard[index].scores)) {
+//           scoreboard[index].scores.push(o)
+//         } else {
+//           if (scoreboard[index].scores[0].karma === o.karma) {
+//             scoreboard[index].scores.push(o)
+//           } else {
+//             index++
+//             scoreboard[index] = { scores: [] }
+//             scoreboard[index].scores.push(o)
+//           }
+//         }
+//         return scoreboard
+//       })
+//       .then(() => {
+//         return resolve(scoreboard)
+//       })
+//       .catch((err) => {
+//         console.log(err)
+//       })
+//       return resolve(scoreboard)
+//     })
+//   })
+// }
+
 const dbScoreboard = (teamId) => {
   return new Promise((resolve, reject) => {
     if (teamId === undefined) return reject()
@@ -36,32 +68,26 @@ const dbScoreboard = (teamId) => {
     let scoreboard = [ { scores: [] } ]
     storage.scores.get(teamId, (err, scores) => {
       if (err) return reject(err)
-      return Promise.map(scores.ordered, (o) => {
+      for (let i in scores.ordered) {
         if (_.isEmpty(scoreboard[index].scores)) {
-          scoreboard[index].scores.push(o)
+          scoreboard[index].scores.push(scores.ordered[i])
         } else {
-          if (scoreboard[index].scores[0].karma === o.karma) {
-            scoreboard[index].scores.push(o)
+          if (scoreboard[index].scores[0].karma === scores.ordered[i].karma) {
+            scoreboard[index].scores.push(scores.ordered[i])
           } else {
             index++
             scoreboard[index] = { scores: [] }
-            scoreboard[index].scores.push(o)
+            scoreboard[index].scores.push(scores.ordered[i])
           }
         }
-        o.rank_index = index
-        storage.scores.save(o)
-        return scoreboard
-      })
-      .then(() => {
-        return resolve(scoreboard)
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-      return resolve(scoreboard)
+        scores.ordered[i].rank_id = index
+        storage.scores.save(scores)
+      }
+      Promise.all(scoreboard).then(resolve(scoreboard)).catch((err) => reject(err))
     })
   })
 }
+
 
 const buildScoreboard = (team) => {
   return new Promise((resolve, reject) => {

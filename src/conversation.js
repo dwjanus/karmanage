@@ -155,6 +155,9 @@ export default (controller, bot) => {
               if (err) console.log(err)
               addKarma(user)
               console.log(`----> + karma assigned to ${ids[i]}`)
+              dbScoreboard(user.team_id).then((ordered) => {
+                console.log(`dbScoreboard done and new ranks applied`)
+              })
             })
           }
         }

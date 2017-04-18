@@ -6,6 +6,7 @@ import _ from 'lodash'
 import mongo from './db.js'
 import config from './config.js'
 import Conversation from './conversation.js'
+import scoreboard from './scoreboard.js'
 import Promise from 'bluebird'
 
 /*************************************************************************************************/
@@ -112,7 +113,14 @@ controller.storage.teams.all((err, teams) => {
           const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
           convo.buildUserArray(bot)
-          buildscores(teams[t].id)
+          scoreboard.dbScoreboard(team[t].id).then((board) => {
+            team[t].scoreboard = board
+            controller.storage.teams.save(team[t])
+            buildscores(teams[t].id)
+          })
+          .catch((err) => {
+            console.log(err)
+          })
         }
       })
     }
