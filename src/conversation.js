@@ -136,10 +136,11 @@ export default (controller, bot) => {
               }
               bot.reply(message, replyMessage)
             })
-          .catch((err) => {
-            bot.replyInThread(message, { text: err })
-          })
-        }
+            .catch((err) => {
+              bot.replyInThread(message, { text: err })
+            })
+          }
+        })
       })
     })
   })
