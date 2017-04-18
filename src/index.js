@@ -149,7 +149,7 @@ const buildscores = (teamId) => {
       console.log(`sorted scores for ${teamId}:\n${util.inspect(newScores.ordered)}`)
       newScores.ordered = _.orderBy(newScores.ordered, ['karma', 'name'], ['desc', 'asc'])
       controller.storage.scores.save(newScores)
-    }
+    })
   })
 }
 
