@@ -82,7 +82,7 @@ const buildScoreboard = (team) => {
 const buildLimitedScoreboard = (team, user) => {
   return new Promise((resolve, reject) => {
     console.log(`\n... building limited scoreboard for user ${user.id} in team ${team.id}...`)
-    return storage.scores.get(team.id, (err, scores) => {
+    storage.scores.get(team.id, (err, scores) => {
       if (err) return reject(err)
       const found = _.findIndex(scores.ordered, (o) => { return o.user_id == user.id })
       const start = found >= 2 ? found - 2 : 0
@@ -174,7 +174,9 @@ const buildNearby = (nearbyArray) => {
     if (!nearbyArray || _.isEmpty(nearbyArray)) resolve(output)
     let c = 0
     output.attachments.push({ text: `${nearbyArray[0].rank_id + 1}: ${nearbyArray[0].name} - ${nearbyArray[0].karma}\n`, color: colors[c] })
+    console.log(`output before loop:\n${util.inspect(output)}`)
     for (let i = 1; i < nearbyArray.length; i++) {
+      console.log('(loop)')
       if (nearbyArray[i].karma < nearbyArray[i - 1].karma) {
         c += 1
         output.attachments.push({ text: `${nearbyArray[start].rank_id + 1}: ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`, color: colors[c] })
