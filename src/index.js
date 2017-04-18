@@ -112,7 +112,7 @@ controller.storage.teams.all((err, teams) => {
           const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
           convo.buildUserArray(bot)
-          buildScores(team[t].id)
+          buildscores(team[t].id)
         }
       })
     }
