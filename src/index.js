@@ -124,7 +124,7 @@ const buildscores = (teamId) => {
   controller.storage.users.all((err, users) => {
     if (err) console.log(err)
     console.log(`${users.length} total users`)
-    let team = _.filter(users, (o) => { return o.team_id == teamId && (o.fullName !== null || undefined) })
+    let team = _.filter(users, (o) => { return o.team_id == teamId && (o.fullName != null || undefined) })
     console.log(`got ${team.length} users for current team: ${teamId}`)
     controller.storage.scores.get(teamId, (err, scores) => {
       if (err) console.log(err)
@@ -138,7 +138,9 @@ const buildscores = (teamId) => {
         controller.storage.scores.save(newScores)
         console.log(`new scores document created for team: ${teamId}`)
         for (let user of team) {
-          newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma})
+          if (user.name != null || undefined || '' && user.karma) {
+            newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma})            
+          }
         }
       } else {
         console.log(`scores document found for team: ${teamId}`)

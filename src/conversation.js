@@ -32,10 +32,10 @@ export default (controller, bot) => {
                 if (err) console.log(err)
                 if (!user) {
                   console.log('user not found in db')
-                  controller.storage.users.save(newMember)
                   console.log(`new member ${newMember.fullName} saved`)
                 }
                 else newMember.karma = user.karma
+                controller.storage.users.save(newMember)
               })
             }
           }
