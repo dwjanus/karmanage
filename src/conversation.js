@@ -113,17 +113,33 @@ export default (controller, bot) => {
       dbScoreboard(team.id).then((ordered) => {
         team.scoreboard = ordered
         controller.storage.teams.save(team)
-        // if (message.user.is_admin)
-        buildScoreboard(team).then((replyMessage) => {
-          const slack = {
-            text: `${team.name}: The Scorey So Far...`,
-            attachments: replyMessage.attachments
-          }
-          bot.reply(message, replyMessage)
-        })
-      })
-      .catch((err) => {
-        bot.replyInThread(message, { text: err })
+        controller.storage.users.get(message.user, (err, user) => {
+          if (err) console.log(err)
+          if (user.is_admin) {
+            console.log('user is admin - building full scoreboard')
+            buildScoreboard(team).then((replyMessage) => {
+              const slack = {
+                text: `${team.name}: The Scorey So Far...`,
+                attachments: replyMessage.attachments
+              }
+              bot.reply(message, replyMessage)
+            })
+            .catch((err) => {
+              bot.replyInThread(message, { text: err })
+            })
+          } else {
+            console.log('user is not admin - building limited scoreboard')
+            buildLimitedScoreboard(team, user).then((replyMessage) => {
+              const slack = {
+                text: `${team.name}: The Scorey So Far...`,
+                attachments: replyMessage.attachments
+              }
+              bot.reply(message, replyMessage)
+            })
+          .catch((err) => {
+            bot.replyInThread(message, { text: err })
+          })
+        }
       })
     })
   })
