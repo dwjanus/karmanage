@@ -84,8 +84,8 @@ const buildLimitedScoreboard = (team, user) => {
       if (err) reject(err)
       const found = _.findIndex(scores.ordered, (o) => { return o.user_id == user.id })
       const start = found >= 2 ? found - 2 : 0
-      const nearbyScores = _.slice(scores.ordered, start, start + 4)
-      buildNearby(nearbyScores, start).then((nearbyboard) => {
+      const nearbyScores = _.slice(scores.ordered, start, found + 2)
+      return buildNearby(nearbyScores, start).then((nearbyboard) => {
         return resolve(nearbyboard)
       })
       .catch((err) => {
