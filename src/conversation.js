@@ -233,7 +233,7 @@ export default (controller, bot) => {
                   text: `${team.name}: The Scorey So Far...`,
                   attachments: replyMessage.attachments
                 }
-                bot.replyInThread(message, replyMessage)
+                bot.replyPrivate(message, replyMessage)
               })
               .catch((err) => {
                 bot.replyPrivate(message, { text: err })
@@ -245,7 +245,7 @@ export default (controller, bot) => {
                   text: `${team.name}: The Scorey So Far...`,
                   attachments: replyMessage.attachments
                 }
-                bot.replyInThread(message, replyMessage)
+                bot.replyPrivate(message, replyMessage)
               })
               .catch((err) => {
                 bot.replyPrivate(message, { text: err })
