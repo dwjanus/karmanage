@@ -110,8 +110,8 @@ export default (controller, bot) => {
   })
 
   controller.hears(['my karma', 'my score', 'my rank'], ['direct_message', 'direct_mention'], (bot, message) => {
-    let response = { text: '' }
-    if (message.event !== 'direct_message') response.response_type: 'ephemeral'
+    let response = { text }
+    if (message.event !== 'direct_message') response.response_type = 'ephemeral'
     controller.storage.scores.get(message.team, (err, scores) => {
       if (err) console.log(err)
       let found = _.find(scores.ordered, (o) => { return o.user_id == message.user })
