@@ -199,23 +199,22 @@ const buildNearby = (nearbyArray, user) => {
   return new Promise((resolve, reject) => {
     console.log(`building nearbyboard:\n${util.inspect(nearbyArray)}`)
     let c = 0
-    let text
     let output = { attachments: [] }
     if (!nearbyArray || _.isEmpty(nearbyArray)) resolve(output)
     for (let i = 0; i < nearbyArray.length; i++) {
-      if (i = 0 || nearbyArray[i].karma < nearbyArray[i - 1].karma) {
+      if (i == 0 || nearbyArray[i].karma < nearbyArray[i - 1].karma) {
         if (i > 0) c += 1
         if (nearbyArray[i].user_id == user.id) {
           output.attachments.push({
             text: `${nearbyArray[i].rank_index + 1}: *${nearbyArray[i].name}* - *${nearbyArray[i].karma}*\n`,
             color: colors[c],
-            mrkdown_in: ['text']
+            mrkdwn_in: ['text']
           })
         } else {
           output.attachments.push({
             text: `${nearbyArray[i].rank_index + 1}: ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`,
             color: colors[c],
-            mrkdown_in: ['text']
+            mrkdwn_in: ['text']
           })
         }
       } else {
