@@ -11,6 +11,21 @@ const addKarma = scoreHandler.addKarma
 const subtractKarma = scoreHandler.subtractKarma
 const processUsers = scoreHandler.processUsers
 
+const ordinal_suffix_of = (i) => {
+    let j = i % 10,
+        k = i % 100
+    if (j == 1 && k != 11) {
+        return i + "st";
+    }
+    if (j == 2 && k != 12) {
+        return i + "nd"
+    }
+    if (j == 3 && k != 13) {
+        return i + "rd"
+    }
+    return i + "th"
+}
+
 export default (controller, bot) => {
   const buildUserArray = (bot) => {
     bot.api.users.list({}, (err, response) => {
@@ -99,7 +114,8 @@ export default (controller, bot) => {
     controller.storage.scores.get(message.team, (err, scores) => {
       if (err) console.log(err)
       let found = _.find(scores.ordered, (o) => { return o.user_id == message.user })
-      bot.reply(message, {text: `You are currently in ${found.rank_index + 1} with ${found.karma} karma`})
+      let place = ordinal_suffix_of(found.rank_index + 1)
+      bot.reply(message, {text: `You are currently in ${place} with ${found.karma} karma`})
     })
   })
 
@@ -215,7 +231,8 @@ export default (controller, bot) => {
       controller.storage.scores.get(message.team_id, (err, scores) => {
         if (err) console.log(err)
         let found = _.find(scores.ordered, (o) => { return o.user_id == message.user })
-        bot.replyPrivate(message, `You are currently in ${found.rank_index + 1} with ${found.karma} karma`)
+        let place = ordinal_suffix_of(found.rank_index + 1)
+        bot.replyPrivate(message, `You are currently in ${place} with ${found.karma} karma`)
       })
     }
     if (message.command === '/scoreboard') {
