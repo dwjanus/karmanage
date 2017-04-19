@@ -91,14 +91,15 @@ export default (controller, bot) => {
   })
 
   controller.hears('hello', ['direct_message', 'direct_mention'], (bot, message) => {
-    bot.reply(message, {text: 'What it do'})
+    bot.reply(message, {text: 'What it do fam'})
   })
 
-  controller.hears(['my karma', 'my score'], ['direct_message', 'direct_mention'], (bot, message) => {
+  controller.hears(['my karma', 'my score', 'my rank'], ['direct_message', 'direct_mention'], (bot, message) => {
     if (message.event !== 'direct_message') bot.reply = bot.replyPrivate
-    controller.storage.users.get(message.user, (err, user) => {
+    controller.storage.scores.get(message.team, (err, scores) => {
       if (err) console.log(err)
-      bot.reply(message, {text: `Your karma is: ${user.karma}`})
+      let found = _.find(scores.ordered, (o) => { return o.user_id == message.user })
+      bot.reply(message, {text: `You are currently in ${found.rank_index + 1} with ${found.karma} karma`})
     })
   })
 
