@@ -1,5 +1,6 @@
 
 import util from 'util'
+import config from './config.js'
 import _ from 'lodash'
 import scoreHandler from './scoreboard.js'
 import Promise from 'bluebird'
@@ -211,52 +212,59 @@ export default (controller, bot) => {
 
   controller.on('slash_command', (bot, message) => {
     console.log('Slash command heard!\n' + util.inspect(message))
-    if (message.command === '/mykarma') {
-      controller.storage.scores.get(message.team_id, (err, scores) => {
-        if (err) console.log(err)
-        let found = _.find(scores.ordered, (o) => { return o.user_id == message.user })
-        bot.replyPrivate(message, `You are currently in ${found.rank_index + 1} with ${found.karma} karma`)
-      })
+    if (message.token !== config('SLACK_CLIENT_SECRET')) {
+      return bot.res.send(401, 'Unauthorized')
     }
-    if (message.command === '/scoreboard') {
-      controller.storage.teams.get(message.team_id, (err, team) => {
-        if (err) console.log(err)
-        dbScoreboard(team.id).then((ordered) => {
-          team.scoreboard = ordered
-          controller.storage.teams.save(team)
-          controller.storage.users.get(message.user, (err, user) => {
-            if (err) console.log(err)
-            if (user.is_admin) { // || user.id == U1EG4KCS1
-              console.log('user is admin - building full scoreboard')
-              buildScoreboard(team).then((replyMessage) => {
-                const slack = {
-                  text: `${team.name}: The Scorey So Far...`,
-                  attachments: replyMessage.attachments
-                }
-                bot.replyPrivate(message, replyMessage)
-              })
-              .catch((err) => {
-                bot.replyPrivate(message, { text: err })
-              })
-            } else {
-              console.log('user is not admin - building limited scoreboard')
-              buildLimitedScoreboard(team, user).then((replyMessage) => {
-                const slack = {
-                  text: `${team.name}: The Scorey So Far...`,
-                  attachments: replyMessage.attachments
-                }
-                bot.replyPrivate(message, replyMessage)
-              })
-              .catch((err) => {
-                bot.replyPrivate(message, { text: err })
-              })
-            }
+
+    switch (message.command) {
+      case '/mykarma':
+        controller.storage.scores.get(message.team_id, (err, scores) => {
+          if (err) console.log(err)
+          let found = _.find(scores.ordered, (o) => { return o.user_id == message.user })
+          bot.replyPrivate(message, `You are currently in ${found.rank_index + 1} with ${found.karma} karma`)
+          break
+        })
+      case '/scoreboard':
+        controller.storage.teams.get(message.team_id, (err, team) => {
+          if (err) console.log(err)
+          dbScoreboard(team.id).then((ordered) => {
+            team.scoreboard = ordered
+            controller.storage.teams.save(team)
+            controller.storage.users.get(message.user, (err, user) => {
+              if (err) console.log(err)
+              if (user.is_admin) { // || user.id == U1EG4KCS1
+                console.log('user is admin - building full scoreboard')
+                buildScoreboard(team).then((replyMessage) => {
+                  const slack = {
+                    text: `${team.name}: The Scorey So Far...`,
+                    attachments: replyMessage.attachments
+                  }
+                  bot.replyPrivate(message, replyMessage)
+                })
+                .catch((err) => {
+                  bot.replyPrivate(message, { text: err })
+                })
+              } else {
+                console.log('user is not admin - building limited scoreboard')
+                buildLimitedScoreboard(team, user).then((replyMessage) => {
+                  const slack = {
+                    text: `${team.name}: The Scorey So Far...`,
+                    attachments: replyMessage.attachments
+                  }
+                  bot.replyPrivate(message, replyMessage)
+                })
+                .catch((err) => {
+                  bot.replyPrivate(message, { text: err })
+                })
+              }
+            })
+          })
+          .catch((err) => {
+            console.log(err)
           })
         })
-        .catch((err) => {
-          console.log(err)
-        })
-      })
+      default:
+        bot.replyPrivate(message, `I'm sorry, I don't recognize that command`)
     }
   })
 
