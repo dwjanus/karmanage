@@ -6,61 +6,6 @@ import config from './config.js'
 
 const storage = mongo({ mongoUri: config('MONGODB_URI') })
 
-// may try this one for efficiency sake...
-//
-// const dbScoreboard = (orderedScores) => {
-//   return new Promise((resolve, reject) => {
-//     let index = 0
-//     let scoreboard = [ { scores: [] } ]
-//     if (!orderedScores) return reject()
-//     for (o of orderedScores) {
-//       if (_.isEmpty(scoreboard[index].scores)) {
-//         scoreboard[index].scores.push(o)
-//       } else {
-//         if (scoreboard[index].scores[0].karma === o.karma) {
-//           scoreboard[index].scores.push(o)
-//         } else {
-//           index++
-//           scoreboard[index].scores.push(o)
-//         }
-//       }
-//     }
-//     Promise.all(scoreboard).then(resolve(scoreboard))
-//   })
-// }
-
-// const dbScoreboard = (teamId) => {
-//   return new Promise((resolve, reject) => {
-//     if (teamId === undefined) return reject()
-//     let index = 0
-//     let scoreboard = [ { scores: [] } ]
-//     storage.scores.get(teamId, (err, scores) => {
-//       if (err) return reject(err)
-//       return Promise.map(scores.ordered, (o) => {
-//         if (_.isEmpty(scoreboard[index].scores)) {
-//           scoreboard[index].scores.push(o)
-//         } else {
-//           if (scoreboard[index].scores[0].karma === o.karma) {
-//             scoreboard[index].scores.push(o)
-//           } else {
-//             index++
-//             scoreboard[index] = { scores: [] }
-//             scoreboard[index].scores.push(o)
-//           }
-//         }
-//         return scoreboard
-//       })
-//       .then(() => {
-//         return resolve(scoreboard)
-//       })
-//       .catch((err) => {
-//         console.log(err)
-//       })
-//       return resolve(scoreboard)
-//     })
-//   })
-// }
-
 const dbScoreboard = (teamId) => {
   return new Promise((resolve, reject) => {
     if (teamId === undefined) return reject()
@@ -95,7 +40,6 @@ const buildScoreboard = (team) => {
     console.log(`\n... building scoreboard for team ${team.id}...`)
     const leaders = _.slice(team.scoreboard, 0, 5)
     const losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
-    console.log(`[buildScoreboard] ** got our leaders and losers **\nLeaders:\n${util.inspect(leaders)}\nLosers:\n${util.inspect(losers)}`)
     return Promise.join(buildLeaderboard(leaders), buildLoserboard(losers), (leaderboard, loserboard) => {
       if (loserboard.attachments) leaderboard.attachments = leaderboard.attachments.concat(loserboard.attachments)
       return resolve(leaderboard)
