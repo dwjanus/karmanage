@@ -219,7 +219,7 @@ export default (controller, bot) => {
       })
     }
     if (message.command === '/scoreboard') {
-      controller.storage.teams.get(message.team, (err, team) => {
+      controller.storage.teams.get(message.team_id, (err, team) => {
         if (err) console.log(err)
         dbScoreboard(team.id).then((ordered) => {
           team.scoreboard = ordered
