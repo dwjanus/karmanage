@@ -163,8 +163,8 @@ const buildscores = (teamId) => {
         }
         newScores.ordered = _.orderBy(newScores.ordered, ['karma', 'name'], ['desc', 'asc'])
         controller.storage.scores.save(newScores)
+        Promise.all(newScores.ordered).then(resolve()).catch((err) => reject(err))
       })
-      Promise.all(newScores.ordered).then(resolve()).catch((err) => reject(err))
     })
   })
 }
