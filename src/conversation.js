@@ -215,13 +215,18 @@ export default (controller, bot) => {
     if (message.token !== config('SLACK_CLIENT_SECRET')) {
       return bot.res.send(401, 'Unauthorized')
     }
+    Promise.promisify(controller.storage.scores.get)
 
     switch (message.command) {
       case '/mykarma':
-        controller.storage.scores.get(message.team_id, (err, scores) => {
+        controller.storage.scores.get(message.team_id).then((scores) => {
           if (err) console.log(err)
           let found = _.find(scores.ordered, (o) => { return o.user_id == message.user })
           bot.replyPrivate(message, `You are currently in ${found.rank_index + 1} with ${found.karma} karma`)
+          break
+        })
+        .catch((err) => {
+          console.log(err)
           break
         })
       case '/scoreboard':
