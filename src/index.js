@@ -113,11 +113,12 @@ controller.storage.teams.all((err, teams) => {
           const convo = new Conversation(controller, bot)
           trackConvo(bot, convo)
           convo.buildUserArray(bot)
-          scoreboard.dbScoreboard(teams[t].id).then((board) => {
-            console.log('initial scoreboard built at index')
-            teams[t].scoreboard = board
-            controller.storage.teams.save(teams[t])
-            buildscores(teams[t].id)
+          buildscores(teams[t].id).then(() => {
+            scoreboard.dbScoreboard(teams[t].id).then((board) => {
+              console.log('initial scoreboard built at index')
+              teams[t].scoreboard = board
+              controller.storage.teams.save(teams[t])
+            })
           })
           .catch((err) => {
             console.log(err)
@@ -130,37 +131,40 @@ controller.storage.teams.all((err, teams) => {
 
 // build team scores with all users
 const buildscores = (teamId) => {
-  controller.storage.users.all((err, users) => {
-    if (err) console.log(err)
-    console.log(`${users.length} total users`)
-    let team = _.filter(users, (o) => { return o.team_id == teamId && (o.fullName != null || undefined) })
-    console.log(`got ${team.length} users for current team: ${teamId}`)
-    controller.storage.scores.get(teamId, (err, scores) => {
+  return new Promise((resolve, reject) => {
+    controller.storage.users.all((err, users) => {
       if (err) console.log(err)
-      let newScores = {}
-      if (!scores) {
-        newScores = {
-          id: teamId,
-          ordered: []
+      console.log(`${users.length} total users`)
+      let team = _.filter(users, (o) => { return o.team_id == teamId && (o.fullName != null || undefined) })
+      console.log(`got ${team.length} users for current team: ${teamId}`)
+      controller.storage.scores.get(teamId, (err, scores) => {
+        if (err) console.log(err)
+        let newScores = {}
+        if (!scores) {
+          newScores = {
+            id: teamId,
+            ordered: []
+          }
+          controller.storage.scores.save(newScores)
+          for (let user of team) {
+            if (user.name != null || undefined || '' && user.karma) {
+              newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma, rank_index: null })
+            }
+          }
+        } else {
+          newScores = scores
+          for (let user of team) {
+            if (user.name != null || undefined || '' && user.karma) {
+              let found = _.findIndex(newScores.ordered, (o) => { return o.user_id == user.id })
+              if (found !== -1) newScores.ordered[found].karma = user.karma
+              else newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma, rank_index: null })
+            }
+          }
         }
+        newScores.ordered = _.orderBy(newScores.ordered, ['karma', 'name'], ['desc', 'asc'])
         controller.storage.scores.save(newScores)
-        for (let user of team) {
-          if (user.name != null || undefined || '' && user.karma) {
-            newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma, rank_index: null })
-          }
-        }
-      } else {
-        newScores = scores
-        for (let user of team) {
-          if (user.name != null || undefined || '' && user.karma) {
-            let found = _.findIndex(newScores.ordered, (o) => { return o.user_id == user.id })
-            if (found !== -1) newScores.ordered[found].karma = user.karma
-            else newScores.ordered.push({ name: user.fullName, user_id: user.id, karma: user.karma, rank_index: null })
-          }
-        }
-      }
-      newScores.ordered = _.orderBy(newScores.ordered, ['karma', 'name'], ['desc', 'asc'])
-      controller.storage.scores.save(newScores)
+      })
+      Promise.all(newScores.ordered).then(resolve()).catch((err) => reject(err))
     })
   })
 }
