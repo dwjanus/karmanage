@@ -215,7 +215,7 @@ export default (controller, bot) => {
       controller.storage.scores.get(message.team_id, (err, scores) => {
         if (err) console.log(err)
         let found = _.find(scores.ordered, (o) => { return o.user_id == message.user })
-        bot.reply(message, `You are currently in ${found.rank_index + 1} with ${found.karma} karma`)
+        bot.replyPrivateDelayed(message, `You are currently in ${found.rank_index + 1} with ${found.karma} karma`)
       })
     }
     if (message.command === '/scoreboard') {
@@ -233,7 +233,7 @@ export default (controller, bot) => {
                   text: `${team.name}: The Scorey So Far...`,
                   attachments: replyMessage.attachments
                 }
-                bot.reply(message, replyMessage)
+                bot.replyPrivate(message, replyMessage)
               })
               .catch((err) => {
                 bot.replyPrivate(message, { text: err })
@@ -245,7 +245,7 @@ export default (controller, bot) => {
                   text: `${team.name}: The Scorey So Far...`,
                   attachments: replyMessage.attachments
                 }
-                bot.reply(message, replyMessage)
+                bot.replyPrivate(message, replyMessage)
               })
               .catch((err) => {
                 bot.replyPrivate(message, { text: err })
