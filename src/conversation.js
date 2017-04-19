@@ -212,7 +212,7 @@ export default (controller, bot) => {
   controller.on('slash_command', (bot, message) => {
     console.log('Slash command heard!\n' + util.inspect(message))
     if (message.command === '/mykarma') {
-      controller.storage.scores.get(message.team, (err, scores) => {
+      controller.storage.scores.get(message.team_id, (err, scores) => {
         if (err) console.log(err)
         let found = _.find(scores.ordered, (o) => { return o.user_id == message.user })
         bot.replyPrivate(message, {text: `You are currently in ${found.rank_index + 1} with ${found.karma} karma`})
