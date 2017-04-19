@@ -53,7 +53,7 @@ export default (controller, bot) => {
         title: 'Help',
         color: '#0067B3',
         text: 'Simply react to a message with :+1: or ' +
-              '@mention someone :+1: to give that person a karma point. ' +
+              '@mention someone with a :+1: or \'++\' to give that person a karma point. ' +
               'Direct message/mention Karmabot or use a slash command to ' +
               'view points.',
         fields: [
@@ -68,10 +68,10 @@ export default (controller, bot) => {
       {
         title: 'Slash Command Reference',
         color: '#009999',
-        text: '/mykarma - for your individual score\n' +
-              '/scoreboard - to view karma ranking for entire team\n',
+        text: '*/mykarma* - for your individual score\n' +
+              '*/scoreboard* - to view where you stack up\n',
         footer: 'Karmabot - v. 1.0',
-        mrkdown_in: ['text', 'pretext']
+        mrkdwn_in: ['text', 'pretext']
       }
     ]
 
@@ -182,6 +182,9 @@ export default (controller, bot) => {
               if (err) console.log(err)
               subtractKarma(user)
               console.log(`----> - karma assigned to ${ids[i]}`)
+              dbScoreboard(user.team_id).then((ordered) => {
+                console.log(`dbScoreboard done and new ranks applied`)
+              })
             })
           }
         }
@@ -201,6 +204,9 @@ export default (controller, bot) => {
     if (message.reaction === '\-1' && message.user !== message.item_user) {
       subtractKarma(message.item_user)
     }
+    dbScoreboard(message.team).then((ordered) => {
+      console.log(`dbScoreboard done and new ranks applied`)
+    })
   })
 
   controller.on('slash_command', (bot, message) => {
@@ -217,16 +223,37 @@ export default (controller, bot) => {
         dbScoreboard(team.id).then((ordered) => {
           team.scoreboard = ordered
           controller.storage.teams.save(team)
-          buildScoreboard(team).then((replyMessage) => {
-            const slack = {
-              text: `${team.name}: The Scorey So Far...`,
-              attachments: replyMessage.attachments
+          controller.storage.users.get(message.user, (err, user) => {
+            if (err) console.log(err)
+            if (user.is_admin) { // || user.id == U1EG4KCS1
+              console.log('user is admin - building full scoreboard')
+              buildScoreboard(team).then((replyMessage) => {
+                const slack = {
+                  text: `${team.name}: The Scorey So Far...`,
+                  attachments: replyMessage.attachments
+                }
+                bot.replyInThread(message, replyMessage)
+              })
+              .catch((err) => {
+                bot.replyPrivate(message, { text: err })
+              })
+            } else {
+              console.log('user is not admin - building limited scoreboard')
+              buildLimitedScoreboard(team, user).then((replyMessage) => {
+                const slack = {
+                  text: `${team.name}: The Scorey So Far...`,
+                  attachments: replyMessage.attachments
+                }
+                bot.replyInThread(message, replyMessage)
+              })
+              .catch((err) => {
+                bot.replyPrivate(message, { text: err })
+              })
             }
-            bot.replyPrivate(message, replyMessage)
           })
         })
         .catch((err) => {
-          bot.replyPrivate(message, { text: err })
+          console.log(err)
         })
       })
     }
