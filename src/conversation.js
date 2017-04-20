@@ -110,13 +110,12 @@ export default (controller, bot) => {
   })
 
   controller.hears(['my karma', 'my score', 'my rank'], ['direct_message', 'direct_mention'], (bot, message) => {
-    let response = { text: '' }
-    if (message.event !== 'direct_message') response['response_type'] = 'ephemeral'
+    if (message.event !== 'direct_message') bot.reply = bot.replyInThread
     controller.storage.scores.get(message.team, (err, scores) => {
       if (err) console.log(err)
       let found = _.find(scores.ordered, (o) => { return o.user_id == message.user })
       let place = ordinal_suffix_of(found.rank_index + 1)
-      response.text = `You are currently in ${place} with ${found.karma} karma`
+      let response = { text: `You are currently in ${place} with ${found.karma} karma` }
       bot.reply(message, response)
     })
   })
