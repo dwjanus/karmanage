@@ -52,7 +52,9 @@ export default (controller, bot) => {
                   console.log('user not found in db')
                   console.log(`new member ${newMember.fullName} saved`)
                 }
-                else if (user.karma) newMember.karma = user.karma
+                else {
+                  if (user.karma !== null) newMember.karma = user.karma
+                }
                 controller.storage.users.save(newMember)
               })
             }
@@ -187,7 +189,7 @@ export default (controller, bot) => {
   })
 
   // Handles adding karma via @mention
-  controller.hears([':\\+1:', '\\+\\+', '\\+1'], ['ambient'], (bot, message) => {
+  controller.hears([':\\+1:', '\\+\\+', '\\+1'], ['ambient', 'direct_mention', 'direct_message'], (bot, message) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
       processUsers(rawIds).then(ids => {
@@ -213,7 +215,7 @@ export default (controller, bot) => {
   })
 
   // Handles subtracting karma via @mention
-  controller.hears([':\\-1:', '\\-\\-', '\\-1'], ['ambient'], (bot, message) => {
+  controller.hears([':\\-1:', '\\-\\-', '\\-1'], ['ambient', 'direct_mention', 'direct_message'], (bot, message) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
       processUsers(rawIds).then(ids => {
