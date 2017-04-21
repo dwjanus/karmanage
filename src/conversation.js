@@ -52,7 +52,7 @@ export default (controller, bot) => {
                   console.log('user not found in db')
                   console.log(`new member ${newMember.fullName} saved`)
                 }
-                else newMember.karma = user.karma
+                else if (user.karma) newMember.karma = user.karma
                 controller.storage.users.save(newMember)
               })
             }
@@ -143,7 +143,7 @@ export default (controller, bot) => {
           }
         })
       })
-    }) 
+    })
   })
 
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
