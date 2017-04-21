@@ -120,6 +120,32 @@ export default (controller, bot) => {
     })
   })
 
+  controller.hears(['admin'], ['direct_message'], (bot, message) => {
+    controller.storage.teams.get(message.team, (err, team) => {
+      if (err) console.log(err)
+      dbScoreboard(team.id).then((ordered) => {
+        team.scoreboard = ordered
+        controller.storage.teams.save(team)
+        controller.storage.users.get(message.user, (err, user) => {
+          if (err) console.log(err)
+          if (user.is_admin || user.id == 'U1EG4KCS1') {
+            console.log('user is admin - building full scoreboard')
+            buildScoreboard(team).then((replyMessage) => {
+              const slack = {
+                text: `${team.name}: The Scorey So Far...`,
+                attachments: replyMessage.attachments
+              }
+              bot.reply(message, replyMessage)
+            })
+            .catch((err) => {
+              bot.replyInThread(message, { text: err })
+            })
+          }
+        })
+      })
+    }) 
+  })
+
   controller.hears(['scoreboard', 'scores'], ['direct_message', 'direct_mention'], (bot, message) => {
     console.log('[conversation] ** scoreboard heard **')
     if (message.event !== 'direct_message') bot.reply = bot.replyInThread
@@ -130,7 +156,7 @@ export default (controller, bot) => {
         controller.storage.teams.save(team)
         controller.storage.users.get(message.user, (err, user) => {
           if (err) console.log(err)
-          if (user.is_admin) { // || user.id == U1EG4KCS1
+          if (user.is_admin) {
             console.log('user is admin - building full scoreboard')
             buildScoreboard(team).then((replyMessage) => {
               const slack = {
