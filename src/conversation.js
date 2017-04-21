@@ -153,9 +153,9 @@ export default (controller, bot) => {
     if (message.event !== 'direct_message') bot.reply = bot.replyInThread
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
-      dbScoreboard(team.id).then((ordered) => {
-        team.scoreboard = ordered
-        controller.storage.teams.save(team)
+      // dbScoreboard(team.id).then((ordered) => {
+      //   team.scoreboard = ordered
+      //   controller.storage.teams.save(team)
         controller.storage.users.get(message.user, (err, user) => {
           if (err) console.log(err)
           if (user.is_admin) {
@@ -184,7 +184,7 @@ export default (controller, bot) => {
             })
           }
         })
-      })
+      // })
     })
   })
 
@@ -201,9 +201,9 @@ export default (controller, bot) => {
               if (err) console.log(err)
               addKarma(user)
               console.log(`----> + karma assigned to ${ids[i]}`)
-              dbScoreboard(user.team_id).then((ordered) => {
-                console.log(`dbScoreboard done and new ranks applied`)
-              })
+              // dbScoreboard(user.team_id).then((ordered) => {
+              //   console.log(`dbScoreboard done and new ranks applied`)
+              // })
             })
           }
         }

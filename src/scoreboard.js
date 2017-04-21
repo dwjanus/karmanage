@@ -77,6 +77,13 @@ const updateScores = (user) => {
     scores.ordered[found].karma = user.karma
     scores.ordered = _.orderBy(scores.ordered, ['karma', 'name'], ['desc', 'asc'])
     storage.scores.save(scores)
+    storage.teams.get(user.team_id, (err, team) => {
+      if (err) console.log(err)
+      dbScoreboard(team.id).then((ordered) => {
+        team.scoreboard = ordered
+        storage.teams.save(team)
+      })
+    })
   })
 }
 
