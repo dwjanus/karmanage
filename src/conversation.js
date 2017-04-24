@@ -112,7 +112,7 @@ export default (controller, bot) => {
   })
 
   controller.hears(['emojis'], ['direct_message'], (bot, message) => {
-    bot.api.emoji.list({}, (err, emojis) => {
+    bot.api.emoji.list({token: 'xoxp-64177576980-64188194581-174513116855-38fe68a04024bd1bfda17463fc18861a'}, (err, emojis) => {
       if (err) console.log(err)
       else console.log(util.inspect(emojis))
     })
