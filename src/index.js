@@ -102,29 +102,35 @@ controller.on('rtm_close', (bot) => {
   // may want to attempt to re-open
 })
 
+
+
 // connect all the teams
 controller.storage.teams.all((err, teams) => {
   console.log('** connecting teams **\n')
   if (err) throw new Error(err)
   for (let t in teams) {
     if (teams[t].bot) {
-      const bot = controller.spawn(teams[t]).startRTM((error) => {
+      let start = Promise.promisify(controller.spawn(teams[t]).startRTM)
+      start.then((bot) => {
+        const convo = new Conversation(controller, bot)
+        trackConvo(bot, convo)
+        convo.buildUserArray(bot)
+        return
+      })
+      .then(() => {
+        buildscores(teams[t].id).then(() => {
+          scoreboard.dbScoreboard(teams[t].id).then((board) => {
+            console.log('initial scoreboard built at index')
+            teams[t].scoreboard = board
+            controller.storage.teams.save(teams[t])
+          })
+        })
+        .cath((err) => {
+          console.log(err)
+        })
+      })
+      .catch((error) =>{
         if (error) console.log(`Error: ${error} while connecting bot ${teams[t].bot} to Slack for team: ${teams[t].id}`)
-        else {
-          const convo = new Conversation(controller, bot)
-          trackConvo(bot, convo)
-          convo.buildUserArray(bot)
-          buildscores(teams[t].id).then(() => {
-            scoreboard.dbScoreboard(teams[t].id).then((board) => {
-              console.log('initial scoreboard built at index')
-              teams[t].scoreboard = board
-              controller.storage.teams.save(teams[t])
-            })
-          })
-          .catch((err) => {
-            console.log(err)
-          })
-        }
       })
     }
   }
