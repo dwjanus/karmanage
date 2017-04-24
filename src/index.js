@@ -109,9 +109,9 @@ controller.storage.teams.all((err, teams) => {
   console.log('** connecting teams **\n')
   if (err) throw new Error(err)
   for (let t in teams) {
+    const start = Promise.promisify(controller.spawn(teams[t]).startRTM)
     if (teams[t].bot) {
-      let start = Promise.promisify(controller.spawn(teams[t]).startRTM)
-      start.then((bot) => {
+      start().then((bot) => {
         const convo = new Conversation(controller, bot)
         trackConvo(bot, convo)
         convo.buildUserArray(bot)
