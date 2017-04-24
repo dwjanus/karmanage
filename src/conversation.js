@@ -28,7 +28,7 @@ const ordinal_suffix_of = (i) => {
 
 export default (controller, bot) => {
   const buildUserArray = (bot) => {
-    bot.api.users.list({}, (err, response) => {
+    bot.api.users.list({}, (err, response) => { // can we make this easier by passing the team id as a filter?
       if (err) console.log(err)
       if (response.hasOwnProperty('members') && response.ok) {
         for (let i = 0; i < response.members.length; i++) {
@@ -112,7 +112,7 @@ export default (controller, bot) => {
   })
 
   controller.hears(['emojis'], ['direct_message'], (bot, message) => {
-    bot.api.emoji.list({}, (err, emojis) => {
+    bot.api.emoji.list({token: bot.token}, (err, emojis) => {
       if (err) console.log(err)
       else console.log(util.inspect(emojis))
     })
