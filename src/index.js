@@ -20,7 +20,6 @@ if (!config('SLACK_CLIENT_ID') || !config('SLACK_CLIENT_SECRET') || !config('POR
 }
 
 const controller = Botkit.slackbot({
-  debug: true,
   interactive_replies: true,
   storage: mongoStorage
 }).configureSlackApp({
