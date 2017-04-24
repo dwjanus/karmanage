@@ -25,7 +25,7 @@ const controller = Botkit.slackbot({
 }).configureSlackApp({
   clientId: config('SLACK_CLIENT_ID'),
   clientSecret: config('SLACK_CLIENT_SECRET'),
-  scopes: ['bot', 'admin', 'incoming-webhook', 'commands', 'emojis:read', 'reactions:write']
+  scopes: ['bot', 'admin', 'incoming-webhook', 'commands', 'emoji:read', 'reactions:write']
 })
 
 /*************************************************************************************************/
