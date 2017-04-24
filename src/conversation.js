@@ -111,6 +111,13 @@ export default (controller, bot) => {
     bot.reply(message, {text: 'What it do fam'})
   })
 
+  controller.hears(['emojis'], ['direct_message'], (bot, message) => {
+    bot.api.emojis.list({}, (err, emojis) => {
+      if (err) console.log(err)
+      else console.log(util.inspect(emojis))
+    })
+  })
+
   controller.hears(['my karma', 'my score', 'my rank'], ['direct_message', 'direct_mention'], (bot, message) => {
     if (message.event !== 'direct_message') bot.reply = bot.replyInThread
     controller.storage.scores.get(message.team, (err, scores) => {
