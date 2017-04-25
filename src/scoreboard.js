@@ -34,7 +34,8 @@ const dbScoreboard = (teamId) => {
   })
 }
 
-
+// maybe we can find a way to break this up by location as well?
+// scoreboard-local and scoreboard ?
 const buildScoreboard = (team) => {
   return new Promise((resolve, reject) => {
     console.log(`\n... building scoreboard for team ${team.id}...`)

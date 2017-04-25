@@ -48,14 +48,10 @@ export default (controller, bot) => {
               }
               controller.storage.users.get(member.id, (err, user) => {
                 if (err) console.log(err)
-                if (!user) {
-                  console.log('user not found in db')
-                  console.log(`new member ${newMember.fullName} saved`)
-                }
-                else {
-                  if (user.karma !== null) newMember.karma = user.karma
-                }
+                if (user && (user.karma !== null)) newMember.karma = user.karma
+                else console.log('user not found in db')
                 controller.storage.users.save(newMember)
+                console.log(`${newMember.fullName} saved`)
               })
             }
           }
@@ -83,7 +79,7 @@ export default (controller, bot) => {
         ]
       },
       {
-        title: 'Slash Command Reference',
+        title: '_Slash Command Reference_',
         color: '#009999',
         text: '*/mykarma* - for your individual score\n' +
               '*/scoreboard* - to view where you stack up\n',
