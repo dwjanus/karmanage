@@ -107,7 +107,7 @@ controller.storage.teams.all((err, teams) => {
   if (err) throw new Error(err)
   for (let t in teams) {
     if (teams[t].bot) {
-      controller.spawn(teams[t]).startRTM((error, boy) => {
+      controller.spawn(teams[t]).startRTM((error, bot) => {
         if (error) console.log(`Error: ${error} while connecting bot ${teams[t].bot} to Slack for team: ${teams[t].id}`)
         else {
           const convo = new Conversation(controller, bot)
