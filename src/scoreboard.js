@@ -50,6 +50,8 @@ const buildScoreboard = (team) => {
   })
 }
 
+// once we have more scores in here we will make it display the leaders and the losers will
+// be the 'nearby' array
 const buildLimitedScoreboard = (team, user) => {
   return new Promise((resolve, reject) => {
     console.log(`\n... building limited scoreboard for user ${user.id} in team ${team.id}...`)
@@ -60,7 +62,6 @@ const buildLimitedScoreboard = (team, user) => {
       const end = found + 3 <= scores.ordered.length ? found + 3 : scores.ordered.length
       const nearbyScores = _.slice(scores.ordered, start, end)
       return buildNearby(nearbyScores, user).then((nearbyboard) => {
-        console.log(`got our nearbyboard:\n${util.inspect(nearbyboard)}`)
         return resolve(nearbyboard)
       })
       .catch((err) => {
@@ -125,7 +126,6 @@ const buildLeaderboard = (leaderArray) => {
 
 const buildLoserboard = (loserArray) => {
   return new Promise((resolve, reject) => {
-    console.log(`building loserboard:\n${util.inspect(loserArray)}`)
     let output = { attachments: [] }
     if (!loserArray || _.isEmpty(loserArray)) resolve(output)
     for (let i = 5; i < loserArray.length; i++) { // i was initially = 6 (?)
@@ -148,7 +148,6 @@ const buildNearby = (nearbyArray, user) => {
     '#650A0C'
   ]
   return new Promise((resolve, reject) => {
-    console.log(`building nearbyboard:\n${util.inspect(nearbyArray)}`)
     let c = 0
     let output = { attachments: [] }
     if (!nearbyArray || _.isEmpty(nearbyArray)) resolve(output)

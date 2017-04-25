@@ -93,7 +93,7 @@ export default (controller, bot) => {
     ]
 
     let replyWithAttachments = {
-      pretext: 'Karmabot help',
+      pretext: '*Karmabot help*',
       text: 'Karmabot keeps track of your karma!',
       attachments,
       mrkdown_in: ['text', 'pretext']
@@ -131,7 +131,6 @@ export default (controller, bot) => {
         controller.storage.users.get(message.user, (err, user) => {
           if (err) console.log(err)
           if (user.is_admin || user.id == 'U1EG4KCS1') {
-            console.log('user is admin - building full scoreboard')
             buildScoreboard(team).then((replyMessage) => {
               const slack = {
                 text: `${team.name}: The Scorey So Far...`,
@@ -141,6 +140,14 @@ export default (controller, bot) => {
             })
             .catch((err) => {
               bot.replyInThread(message, { text: err })
+            })
+          } else {
+            bot.startPrivateConversation({ user: message.user }, (error, convo) => {
+              if (error) {
+                console.log(error)
+              } else {
+                convo.say('I am sorry, that command is reserved for team admins')
+              }
             })
           }
         })
@@ -153,38 +160,32 @@ export default (controller, bot) => {
     if (message.event !== 'direct_message') bot.reply = bot.replyInThread
     controller.storage.teams.get(message.team, (err, team) => {
       if (err) console.log(err)
-      // dbScoreboard(team.id).then((ordered) => {
-      //   team.scoreboard = ordered
-      //   controller.storage.teams.save(team)
-        controller.storage.users.get(message.user, (err, user) => {
-          if (err) console.log(err)
-          if (user.is_admin) {
-            console.log('user is admin - building full scoreboard')
-            buildScoreboard(team).then((replyMessage) => {
-              const slack = {
-                text: `${team.name}: The Scorey So Far...`,
-                attachments: replyMessage.attachments
-              }
-              bot.reply(message, replyMessage)
-            })
-            .catch((err) => {
-              bot.replyInThread(message, { text: err })
-            })
-          } else {
-            console.log('user is not admin - building limited scoreboard')
-            buildLimitedScoreboard(team, user).then((replyMessage) => {
-              const slack = {
-                text: `${team.name}: The Scorey So Far...`,
-                attachments: replyMessage.attachments
-              }
-              bot.reply(message, replyMessage)
-            })
-            .catch((err) => {
-              bot.replyInThread(message, { text: err })
-            })
-          }
-        })
-      // })
+      controller.storage.users.get(message.user, (err, user) => {
+        if (err) console.log(err)
+        if (user.is_admin) {
+          buildScoreboard(team).then((replyMessage) => {
+            const slack = {
+              text: `${team.name}: The Scorey So Far...`,
+              attachments: replyMessage.attachments
+            }
+            bot.reply(message, replyMessage)
+          })
+          .catch((err) => {
+            bot.replyInThread(message, { text: err })
+          })
+        } else {
+          buildLimitedScoreboard(team, user).then((replyMessage) => {
+            const slack = {
+              text: `${team.name}: The Scorey So Far...`,
+              attachments: replyMessage.attachments
+            }
+            bot.reply(message, replyMessage)
+          })
+          .catch((err) => {
+            bot.replyInThread(message, { text: err })
+          })
+        }
+      })
     })
   })
 
@@ -193,17 +194,12 @@ export default (controller, bot) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
       processUsers(rawIds).then(ids => {
-        console.log('user ids: ', util.inspect(ids))
         for (let i in ids) {
-          console.log('userId #' + i + ': ' + ids[i])
           if (ids[i] !== message.user) {
             controller.storage.users.get(ids[i], (err, user) => {
               if (err) console.log(err)
               addKarma(user)
               console.log(`----> + karma assigned to ${ids[i]}`)
-              // dbScoreboard(user.team_id).then((ordered) => {
-              //   console.log(`dbScoreboard done and new ranks applied`)
-              // })
             })
           }
         }
@@ -219,17 +215,12 @@ export default (controller, bot) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
       processUsers(rawIds).then(ids => {
-        console.log('user ids: ', util.inspect(ids))
         for (let i in ids) {
-          console.log('userId #' + i + ': ' + ids[i])
           if (ids[i] !== message.user) {
             controller.storage.users.get(ids[i], (err, user) => {
               if (err) console.log(err)
               subtractKarma(user)
               console.log(`----> - karma assigned to ${ids[i]}`)
-              dbScoreboard(user.team_id).then((ordered) => {
-                console.log(`dbScoreboard done and new ranks applied`)
-              })
             })
           }
         }
@@ -255,7 +246,6 @@ export default (controller, bot) => {
   })
 
   controller.on('slash_command', (bot, message) => {
-    console.log('Slash command heard!\n' + util.inspect(message))
     if (message.command === '/mykarma') {
       controller.storage.scores.get(message.team_id, (err, scores) => {
         if (err) console.log(err)
@@ -273,7 +263,6 @@ export default (controller, bot) => {
           controller.storage.users.get(message.user, (err, user) => {
             if (err) console.log(err)
             if (user.is_admin) { // || user.id == U1EG4KCS1
-              console.log('user is admin - building full scoreboard')
               buildScoreboard(team).then((replyMessage) => {
                 const slack = {
                   text: `${team.name}: The Scorey So Far...`,
@@ -285,7 +274,6 @@ export default (controller, bot) => {
                 console.log(err)
               })
             } else {
-              console.log('user is not admin - building limited scoreboard')
               buildLimitedScoreboard(team, user).then((replyMessage) => {
                 const slack = {
                   text: `${team.name}: The Scorey So Far...`,
