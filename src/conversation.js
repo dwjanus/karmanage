@@ -61,30 +61,33 @@ export default (controller, bot) => {
   }
 
   controller.hears(['(^help$)'], ['direct_message', 'direct_mention'], (bot, message) => {
+    // this may not work
+    bot.reply = message.event === 'direct_message' ? bot.reply : bot.replyInThread
     let attachments = [
       {
         title: 'Help',
         color: '#0067B3',
         text: 'Simply react to a message with :+1: or ' +
-              '@mention someone with a :+1: or \'++\' to give that person a karma point. ' +
+              '@mention someone with a :+1:, \'+1\', or \'++\' to give that person a karma point. ' +
               'Direct message/mention Karmabot or use a slash command to ' +
-              'view points.',
+              'view points.\n',
         fields: [
           {
             title: 'Example', // maybe make this a gif or jpg?
-            value: 'Jamie: @karmabot: how much karma do I have?\n' +
-                   'Karmabot: You have 15 karma!\n',
+            value: '*Joseph Smith*: @karmabot: how much karma do I have?\n' +
+                   '*Karma Bot*: You have 15 karma!\n',
             short: false
           }
         ]
       },
       {
-        title: '_Slash Command Reference_',
+        title: 'Slash Command Reference',
         color: '#009999',
-        text: '*/mykarma* - for your individual score\n' +
-              '*/scoreboard* - to view where you stack up\n',
-        footer: 'Karmabot - v. 1.0',
-        mrkdwn_in: ['text', 'pretext']
+        text: '_/mykarma_ - for your individual score\n' +
+              '_/scoreboard_ - to see where you stack up\n',
+        footer: 'Devin Janus | Karmabot - v. 1.0',
+        ts: 123456789,
+        mrkdwn: true
       }
     ]
 
