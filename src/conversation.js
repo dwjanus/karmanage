@@ -86,7 +86,7 @@ export default (controller, bot) => {
         text: '_/mykarma_ - for your individual score\n' +
               '_/scoreboard_ - to see where you stack up\n',
         footer: 'Devin Janus  |  Karmabot - v. 1.0 |',
-        footer_icon: 'https://karmanage.herokuapp.com/public/images/smashing-emoji.png',
+        footer_icon: 'https://karmanage.herokuapp.com/images/smashing-emoji.png',
         ts: 123456789,
         mrkdwn_in: ['text', 'pretext']
       }
