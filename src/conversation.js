@@ -3,6 +3,7 @@ import util from 'util'
 import _ from 'lodash'
 import scoreHandler from './scoreboard.js'
 import Promise from 'bluebird'
+import config from './config.js'
 
 const dbScoreboard = scoreHandler.dbScoreboard
 const buildScoreboard = scoreHandler.buildScoreboard
