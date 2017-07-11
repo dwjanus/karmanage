@@ -76,7 +76,7 @@ const buildLimitedScoreboard = (team, user) => {
       console.log(`----> nearbyScores: ${util.inspect(nearbyScores)}\n----> leaders: ${util.inspect(leaders)}`)
       return Promise.join(buildLeaderboard(leaders), buildNearby(nearbyScores, user), (leaderboard, nearbyboard) => {
         console.log(`--> got leaderboard!\n${util.inspect(leaderboard)}\n--> got nearby!\n${util.inspect(nearbyboard)}`)
-        leaderboard.attachments.concat(nearbyboard.attachments)
+        leaderboard.attachments = leaderboard.attachments.concat(nearbyboard.attachments)
         console.log(`\n--> final leaderboard:\n${util.inspect(leaderboard)}`)
         return resolve(leaderboard)
       })
