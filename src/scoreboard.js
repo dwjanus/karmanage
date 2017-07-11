@@ -72,7 +72,7 @@ const buildLimitedScoreboard = (team, user) => {
       const end = found + 3 <= scores.ordered.length ? found + 3 : scores.ordered.length
       const nearbyScores = _.slice(scores.ordered, start, end)
       const leaders = _.slice(team.scoreboard, 0, 3)
-      return Promise.join(buildLeaderboard(leaders), buildNearby(nearbyScores, user).then((leaderboard, nearbyboard) => {
+      return Promise.join(buildLeaderboard(leaders), buildNearby(nearbyScores, user), (leaderboard, nearbyboard) => {
         leaderboard.attachments.concat(nearbyboard)
         return resolve(leaderboard)
       })
