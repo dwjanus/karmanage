@@ -137,7 +137,7 @@ export default (controller, bot) => {
         controller.storage.teams.save(team)
         controller.storage.users.get(message.user, (err, user) => {
           if (err) console.log(err)
-          if (user.is_admin || user.id == 'U1EG4KCS1') {
+          if (user.is_admin || user.id == 'U1EG4KCS1' || 'U1W5J5QH3') {
             buildScoreboard(team).then((replyMessage) => {
               const slack = {
                 text: `${team.name}: The Scorey So Far...`,

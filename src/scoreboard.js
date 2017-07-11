@@ -59,7 +59,7 @@ const buildLimitedScoreboard = (team, user) => {
     storage.scores.get(team.id, (err, scores) => {
       if (err) return reject(err)
       const found = _.findIndex(scores.ordered, (o) => { return o.user_id == user.id })
-      if (found <= 2) {
+      if (score.ordered[found].rank_index <= 2) {
         return buildScoreboard(team).then((scoreboard) => {
           return resolve(scoreboard)
         })
@@ -71,8 +71,10 @@ const buildLimitedScoreboard = (team, user) => {
       const start = found >= 5 ? found - 2 : 3
       const end = found + 3 <= scores.ordered.length ? found + 3 : scores.ordered.length
       const nearbyScores = _.slice(scores.ordered, start, end)
-      return buildNearby(nearbyScores, user).then((nearbyboard) => {
-        return resolve(nearbyboard)
+      const leaders = _.slice(team.scoreboard, 0, 3)
+      return Promise.join(buildLeaderboard(leaders), buildNearby(nearbyScores, user).then((leaderboard, nearbyboard) => {
+        leaderboard.attachments.concat(nearbyboard)
+        return resolve(leaderboard)
       })
       .catch((err) => {
         if (err) reject(err)
