@@ -59,7 +59,7 @@ const buildLimitedScoreboard = (team, user) => {
     storage.scores.get(team.id, (err, scores) => {
       if (err) return reject(err)
       const found = _.findIndex(scores.ordered, (o) => { return o.user_id == user.id })
-      if (score.ordered[found].rank_index <= 2) {
+      if (scores.ordered[found].rank_index <= 2) {
         return buildScoreboard(team).then((scoreboard) => {
           return resolve(scoreboard)
         })
