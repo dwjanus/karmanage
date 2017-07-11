@@ -103,7 +103,7 @@ controller.storage.teams.all((err, teams) => {
   if (err) throw new Error(err)
   for (let t in teams) {
     if (teams[t].bot) {
-      const bot = controller.spawn(teams[t]).startRTM((error) => {
+      controller.spawn(teams[t]).startRTM((error, bot) => {
         if (error) console.log(`Error: ${error} while connecting bot ${teams[t].bot} to Slack for team: ${teams[t].id}`)
         else {
           const convo = new Conversation(controller, bot)
@@ -111,7 +111,6 @@ controller.storage.teams.all((err, teams) => {
           convo.buildUserArray(bot)
           buildscores(teams[t].id).then(() => {
             scoreboard.dbScoreboard(teams[t].id).then((board) => {
-              console.log('initial scoreboard built at index')
               teams[t].scoreboard = board
               controller.storage.teams.save(teams[t])
             })
@@ -130,7 +129,6 @@ const buildscores = (teamId) => {
   return new Promise((resolve, reject) => {
     controller.storage.users.all((err, users) => {
       if (err) console.log(err)
-      console.log(`${users.length} total users`)
       let team = _.filter(users, (o) => { return o.team_id == teamId && (o.fullName != null || undefined) })
       console.log(`got ${team.length} users for current team: ${teamId}`)
       controller.storage.scores.get(teamId, (err, scores) => {
