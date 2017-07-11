@@ -169,29 +169,16 @@ export default (controller, bot) => {
       if (err) console.log(err)
       controller.storage.users.get(message.user, (err, user) => {
         if (err) console.log(err)
-        if (user.is_admin) {
-          buildScoreboard(team).then((replyMessage) => {
-            const slack = {
-              text: `${team.name}: The Scorey So Far...`,
-              attachments: replyMessage.attachments
-            }
-            bot.reply(message, replyMessage)
-          })
-          .catch((err) => {
-            bot.replyInThread(message, { text: err })
-          })
-        } else {
-          buildLimitedScoreboard(team, user).then((replyMessage) => {
-            const slack = {
-              text: `${team.name}: The Scorey So Far...`,
-              attachments: replyMessage.attachments
-            }
-            bot.reply(message, replyMessage)
-          })
-          .catch((err) => {
-            bot.replyInThread(message, { text: err })
-          })
-        }
+        buildLimitedScoreboard(team, user).then((replyMessage) => {
+          const slack = {
+            text: `${team.name}: The Scorey So Far...`,
+            attachments: replyMessage.attachments
+          }
+          bot.reply(message, replyMessage)
+        })
+        .catch((err) => {
+          bot.replyInThread(message, { text: err })
+        })
       })
     })
   })
