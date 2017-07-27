@@ -68,7 +68,7 @@ const buildLimitedScoreboard = (team, user) => {
         })
       }
 
-      const user_index = scores.ordered[found].rank_index
+      let user_index = scores.ordered[found].rank_index
       const start = user_index >= 5 ? user_index - 2 : 3
       const end = start + 3 <= team.scoreboard.length ? start + 3 : team.scoreboard.length
       const nearbyScores = _.slice(team.scoreboard, start, end)
