@@ -112,12 +112,12 @@ export default (controller, bot) => {
     bot.reply(message, {text: 'What it do fam - I am the staging version of karma bot :robot_face:'})
   })
 
-  controller.hears(['emojis'], ['direct_message'], (bot, message) => {
-    bot.api.emoji.list({token: config('EMOJI_TOKEN')}, (err, emojis) => {
-      if (err) console.log(err)
-      else console.log(util.inspect(emojis))
-    })
-  })
+  // controller.hears(['emojis'], ['direct_message'], (bot, message) => {
+  //   bot.api.emoji.list({token: config('EMOJI_TOKEN')}, (err, emojis) => {
+  //     if (err) console.log(err)
+  //     else console.log(util.inspect(emojis))
+  //   })
+  // })
 
   controller.hears(['my karma', 'my score', 'my rank'], ['direct_message', 'direct_mention'], (bot, message) => {
     if (message.event !== 'direct_message') bot.reply = bot.replyInThread

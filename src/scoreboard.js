@@ -68,13 +68,14 @@ const buildLimitedScoreboard = (team, user) => {
         })
       }
 
-      const start = found >= 5 ? found - 2 : 3
-      const end = found + 3 <= scores.ordered.length ? found + 3 : scores.ordered.length
-      const nearbyScores = _.slice(scores.ordered, start, end)
+      const user_index = scores.ordered[found].rank_index
+      const start = user_index >= 5 ? user_index - 2 : 3
+      const end = start + 3 <= team.scoreboard.length ? start + 3 : team.scoreboard.length
+      const nearbyScores = _.slice(team.scoreboard, start, end)
       const leaders = _.slice(team.scoreboard, 0, 3)
       console.log(`--> [scoreboard] buildLimitedScoreboard\n----> start: ${start}  end: ${end}`)
       console.log(`----> nearbyScores: ${util.inspect(nearbyScores)}\n----> leaders: ${util.inspect(leaders)}`)
-      return Promise.join(buildLeaderboard(leaders), buildNearby(nearbyScores, user), (leaderboard, nearbyboard) => {
+      return Promise.join(buildLeaderboard(leaders), buildNearby(nearbyScores, user, user_index), (leaderboard, nearbyboard) => {
         console.log(`--> got leaderboard!\n${util.inspect(leaderboard)}\n--> got nearby!\n${util.inspect(nearbyboard)}`)
         leaderboard.attachments = leaderboard.attachments.concat(nearbyboard.attachments)
         console.log(`\n--> final leaderboard:\n${util.inspect(leaderboard)}`)
@@ -155,38 +156,37 @@ const buildLoserboard = (loserArray) => {
   })
 }
 
-const buildNearby = (nearbyArray, user) => {
-  const colors = [
-    '#05BF37',
-    '#F5E4E2',
-    '#FF7F32',
-    '#CF53F0',
-    '#650A0C'
-  ]
+const buildNearby = (nearbyArray, user, user_index) => {
   return new Promise((resolve, reject) => {
-    let c = 0
     let output = { attachments: [] }
     if (!nearbyArray || _.isEmpty(nearbyArray)) resolve(output)
     for (let i = 0; i < nearbyArray.length; i++) {
-      if (i == 0 || nearbyArray[i].karma < nearbyArray[i - 1].karma) {
-        if (i > 0) c += 1
-        if (nearbyArray[i].user_id == user.id) {
-          output.attachments.push({
-            text: `${nearbyArray[i].rank_index + 1}: *${nearbyArray[i].name}* - *${nearbyArray[i].karma}*\n`,
-            color: colors[c],
-            mrkdwn_in: ['text']
-          })
-        } else {
-          output.attachments.push({
-            text: `${nearbyArray[i].rank_index + 1}: ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`,
-            color: colors[c],
-            mrkdwn_in: ['text']
-          })
+      if (i === user_index) {
+        let text = ''
+        for (let j = 0; j < nearbyArray[i].scores.length; j++) {
+          if (nearbyArray[i].scores[j].user_id == user.id) {
+            text += `${nearbyArray[i].scores[j].rank_index + 1}: *${nearbyArray[i].scores[j].name}* - *${nearbyArray[i].scores[j].karma}*\n`
+          } else {
+            text += `${nearbyArray[i].scores[j].rank_index + 1}: ${nearbyArray[i].scores[j].name} - ${nearbyArray[i].scores[j].karma}\n`
+          }
         }
+
+        output.attachments.push({
+          text,
+          color: '#05BF37',
+          mrkdwn_in: ['text']
+        })
       } else {
-        if (nearbyArray[i].user_id == user.id) {
-          output.attachments[c].text += `     *${nearbyArray[i].name}* - *${nearbyArray[i].karma}*\n`
-        } else output.attachments[c].text += `     ${nearbyArray[i].name} - ${nearbyArray[i].karma}\n`
+        let text = `${nearbyArray[i].scores[0].rank_index + 1}: ${nearbyArray[i].scores[0].name} - ${nearbyArray[i].scores[0].karma}\n`
+        if (nearbyArray[i].scores.length > 1) {
+          text += ` + ${nearbyArray[i].scores.length - 1} more`
+        }
+
+        output.attachments.push({
+          text,
+          color: '#CF53F0',
+          mrkdwn_in: ['text']
+        })
       }
     }
     Promise.all(output.attachments).then(resolve(output)).catch((err) => reject(err))
