@@ -165,10 +165,15 @@ const buildNearby = (nearbyArray, user, user_index) => {
       if (i === user_index) {
         let text = ''
         for (let j = 0; j < nearbyArray[i].scores.length; j++) {
-          if (nearbyArray[i].scores[j].user_id == user.id) {
-            text += `${nearbyArray[i].scores[j].rank_index + 1}: *${nearbyArray[i].scores[j].name}* - *${nearbyArray[i].scores[j].karma}*\n`
+          if (j === 0) {
+            text += `${nearbyArray[i].scores[j].rank_index + 1}: `
           } else {
-            text += `${nearbyArray[i].scores[j].rank_index + 1}: ${nearbyArray[i].scores[j].name} - ${nearbyArray[i].scores[j].karma}\n`
+            text += `     `
+          }
+          if (nearbyArray[i].scores[j].user_id == user.id) {
+            text += `*${nearbyArray[i].scores[j].name}* - *${nearbyArray[i].scores[j].karma}*\n`
+          } else {
+            text += `${nearbyArray[i].scores[j].name} - ${nearbyArray[i].scores[j].karma}\n`
           }
         }
 
@@ -180,7 +185,7 @@ const buildNearby = (nearbyArray, user, user_index) => {
       } else {
         let text = `${nearbyArray[i].scores[0].rank_index + 1}: ${nearbyArray[i].scores[0].name} - ${nearbyArray[i].scores[0].karma}\n`
         if (nearbyArray[i].scores.length > 1) {
-          text += ` + ${nearbyArray[i].scores.length - 1} more`
+          text += `     + ${nearbyArray[i].scores.length - 1} more`
         }
 
         output.attachments.push({
