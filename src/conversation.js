@@ -3,6 +3,7 @@ import util from 'util'
 import _ from 'lodash'
 import scoreHandler from './scoreboard.js'
 import Promise from 'bluebird'
+import config from './config.js'
 
 const dbScoreboard = scoreHandler.dbScoreboard
 const buildScoreboard = scoreHandler.buildScoreboard
@@ -28,7 +29,7 @@ const ordinal_suffix_of = (i) => {
 
 export default (controller, bot) => {
   const buildUserArray = (bot) => {
-    bot.api.users.list({}, (err, response) => {
+    bot.api.users.list({}, (err, response) => { // can we make this easier by passing the team id as a filter?
       if (err) console.log(err)
       if (response.hasOwnProperty('members') && response.ok) {
         for (let i = 0; i < response.members.length; i++) {
@@ -108,7 +109,14 @@ export default (controller, bot) => {
   })
 
   controller.hears('hello', ['direct_message', 'direct_mention'], (bot, message) => {
-    bot.reply(message, {text: 'What it do fam'})
+    bot.reply(message, {text: 'What it do fam - I am the staging version of karma bot :robot_face:'})
+  })
+
+  controller.hears(['emojis'], ['direct_message'], (bot, message) => {
+    bot.api.emoji.list({token: config('EMOJI_TOKEN')}, (err, emojis) => {
+      if (err) console.log(err)
+      else console.log(util.inspect(emojis))
+    })
   })
 
   controller.hears(['my karma', 'my score', 'my rank'], ['direct_message', 'direct_mention'], (bot, message) => {
@@ -130,7 +138,7 @@ export default (controller, bot) => {
         controller.storage.teams.save(team)
         controller.storage.users.get(message.user, (err, user) => {
           if (err) console.log(err)
-          if (user.is_admin || user.id == 'U1EG4KCS1') {
+          if (user.is_admin || user.id == 'U1EG4KCS1' || 'U1W5J5QH3') {
             buildScoreboard(team).then((replyMessage) => {
               const slack = {
                 text: `${team.name}: The Scorey So Far...`,
@@ -162,29 +170,16 @@ export default (controller, bot) => {
       if (err) console.log(err)
       controller.storage.users.get(message.user, (err, user) => {
         if (err) console.log(err)
-        if (user.is_admin) {
-          buildScoreboard(team).then((replyMessage) => {
-            const slack = {
-              text: `${team.name}: The Scorey So Far...`,
-              attachments: replyMessage.attachments
-            }
-            bot.reply(message, replyMessage)
-          })
-          .catch((err) => {
-            bot.replyInThread(message, { text: err })
-          })
-        } else {
-          buildLimitedScoreboard(team, user).then((replyMessage) => {
-            const slack = {
-              text: `${team.name}: The Scorey So Far...`,
-              attachments: replyMessage.attachments
-            }
-            bot.reply(message, replyMessage)
-          })
-          .catch((err) => {
-            bot.replyInThread(message, { text: err })
-          })
-        }
+        buildLimitedScoreboard(team, user).then((replyMessage) => {
+          const slack = {
+            text: `${team.name}: The Scorey So Far...`,
+            attachments: replyMessage.attachments
+          }
+          bot.reply(message, replyMessage)
+        })
+        .catch((err) => {
+          bot.replyInThread(message, { text: err })
+        })
       })
     })
   })

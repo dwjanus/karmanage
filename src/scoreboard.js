@@ -39,8 +39,8 @@ const dbScoreboard = (teamId) => {
 const buildScoreboard = (team) => {
   return new Promise((resolve, reject) => {
     console.log(`\n... building scoreboard for team ${team.id}...`)
-    const leaders = _.slice(team.scoreboard, 0, 5)
-    const losers = _.slice(team.scoreboard, 5, team.scoreboard.length)
+    const leaders = _.slice(team.scoreboard, 0, 3)
+    const losers = _.slice(team.scoreboard, 3, team.scoreboard.length)
     return Promise.join(buildLeaderboard(leaders), buildLoserboard(losers), (leaderboard, loserboard) => {
       if (loserboard.attachments) leaderboard.attachments = leaderboard.attachments.concat(loserboard.attachments)
       return resolve(leaderboard)
@@ -59,11 +59,26 @@ const buildLimitedScoreboard = (team, user) => {
     storage.scores.get(team.id, (err, scores) => {
       if (err) return reject(err)
       const found = _.findIndex(scores.ordered, (o) => { return o.user_id == user.id })
-      const start = found >= 2 ? found - 2 : 0
+      if (scores.ordered[found].rank_index <= 2) {
+        return buildScoreboard(team).then((scoreboard) => {
+          return resolve(scoreboard)
+        })
+        .catch((err) => {
+          if (err) reject(err)
+        })
+      }
+
+      const start = found >= 5 ? found - 2 : 3
       const end = found + 3 <= scores.ordered.length ? found + 3 : scores.ordered.length
       const nearbyScores = _.slice(scores.ordered, start, end)
-      return buildNearby(nearbyScores, user).then((nearbyboard) => {
-        return resolve(nearbyboard)
+      const leaders = _.slice(team.scoreboard, 0, 3)
+      console.log(`--> [scoreboard] buildLimitedScoreboard\n----> start: ${start}  end: ${end}`)
+      console.log(`----> nearbyScores: ${util.inspect(nearbyScores)}\n----> leaders: ${util.inspect(leaders)}`)
+      return Promise.join(buildLeaderboard(leaders), buildNearby(nearbyScores, user), (leaderboard, nearbyboard) => {
+        console.log(`--> got leaderboard!\n${util.inspect(leaderboard)}\n--> got nearby!\n${util.inspect(nearbyboard)}`)
+        leaderboard.attachments = leaderboard.attachments.concat(nearbyboard.attachments)
+        console.log(`\n--> final leaderboard:\n${util.inspect(leaderboard)}`)
+        return resolve(leaderboard)
       })
       .catch((err) => {
         if (err) reject(err)
@@ -107,9 +122,9 @@ const buildLeaderboard = (leaderArray) => {
   const colors = [
     '#D5BF37',
     '#E5E4E2',
-    '#CD7F32',
-    '#CF5300',
-    '#952A2A'
+    '#CD7F32'
+    // '#CF5300',
+    // '#952A2A'
   ]
   return new Promise((resolve, reject) => {
     if (!leaderArray) reject(new Error('invalid leader array'))
@@ -129,7 +144,7 @@ const buildLoserboard = (loserArray) => {
   return new Promise((resolve, reject) => {
     let output = { attachments: [] }
     if (!loserArray || _.isEmpty(loserArray)) resolve(output)
-    for (let i = 5; i < loserArray.length; i++) { // i was initially = 6 (?)
+    for (let i = 3; i < loserArray.length; i++) { // i was initially = 6 (?)
       output.attachments.push({ text: `${i + 1}: `, color: '#0067B3' })
       for (let s of loserArray[i].scores) {
         if (s === loserArray[i].scores) output.attachments[i].text += `${s.name} - ${s.karma}\n`

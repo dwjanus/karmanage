@@ -1,5 +1,6 @@
 
 import http from 'http'
+import path from 'path'
 import Botkit from 'botkit'
 import util from 'util'
 import _ from 'lodash'
@@ -25,7 +26,7 @@ const controller = Botkit.slackbot({
 }).configureSlackApp({
   clientId: config('SLACK_CLIENT_ID'),
   clientSecret: config('SLACK_CLIENT_SECRET'),
-  scopes: ['bot', 'incoming-webhook', 'commands']
+  scopes: ['bot', 'commands']
 })
 
 /*************************************************************************************************/
@@ -35,15 +36,12 @@ controller.setupWebserver(port, (err, webserver) => {
   controller.createWebhookEndpoints(controller.webserver)
   controller.createOauthEndpoints(controller.webserver, (err, req, res) => {
     if (err) res.status(500).send(`ERROR: ${err}`)
-    else res.redirect('https://karmanage.herokuapp.com/success')
+    else res.redirect('https://karmanage-stage.herokuapp.com/success')
   })
 
   webserver.get('/', (req, res) => {
-    res.send('<a href="https://slack.com/oauth/authorize?scope=incoming-webhook,' +
-      'commands,bot&client_id=64177576980.117306046992"><img alt="Add to Slack" ' +
-      'height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" ' +
-      'srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x,' +
-      'https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>')
+    // res.send('<a href="https://slack.com/oauth/authorize?&client_id=64177576980.171646816545&scope=bot,commands"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>')
+    res.sendFile('/index.html')
   })
 
   webserver.get('/success', (req, res) => {
@@ -170,5 +168,5 @@ const buildscores = (teamId) => {
 
 // Simple hack to ping server every 5min and keep app running
 setInterval(() => {
-  http.get('http://karmanage.herokuapp.com')
+  http.get('http://karmanage-stage.herokuapp.com')
 }, 300000)
