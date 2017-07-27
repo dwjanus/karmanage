@@ -188,6 +188,7 @@ export default (controller, bot) => {
   controller.hears([':\\+1:', '\\+\\+', '\\+1'], ['ambient', 'direct_mention', 'direct_message'], (bot, message) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
+      console.log(`rawids:\n${util.inspect(rawIds)}`)
       processUsers(rawIds).then(ids => {
         for (let i in ids) {
           if (ids[i] !== message.user) {
