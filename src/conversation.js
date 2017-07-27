@@ -190,15 +190,17 @@ export default (controller, bot) => {
     if (rawIds.length > 0) {
       console.log(`rawids:\n${util.inspect(rawIds)}`)
       processUsers(rawIds).then(ids => {
-        for (let i in ids) {
-          if (ids[i] !== message.user) {
-            controller.storage.users.get(ids[i], (err, user) => {
+        let counts = {}
+        ids.forEach((x) => { counts[x] = (counts[x] || 0) + 1})
+        _.forEach(counts, (value, key) => {
+          if (key !== message.user) {
+            controller.storage.users.get(key, (err, user) => {
               if (err) console.log(err)
-              addKarma(user)
-              console.log(`----> + karma assigned to ${ids[i]}`)
+              addKarma(user, value)
+              console.log(`----> + ${value} karma assigned to ${key}`)
             })
           }
-        }
+        })
       })
       .catch((err) => {
         console.log(err)
@@ -211,15 +213,17 @@ export default (controller, bot) => {
     const rawIds = _.map(message.text.match(/<@([A-Z0-9])+>/igm))
     if (rawIds.length > 0) {
       processUsers(rawIds).then(ids => {
-        for (let i in ids) {
-          if (ids[i] !== message.user) {
-            controller.storage.users.get(ids[i], (err, user) => {
+        let counts = {}
+        ids.forEach((x) => { counts[x] = (counts[x] || 0) + 1})
+        _.forEach(counts, (value, key) => {
+          if (key !== message.user) {
+            controller.storage.users.get(key, (err, user) => {
               if (err) console.log(err)
-              subtractKarma(user)
-              console.log(`----> - karma assigned to ${ids[i]}`)
+              subtractKarma(user, value)
+              console.log(`----> + ${value} karma assigned to ${key}`)
             })
           }
-        }
+        })
       })
       .catch((err) => {
         console.log(err)

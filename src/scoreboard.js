@@ -106,15 +106,15 @@ const updateScores = (user) => {
   })
 }
 
-const addKarma = (user) => {
-  user.karma = _.toInteger(user.karma) + 1
+const addKarma = (user, amount) => {
+  user.karma = _.toInteger(user.karma) + amount
   storage.users.save(user)
   updateScores(user)
   console.log(`[scoreboard] user ${user.id} saved with new karma of ${user.karma}`)
 }
 
-const subtractKarma = (user) => {
-  user.karma = _.toInteger(user.karma) - 1
+const subtractKarma = (user, amount) => {
+  user.karma = _.toInteger(user.karma) - amount
   storage.users.save(user)
   updateScores(user)
   console.log(`[scoreboard] user ${user.id} saved with new karma of ${user.karma} - updating now...`)
@@ -125,8 +125,6 @@ const buildLeaderboard = (leaderArray) => {
     '#D5BF37',
     '#E5E4E2',
     '#CD7F32'
-    // '#CF5300',
-    // '#952A2A'
   ]
   return new Promise((resolve, reject) => {
     if (!leaderArray) reject(new Error('invalid leader array'))
