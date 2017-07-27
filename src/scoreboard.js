@@ -72,6 +72,7 @@ const buildLimitedScoreboard = (team, user) => {
       const start = user_index >= 5 ? user_index - 2 : 3
       const end = start + 3 <= team.scoreboard.length ? start + 3 : team.scoreboard.length
       const nearbyScores = _.slice(team.scoreboard, start, end)
+      user_index = user_index - start // create adjusted user index based on starting point in array
       const leaders = _.slice(team.scoreboard, 0, 3)
       console.log(`--> [scoreboard] buildLimitedScoreboard\n----> start: ${start}  end: ${end}`)
       console.log(`----> nearbyScores: ${util.inspect(nearbyScores)}\n----> leaders: ${util.inspect(leaders)}`)
