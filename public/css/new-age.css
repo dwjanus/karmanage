@@ -60,7 +60,7 @@ p {
   margin-bottom: 20px;
 }
 .navbar-default {
-  background-color: rgba(35, 35, 35, 0.5);
+  background-color: rgba(38, 38, 38, 0.5);
   border-color: rgba(34, 34, 34, 0.05);
   -webkit-transition: all 0.35s;
   -moz-transition: all 0.35s;
@@ -128,7 +128,7 @@ p {
     color: white;
   }
   .navbar-default.affix {
-    background-color: #222222;
+    background-color: rgba(38, 38, 38, 0.5);
     border-color: rgba(34, 34, 34, 0.1);
   }
   .navbar-default.affix .navbar-header .navbar-brand {
