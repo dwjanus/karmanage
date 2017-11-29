@@ -7,12 +7,6 @@ import monk from 'monk'
  * @return {Object} A storage object conforming to the Botkit storage interface
  */
 module.exports = function(config) {
-    /**
-     * Example mongoUri is:
-     * 'mongodb://test:test@ds037145.mongolab.com:37145/slack-bot-test'
-     * or
-     * 'localhost/mydb,192.168.1.1'
-     */
     if (!config || !config.mongoUri) {
         throw new Error('Need to provide mongo address.')
     }

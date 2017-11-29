@@ -27,16 +27,20 @@ const ordinal_suffix_of = (i) => {
     return i + "th"
 }
 
+const validUser = (member) => {
+  if (!member.profile.bot_id && !member.deleted &&
+    !member.is_bot && (member.real_name != '' || ' ' || null || undefined)
+    && (member.name != '' || ' ' || null || undefined)) return true
+  return false
+}
+
 export default (controller, bot) => {
   const buildUserArray = (bot) => {
     bot.api.users.list({}, (err, response) => { // can we make this easier by passing the team id as a filter?
       if (err) console.log(err)
       if (response.hasOwnProperty('members') && response.ok) {
-        for (let i = 0; i < response.members.length; i++) {
-          let member = response.members[i]
-          if (!member.profile.bot_id && !member.deleted &&
-          !member.is_bot && (member.real_name != '' || ' ' || null || undefined)
-          && (member.name != '' || ' ' || null || undefined)) {
+        _.map(response.members, (member) => {
+          if(validUser(member)) {
             if (member.real_name.length > 1 && member.name !== 'slackbot') {
               const newMember = {
                 id: member.id,
@@ -47,16 +51,17 @@ export default (controller, bot) => {
                 karma: 0,
                 is_admin: member.is_admin
               }
-              controller.storage.users.get(member.id, (err, user) => {
-                if (err) console.log(err)
-                if (user && (user.karma !== null)) newMember.karma = user.karma
-                else console.log('user not found in db')
-                controller.storage.users.save(newMember)
-                console.log(`${newMember.fullName} saved`)
-              })
             }
+
+            controller.storage.users.get(member.id, (err, user) => {
+              if (err) console.log(err)
+              if (user && (user.karma !== null)) newMember.karma = user.karma
+              else console.log('user not found in db')
+              controller.storage.users.save(newMember)
+              console.log(`${newMember.fullName} saved`)
+            })
           }
-        }
+        })
       }
     })
   }
@@ -249,6 +254,7 @@ export default (controller, bot) => {
         bot.replyPrivate(message, `You are currently in ${place} with ${found.karma} karma`)
       })
     }
+
     if (message.command === '/scoreboard') {
       controller.storage.teams.get(message.team_id, (err, team) => {
         if (err) console.log(err)

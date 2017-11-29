@@ -40,7 +40,6 @@ controller.setupWebserver(port, (err, webserver) => {
   })
 
   webserver.get('/', (req, res) => {
-    // res.send('<a href="https://slack.com/oauth/authorize?&client_id=64177576980.171646816545&scope=bot,commands"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>')
     res.sendFile('/index.html')
   })
 
@@ -62,9 +61,8 @@ function trackConvo (bot, convo) {
 // quick greeting/create convo on new bot creation
 controller.on('create_bot', (bot, botConfig) => {
   console.log('** bot is being created **')
-  if (_bots[bot.config.token]) { // do nothing
-    console.log(`--> bot: ${bot.config.token} already exists`)
-  } else {
+  if (_bots[bot.config.token]) console.log(`--> bot: ${bot.config.token} found`)
+  else {
     bot.startRTM((err) => {
       if (!err) {
         if (_convos[bot.config.token]) {
@@ -78,9 +76,8 @@ controller.on('create_bot', (bot, botConfig) => {
         }
       }
       bot.startPrivateConversation({ user: botConfig.createdBy }, (error, convo) => {
-        if (error) {
-          console.log(error)
-        } else {
+        if (error) console.log(error)
+        else {
           convo.say('Howdy! I am the bot that you just added to your team.')
           convo.say('All you gotta do is send me messages now')
         }
